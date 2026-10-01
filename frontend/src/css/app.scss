@@ -1,0 +1,710 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Global Design System - Enterprise Transportation Management System (MUI & shadcn quality)
+@import './tokens.css';
+
+body {
+  font-family: var(--tms-font-sans);
+  background-color: var(--tms-bg);
+  color: var(--tms-text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Enterprise Typography Standard Scale (MUI & shadcn standards)
+h1:not(.hero-title) {
+  font-size: 1.35rem !important;
+  line-height: 1.3 !important;
+  font-weight: 700 !important;
+  color: var(--tms-text-primary);
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.15rem !important;
+  line-height: 1.35 !important;
+  font-weight: 600 !important;
+  color: var(--tms-text-primary);
+  margin: 0;
+}
+
+h3 {
+  font-size: 1rem !important;
+  line-height: 1.4 !important;
+  font-weight: 600 !important;
+  color: var(--tms-text-primary);
+  margin: 0;
+}
+
+h4 {
+  font-size: 0.875rem !important;
+  line-height: 1.45 !important;
+  font-weight: 600 !important;
+  color: var(--tms-text-primary);
+  margin: 0;
+}
+
+// Enterprise Surface / Card (Muted, Calm, Minimal)
+.tms-card {
+  background: var(--tms-surface);
+  border: 1px solid var(--tms-border);
+  border-radius: var(--tms-radius-md);
+  box-shadow: var(--tms-shadow-1);
+  transition: border-color var(--tms-transition-fast), box-shadow var(--tms-transition-fast);
+}
+
+.tms-card-hover:hover {
+  border-color: #cbd5e1;
+  box-shadow: var(--tms-shadow-2);
+}
+
+// Flat surface container (for sections without borders)
+.tms-surface-section {
+  background: var(--tms-surface);
+  border-radius: var(--tms-radius-md);
+}
+
+// Top Header
+.tms-header {
+  background: var(--tms-surface);
+  border-bottom: 1px solid var(--tms-border);
+  color: var(--tms-text-primary);
+  height: var(--tms-header-height);
+  box-shadow: none !important;
+}
+
+// Sidebar Shell
+.tms-sidebar {
+  background: var(--tms-surface);
+  border-right: 1px solid var(--tms-border);
+}
+
+// Modern Enterprise Navigation Item (Subtle, calm, 2-3px left indicator, NO heavy black block)
+.tms-nav-item {
+  position: relative;
+  color: var(--tms-text-secondary);
+  font-weight: 500;
+  font-size: 0.8125rem; // 13px
+  border-radius: var(--tms-radius-sm);
+  margin: 1px 8px;
+  min-height: 38px;
+  padding: 6px 10px;
+  transition: all var(--tms-transition-fast);
+
+  .q-icon {
+    color: var(--tms-text-muted);
+    transition: color var(--tms-transition-fast);
+  }
+
+  &:hover {
+    background-color: var(--tms-surface-hover);
+    color: var(--tms-text-primary);
+
+    .q-icon {
+      color: var(--tms-text-secondary);
+    }
+  }
+
+  // Active state: subtle tinted background with 3px left accent indicator
+  &.q-router-link--active, &.tms-nav-item--active {
+    background-color: var(--tms-primary-light) !important;
+    color: var(--tms-primary) !important;
+    font-weight: 600;
+
+    .q-icon {
+      color: var(--tms-primary) !important;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      bottom: 6px;
+      width: 3px;
+      background-color: var(--tms-primary);
+      border-radius: 0 2px 2px 0;
+    }
+  }
+}
+
+// Subitem for expansion groups
+.tms-nav-subitem {
+  color: var(--tms-text-secondary);
+  font-size: 0.8125rem;
+  border-radius: var(--tms-radius-sm);
+  margin: 1px 8px 1px 24px;
+  min-height: 34px;
+  padding: 4px 10px;
+  transition: all var(--tms-transition-fast);
+
+  &:hover {
+    background-color: var(--tms-surface-hover);
+    color: var(--tms-text-primary);
+  }
+
+  &.q-router-link--active {
+    background-color: var(--tms-primary-light) !important;
+    color: var(--tms-primary) !important;
+    font-weight: 600;
+  }
+}
+
+// Clean Enterprise Data Grid / Table
+.tms-table {
+  background: var(--tms-surface);
+  border: 1px solid var(--tms-border);
+  border-radius: var(--tms-radius-md);
+  box-shadow: var(--tms-shadow-1);
+
+  .q-table__top {
+    border-bottom: 1px solid var(--tms-border);
+    padding: 12px 16px;
+  }
+
+  thead tr {
+    height: 40px;
+    background-color: var(--tms-surface-subtle);
+  }
+
+  th {
+    font-size: 0.6875rem; // 11px
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tms-text-secondary);
+    border-bottom: 1px solid var(--tms-border);
+    padding: 8px 14px;
+  }
+
+  tbody tr {
+    height: 50px;
+    transition: background-color var(--tms-transition-fast);
+
+    &:hover {
+      background-color: var(--tms-surface-subtle);
+    }
+
+    td {
+      font-size: 0.8125rem; // 13px
+      color: var(--tms-text-primary);
+      border-bottom: 1px solid var(--tms-border-subtle);
+      padding: 8px 14px;
+    }
+  }
+
+  .q-table__bottom {
+    border-top: 1px solid var(--tms-border);
+    font-size: 0.75rem;
+    color: var(--tms-text-secondary);
+  }
+}
+
+// Monospace Code / ID Badges
+.font-mono {
+  font-family: var(--tms-font-mono);
+}
+
+.tms-code-badge {
+  font-family: var(--tms-font-mono);
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: var(--tms-radius-sm);
+  background-color: var(--tms-surface-hover);
+  color: #334155;
+  border: 1px solid var(--tms-border);
+  font-weight: 500;
+}
+
+// Clean Compact Search Bar
+.tms-search-input {
+  .q-field__control {
+    height: 38px;
+    border-radius: var(--tms-radius-sm);
+    background: var(--tms-surface-subtle);
+    border: 1px solid var(--tms-border);
+    transition: all var(--tms-transition-fast);
+
+    &:hover {
+      border-color: #cbd5e1;
+      background: var(--tms-surface);
+    }
+
+    &.q-field__control--focused {
+      border-color: var(--tms-primary);
+      background: var(--tms-surface);
+      box-shadow: 0 0 0 2px var(--tms-primary-light);
+    }
+  }
+
+  &.q-field--focused .q-field__control,
+  &:focus-within .q-field__control {
+    border-color: var(--tms-primary);
+    background: var(--tms-surface);
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+  }
+}
+
+// Enterprise KPI Card Styling
+.tms-kpi-card {
+  background: var(--tms-surface);
+  border: 1px solid var(--tms-border);
+  border-radius: var(--tms-radius-md);
+  padding: 18px 20px;
+  box-shadow: var(--tms-shadow-1);
+  transition: all var(--tms-transition-fast);
+
+  &:hover {
+    border-color: #cbd5e1;
+  }
+}
+
+// Clean Scrollbars
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #070c18;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00f2fe;
+}
+
+// Quasar Layout Full Dark Cyber Theme Overrides
+.q-layout, .q-page-container, .q-page {
+  background-color: #070c18 !important;
+  color: #ffffff !important;
+}
+
+// Global Quasar Dropdown & Menu Dark Aesthetic
+.q-menu {
+  background: #0d172b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+
+  .q-item {
+    color: #94a3b8;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: rgba(0, 242, 254, 0.1) !important;
+      color: #00f2fe !important;
+    }
+
+    &.q-item--active {
+      background: rgba(0, 242, 254, 0.18) !important;
+      color: #00f2fe !important;
+      font-weight: 600;
+    }
+  }
+
+  .q-separator {
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+}
+
+// Global Quasar Dialog Styling
+.q-dialog__inner > .q-card {
+  background: #0d172b !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
+}
+
+// Global Quasar Outlined Inputs & Focus Styling matching Image 2
+.q-field--outlined.q-field--dark,
+.q-field--outlined {
+  .q-field__control {
+    background: #0d172b !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 8px !important;
+    padding: 0 10px !important;
+    transition: all 0.15s ease;
+
+    &:hover {
+      border-color: rgba(0, 242, 254, 0.4) !important;
+    }
+  }
+
+  // Eliminate Quasar pseudo-borders completely
+  .q-field__control:before,
+  .q-field__control:after {
+    display: none !important;
+    border: none !important;
+    content: none !important;
+  }
+
+  &.q-field--focused .q-field__control,
+  &:focus-within .q-field__control {
+    border: 1.5px solid #00f2fe !important;
+    border-color: #00f2fe !important;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.25) !important;
+    outline: none !important;
+  }
+
+  .q-field__native,
+  .q-field__input,
+  input {
+    outline: none !important;
+    outline-offset: 0 !important;
+    box-shadow: none !important;
+    padding-left: 0 !important;
+  }
+}
+
+// Global Cyber Input for legacy inputs: Normal 10-12px padding (no 2.2rem gap)
+.cyber-input {
+  width: 100%;
+  background: #0d172b !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  padding: 0.55rem 0.75rem !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+  outline: none !important;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: rgba(0, 242, 254, 0.4) !important;
+  }
+
+  &:focus,
+  &:focus-visible {
+    border: 1.5px solid #00f2fe !important;
+    border-color: #00f2fe !important;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.25) !important;
+    outline: none !important;
+    outline-offset: 0 !important;
+  }
+}
+
+.search-input-wrap .cyber-input {
+  padding-left: 2.2rem !important;
+}
+
+// Enterprise Cyber Search Input with proper Cancel / Close icon
+.desk-search-input {
+  width: 320px;
+  max-width: 100%;
+
+  .q-field__control {
+    height: 38px !important;
+    min-height: 38px !important;
+    background: #0d172b !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 8px !important;
+    padding: 0 10px !important;
+    transition: all 0.15s ease;
+  }
+
+  .q-field__control:before,
+  .q-field__control:after {
+    display: none !important;
+    border: none !important;
+    content: none !important;
+  }
+
+  &.q-field--focused .q-field__control,
+  &:focus-within .q-field__control {
+    border: 1.5px solid #00f2fe !important;
+    border-color: #00f2fe !important;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.25) !important;
+    outline: none !important;
+  }
+
+  .q-field__native,
+  input {
+    color: #ffffff !important;
+    font-size: 0.85rem !important;
+    outline: none !important;
+    padding-left: 0 !important;
+  }
+
+  .q-field__marginal {
+    height: 38px !important;
+  }
+
+  .q-icon {
+    transition: color 0.15s ease;
+  }
+}
+
+// Global Cyber-Luxe Card & Panel Utilities
+.cyber-card {
+  background: #0d1527 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+  color: #f1f5f9;
+}
+
+.ticket-item {
+  background: #111a33 !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 6px !important;
+  color: #f1f5f9;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(0, 242, 254, 0.3) !important;
+    background: #14203e !important;
+  }
+}
+
+.quick-nav-panel {
+  background: #0d1527 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #00f2fe !important;
+    box-shadow: 0 4px 14px rgba(0, 242, 254, 0.15) !important;
+  }
+}
+
+// Enterprise Cyber-Luxe Action Button Standard (Pixel-Perfect Alignment)
+.desk-btn-secondary {
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #e2e8f0 !important;
+  transition: all 0.15s ease !important;
+
+  .q-icon {
+    font-size: 16px !important;
+    margin-right: 6px !important;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.09) !important;
+    border-color: rgba(0, 242, 254, 0.5) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.2) !important;
+  }
+}
+
+.desk-btn-primary {
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 14px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  border-radius: 6px !important;
+  background: linear-gradient(135deg, #00f2fe 0%, #0284c7 100%) !important;
+  border: 1px solid rgba(0, 242, 254, 0.6) !important;
+  color: #070c18 !important;
+  box-shadow: 0 2px 10px rgba(0, 242, 254, 0.3) !important;
+  transition: all 0.15s ease !important;
+
+  .q-icon {
+    font-size: 17px !important;
+    margin-right: 6px !important;
+    color: #070c18 !important;
+  }
+
+  &:hover {
+    filter: brightness(1.1) !important;
+    box-shadow: 0 4px 18px rgba(0, 242, 254, 0.5) !important;
+    transform: translateY(-1px);
+  }
+}
+
+/* ==========================================================================
+   GLOBAL CENTERED EMPTY / NO-DATA STATE FOR ALL QUASAR & CYBER TABLES (IMAGE 2 FIX)
+   ========================================================================== */
+.q-table__nodata {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+  min-height: 220px !important;
+  padding: 48px 24px !important;
+  color: #94a3b8 !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+
+  .q-icon {
+    font-size: 42px !important;
+    color: #64748b !important;
+    margin-bottom: 12px !important;
+    margin-right: 0 !important;
+  }
+}
+
+.desk-grid-refresh-btn {
+  color: #94a3b8 !important;
+  transition: all 0.15s ease !important;
+
+  &:hover {
+    color: #00f2fe !important;
+  }
+}
+
+/* ==========================================================================
+   GLOBAL CYBER DARK DATE INPUT STYLING (PROPER ALIGNMENT & WHITE CALENDAR ICON)
+   ========================================================================== */
+input[type="date"],
+.q-field input[type="date"] {
+  color-scheme: dark !important;
+  width: 100% !important;
+  color: #ffffff !important;
+  font-family: inherit;
+  cursor: pointer;
+  position: relative !important;
+  padding-right: 28px !important;
+}
+
+input[type="date"]::-webkit-datetime-edit,
+.q-field input[type="date"]::-webkit-datetime-edit {
+  color: #f8fafc !important;
+  font-family: inherit;
+  font-weight: 500;
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+.q-field input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-text,
+.q-field input[type="date"]::-webkit-datetime-edit-text {
+  color: #64748b !important;
+  padding: 0 2px;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field,
+.q-field input[type="date"]::-webkit-datetime-edit-month-field,
+.q-field input[type="date"]::-webkit-datetime-edit-day-field,
+.q-field input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #ffffff !important;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus,
+.q-field input[type="date"]::-webkit-datetime-edit-month-field:focus,
+.q-field input[type="date"]::-webkit-datetime-edit-day-field:focus,
+.q-field input[type="date"]::-webkit-datetime-edit-year-field:focus {
+  background: rgba(0, 242, 254, 0.3) !important;
+  color: #00f2fe !important;
+  outline: none;
+  border-radius: 2px;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+.q-field input[type="date"]::-webkit-inner-spin-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+.q-field input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute !important;
+  right: 8px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+  padding: 2px !important;
+  width: 18px !important;
+  height: 18px !important;
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.95 !important;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.q-field input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1 !important;
+  transform: translateY(-50%) scale(1.15) !important;
+  filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(0, 242, 254, 0.9)) !important;
+}
+
+/* Global Cyber Card Design */
+.cyber-card {
+  background: #0d172b !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cyber-card:hover {
+  border-color: rgba(0, 242, 254, 0.25) !important;
+}
+
+/* Global Cyber Modal Dialog Design (Deep Black Elevation, Never White Shadow) */
+.cyber-modal {
+  background: #0d172b !important;
+  border: 1px solid #1a2744 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+  color: #f1f5f9;
+  overflow: hidden;
+}
+
+/* Suppress Quasar's default white box-shadows in dark mode */
+body.body--dark,
+.body--dark {
+  .shadow-24,
+  .shadow-23,
+  .shadow-22,
+  .shadow-21,
+  .shadow-20,
+  .shadow-19,
+  .shadow-18,
+  .shadow-17,
+  .shadow-16,
+  .shadow-15,
+  .shadow-14,
+  .shadow-13,
+  .shadow-12,
+  .shadow-11,
+  .shadow-10,
+  .shadow-9,
+  .shadow-8,
+  .shadow-7,
+  .shadow-6,
+  .shadow-5,
+  .shadow-4,
+  .shadow-3,
+  .shadow-2,
+  .shadow-1 {
+    box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  }
+}
+
+
+

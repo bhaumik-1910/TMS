@@ -1,0 +1,453 @@
+/* ==========================================================================
+   DESK GRID STYLES (Cyber-Dark High-Density Logistics Keyboard Grid)
+   ========================================================================== */
+
+.desk-grid {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background-color: #0d172b;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  font-family: var(--tms-font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  font-size: 13px;
+  position: relative;
+  outline: none;
+  overflow: hidden;
+}
+
+/* Quasar QTable Density Overrides */
+.desk-grid .q-table__container {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.desk-grid .q-table thead tr {
+  height: 44px !important;
+}
+
+.desk-grid .q-table tbody tr {
+  height: 50px !important;
+  transition: background-color 0.15s ease;
+}
+
+/* Zero Vertical Borders & Clean Cell Styling matching Image 1 */
+.desk-grid .q-table,
+.desk-grid .q-table__middle,
+.desk-grid .q-table__middle table,
+.desk-grid .q-table thead,
+.desk-grid .q-table tbody,
+.desk-grid .q-table tr,
+.desk-grid .q-table th,
+.desk-grid .q-table td {
+  border-left: none !important;
+  border-right: none !important;
+  border-left-width: 0 !important;
+  border-right-width: 0 !important;
+}
+
+.desk-grid .q-table--cell-separator th,
+.desk-grid .q-table--cell-separator td,
+.desk-grid .q-table--vertical-separator th,
+.desk-grid .q-table--vertical-separator td {
+  border-left: none !important;
+  border-right: none !important;
+  border-left-width: 0 !important;
+  border-right-width: 0 !important;
+}
+
+.desk-grid .q-table th:before,
+.desk-grid .q-table th:after,
+.desk-grid .q-table td:before,
+.desk-grid .q-table td:after {
+  display: none !important;
+  content: none !important;
+}
+
+.desk-grid .q-table th {
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #00f2fe !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  padding: 12px 16px !important;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.desk-grid .q-table td {
+  font-size: 0.82rem !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  color: #cbd5e1 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+}
+
+/* Clean Row Hover matching Image 1 */
+.desk-grid .q-table tbody tr:hover td {
+  background-color: rgba(255, 255, 255, 0.025) !important;
+}
+
+.desk-grid .q-table tbody tr.desk-row-selected td {
+  background-color: rgba(0, 242, 254, 0.08) !important;
+}
+
+.desk-grid .q-table tbody tr.desk-row-active {
+  background-color: transparent !important;
+}
+
+.desk-grid td.desk-cell-focused {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Numeric & Monospace alignment */
+.desk-grid td.desk-col-num,
+.desk-grid th.desk-col-num {
+  text-align: right;
+  font-family: var(--tms-font-mono, "JetBrains Mono", monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+.desk-grid td.desk-col-code {
+  font-family: var(--tms-font-mono, "JetBrains Mono", monospace);
+  font-weight: 600;
+  color: #00f2fe;
+}
+
+.desk-grid td.desk-col-center,
+.desk-grid th.desk-col-center {
+  text-align: center;
+}
+
+/* Grid Action Bar & Pagination */
+.desk-grid-toolbar {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #0d172b;
+  min-height: 48px;
+}
+
+.desk-grid-footer {
+  padding: 6px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #090f1d;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* Quick Filter Input in Table Toolbar */
+.desk-grid-search {
+  min-width: 220px;
+  max-width: 260px;
+}
+
+.desk-filter-select {
+  min-width: 140px;
+}
+
+.desk-grid-search .q-field__control,
+.desk-filter-select .q-field__control {
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 10px !important;
+  background: #090f1d !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+}
+
+/* Remove Quasar default pseudo borders to prevent double/distorted borders */
+.desk-grid-search .q-field__control:before,
+.desk-grid-search .q-field__control:after,
+.desk-filter-select .q-field__control:before,
+.desk-filter-select .q-field__control:after {
+  display: none !important;
+}
+
+.desk-grid-search .q-field__control:hover,
+.desk-filter-select .q-field__control:hover {
+  border-color: rgba(0, 242, 254, 0.4) !important;
+  background: #0d1527 !important;
+}
+
+.desk-grid-search .q-field__control--focused,
+.desk-filter-select .q-field__control--focused {
+  border-color: #00f2fe !important;
+  background: #0d1527 !important;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25) !important;
+}
+
+.desk-grid-search .q-field__marginal,
+.desk-filter-select .q-field__marginal {
+  height: 32px !important;
+  min-height: 32px !important;
+}
+
+.desk-grid-search .q-field__native,
+.desk-filter-select .q-field__native {
+  color: #ffffff !important;
+  font-size: 12px !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.desk-grid-search input::placeholder {
+  color: #64748b !important;
+  font-size: 12px !important;
+}
+
+.desk-filter-select .q-icon {
+  color: #00f2fe !important;
+  font-size: 16px !important;
+  transition: transform 0.2s ease !important;
+}
+
+.desk-filter-select.q-field--expanded .q-icon {
+  transform: rotate(180deg) !important;
+}
+
+/* Cyber-Dark Modal Form Input with Left Prepend Icon */
+.desk-form-input .q-field__control {
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 12px !important;
+  background: #090f1d !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.desk-form-input .q-field__control:before,
+.desk-form-input .q-field__control:after {
+  display: none !important;
+}
+
+.desk-form-input .q-field__control:hover {
+  border-color: rgba(0, 242, 254, 0.45) !important;
+  background: #0d172b !important;
+}
+
+.desk-form-input .q-field__control--focused {
+  border-color: #00f2fe !important;
+  background: #0d172b !important;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.25) !important;
+}
+
+.desk-form-input .q-field__marginal {
+  height: 42px !important;
+  min-height: 42px !important;
+}
+
+.desk-form-input .q-field__native {
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 !important;
+}
+
+.desk-form-input input::placeholder {
+  color: #64748b !important;
+  font-size: 13px !important;
+}
+
+.desk-form-input .q-icon {
+  color: #00f2fe !important;
+  font-size: 18px !important;
+}
+
+/* Sleek Refresh Button on Toolbar */
+.desk-grid-refresh-btn {
+  height: 32px !important;
+  width: 32px !important;
+  min-height: 32px !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #94a3b8 !important;
+  transition: all 0.15s ease !important;
+}
+
+.desk-grid-refresh-btn:hover {
+  background: rgba(0, 242, 254, 0.1) !important;
+  border-color: #00f2fe !important;
+  color: #00f2fe !important;
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.25) !important;
+}
+
+/* Cell Status Pill (Dark Cyber Badges) */
+.desk-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 14px;
+}
+
+.desk-pill-draft {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.desk-pill-pending {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+.desk-pill-active {
+  background: rgba(0, 242, 254, 0.15);
+  color: #00f2fe;
+  border: 1px solid rgba(0, 242, 254, 0.4);
+}
+
+.desk-pill-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.desk-pill-warning {
+  background: rgba(249, 115, 22, 0.15);
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+}
+
+.desk-pill-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+/* Image 2 Matching Action Button */
+.btn-table-action {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  padding: 0.28rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.btn-table-action:hover {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: #00f2fe;
+  color: #00f2fe;
+}
+
+.btn-table-icon {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  height: 26px;
+  width: 26px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.btn-table-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.btn-table-icon--danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #f87171;
+}
+
+/* ==========================================================================
+   CYBER-DARK SELECT MENU POPUP (Replaces native OS dropdowns)
+   ========================================================================== */
+.desk-select-menu,
+.q-menu.q-position-engine {
+  background: #0d172b !important;
+  border: 1px solid rgba(0, 242, 254, 0.35) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85) !important;
+  padding: 4px !important;
+  color: #cbd5e1 !important;
+}
+
+.desk-select-menu .q-item,
+.q-menu.q-position-engine .q-item {
+  color: #cbd5e1 !important;
+  border-radius: 6px !important;
+  font-size: 0.82rem !important;
+  min-height: 36px !important;
+  padding: 8px 12px !important;
+  transition: all 0.15s ease !important;
+}
+
+.desk-select-menu .q-item:hover,
+.q-menu.q-position-engine .q-item:hover {
+  background: rgba(0, 242, 254, 0.12) !important;
+  color: #00f2fe !important;
+}
+
+.desk-select-menu .q-item--active,
+.desk-select-menu .q-item.q-item--selected,
+.q-menu.q-position-engine .q-item--active,
+.q-menu.q-position-engine .q-item.q-item--selected {
+  background: rgba(0, 242, 254, 0.2) !important;
+  color: #00f2fe !important;
+  font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   CENTERED TABLE EMPTY & NO-DATA STATES matching Image 2
+   ========================================================================== */
+.desk-grid .q-table__nodata,
+.q-table__nodata {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  width: 100% !important;
+  min-height: 220px !important;
+  padding: 40px 20px !important;
+  color: #94a3b8 !important;
+}
+
+.desk-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 20px;
+  width: 100%;
+}
+
+
+

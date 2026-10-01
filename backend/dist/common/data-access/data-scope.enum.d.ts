@@ -1,0 +1,11 @@
+export declare enum DataScope {
+    SYSTEM = "SYSTEM",
+    ORGANIZATION = "ORGANIZATION",
+    TEAM = "TEAM",
+    SELF = "SELF",
+    ASSIGNED = "ASSIGNED",
+    CUSTOMER = "CUSTOMER",
+    CARRIER = "CARRIER",
+    DRIVER = "DRIVER",
+    RESOURCE_OWNER = "RESOURCE_OWNER"
+}

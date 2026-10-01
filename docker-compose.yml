@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: tms-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: enterprise_tms
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: tms-redis
+    restart: always
+    ports:
+      - '6379:6379'
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tms-backend
+    restart: always
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:password123@postgres:5432/enterprise_tms?schema=public
+      JWT_ACCESS_SECRET: enterprise_tms_access_super_secret_jwt_key_2026
+      JWT_REFRESH_SECRET: enterprise_tms_refresh_super_secret_jwt_key_2026
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      CORS_ORIGIN: '*'
+      NODE_ENV: production
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tms-frontend
+    restart: always
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
