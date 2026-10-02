@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 // Global Design System - Enterprise Transportation Management System (MUI & shadcn quality)
-@import './tokens.css';
+@import './tokens';
 
 body {
   font-family: var(--tms-font-sans);
@@ -110,7 +110,8 @@ h4 {
   }
 
   // Active state: subtle tinted background with 3px left accent indicator
-  &.q-router-link--active, &.tms-nav-item--active {
+  &.q-router-link--active,
+  &.tms-nav-item--active {
     background-color: var(--tms-primary-light) !important;
     color: var(--tms-primary) !important;
     font-weight: 600;
@@ -268,19 +269,24 @@ h4 {
   width: 5px;
   height: 5px;
 }
+
 ::-webkit-scrollbar-track {
   background: #070c18;
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #00f2fe;
 }
 
 // Quasar Layout Full Dark Cyber Theme Overrides
-.q-layout, .q-page-container, .q-page {
+.q-layout,
+.q-page-container,
+.q-page {
   background-color: #070c18 !important;
   color: #ffffff !important;
 }
@@ -315,7 +321,7 @@ h4 {
 }
 
 // Global Quasar Dialog Styling
-.q-dialog__inner > .q-card {
+.q-dialog__inner>.q-card {
   background: #0d172b !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -620,10 +626,19 @@ input[type="date"]::-webkit-datetime-edit-year-field:focus,
 }
 
 input[type="date"]::-webkit-inner-spin-button,
-.q-field input[type="date"]::-webkit-inner-spin-button {
+.q-field input[type="date"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button,
+.q-field input[type="number"]::-webkit-outer-spin-button,
+.q-field input[type="number"]::-webkit-inner-spin-button {
   display: none !important;
   -webkit-appearance: none !important;
   margin: 0 !important;
+}
+
+input[type="number"],
+.q-field input[type="number"] {
+  -moz-appearance: textfield !important;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator,
@@ -678,6 +693,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover,
 /* Suppress Quasar's default white box-shadows in dark mode */
 body.body--dark,
 .body--dark {
+
   .shadow-24,
   .shadow-23,
   .shadow-22,
@@ -705,6 +721,3 @@ body.body--dark,
     box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
   }
 }
-
-
-

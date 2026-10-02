@@ -45,6 +45,36 @@ export class CustomerModel extends Model<CustomerModel> {
   @Column({ type: DataType.STRING, defaultValue: 'ACTIVE' })
   status: string;
 
+  @Column({ type: DataType.STRING, allowNull: true })
+  subType?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  branch?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  gstin?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  pan?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  tdsSection?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  creditDays?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  bankName?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  accountNo?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  ifscCode?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  creditLimitStr?: string;
+
   @CreatedAt
   createdAt: Date;
 

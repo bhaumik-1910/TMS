@@ -664,22 +664,16 @@
     </div>
 
       <!-- Inner Loading Overlay on Workspace Refresh -->
-      <q-inner-loading :showing="loading" style="background: rgba(7, 12, 24, 0.75); backdrop-filter: blur(4px); z-index: 50; border-radius: 16px;">
-        <div class="column items-center">
-          <q-spinner-dots size="56px" color="cyan" />
-          <div class="text-sm font-mono font-bold text-cyan-300 q-mt-md tracking-wider">
-            Refreshing Planning Workspace...
-          </div>
-          <div class="text-xs font-mono text-slate-400 q-mt-xs">
-            Syncing live orders and staged fleet capacity
-          </div>
-        </div>
-      </q-inner-loading>
+      <AppLoadingOverlay
+        :showing="loading"
+        title="Refreshing Planning Workspace..."
+        subtitle="Syncing live orders and staged fleet capacity"
+      />
     </div>
 
     <!-- TRIP MANIFEST APPROVAL MODAL -->
-    <q-dialog v-model="showManifestModal" persistent>
-      <q-card class="bg-[#0b1329] border border-cyan-500/40 text-white shadow-[0_0_30px_rgba(0,242,254,0.2)] rounded-2xl max-w-2xl w-full p-2">
+    <q-dialog v-model="showManifestModal" position="right" full-height>
+      <div class="bg-[#0b1329] border-l border-cyan-500/40 text-white shadow-[0_0_30px_rgba(0,242,254,0.2)] rounded-l-2xl max-w-2xl w-full h-full flex flex-col justify-between p-3">
         <q-card-section class="flex items-center justify-between pb-2 border-b border-slate-800">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
@@ -751,7 +745,7 @@
             @click="confirmDispatchPlan"
           />
         </q-card-actions>
-      </q-card>
+      </div>
     </q-dialog>
   </q-page>
 </template>

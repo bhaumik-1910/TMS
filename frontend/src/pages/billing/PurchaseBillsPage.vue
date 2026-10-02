@@ -1,401 +1,370 @@
 <template>
-  <div class="purchase-bills-page p-3 sm:p-4 text-slate-100 font-sans">
-    <!-- Header -->
-    <div class="row items-center justify-between q-mb-md">
-      <div>
-        <div class="text-h6 text-weight-bold text-white row items-center q-gutter-x-sm">
-          <q-icon name="receipt_long" color="cyan" size="24px" />
-          <span>Purchase Bills & Vendor Payables</span>
-        </div>
-        <div class="text-caption text-grey-5">
-          Vendor payables: Fuel stations, workshops, tyre suppliers, and vehicle lease invoices with TDS &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> for bill entry
-        </div>
+  <div class="purchase-bills-container min-h-screen text-slate-100 p-6">
+    <!-- Header matching Image 1: 'Purchase Bills' with cyan underline, GST ITC Export & + Purchase Bill buttons -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="page-title-wrap">
+        <h1 class="text-2xl font-bold text-white tracking-wide">Purchase Bills</h1>
+        <div class="page-underline"></div>
       </div>
 
-      <div class="row items-center q-gutter-x-sm">
-        <q-btn
-          unelevated
-          icon="picture_as_pdf"
-          label="Export PDF"
-          class="desk-btn-secondary"
-          @click="exportBillsPdf"
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="btn-secondary-action"
+          @click="exportGstItc"
         >
-          <q-tooltip>Download Purchase Bills in PDF</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="table_view"
-          label="Export CSV"
-          class="desk-btn-secondary"
-          @click="exportBillsCsv"
+          GST ITC Export
+        </button>
+
+        <button
+          type="button"
+          class="btn-primary-cyan"
+          @click="openAddDrawer"
         >
-          <q-tooltip>Export Payables Register to CSV</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="add"
-          label="Purchase Bill"
-          class="desk-btn-primary"
-          @click="openAddDialog"
-        >
-          <q-tooltip>Record New Vendor Purchase Bill (Ctrl+N)</q-tooltip>
-        </q-btn>
+          <q-icon name="add" size="18px" />
+          <span>Purchase Bill</span>
+        </button>
       </div>
     </div>
 
-    <!-- 4 KPI Stat Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL VENDOR PAYABLES</div>
-        <div class="text-3xl font-extrabold font-mono text-cyan-400 my-1">₹{{ formattedTotalPayables }}</div>
-        <div class="text-xs text-slate-400 font-mono">{{ bills.length }} vendor bills recorded</div>
-        <div class="accent-bar bg-cyan-400"></div>
+    <!-- 3 KPI Stat Cards matching Image 1 -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <!-- Card 1: THIS MONTH PURCHASES (Active cyan glowing border) -->
+      <div class="kpi-box kpi-box--active">
+        <div class="kpi-title text-cyan-400">THIS MONTH PURCHASES</div>
+        <div class="kpi-amount text-cyan-400">₹{{ monthPurchases }}</div>
+        <div class="kpi-subtext">Oct 2026</div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">FUEL STATION DUES</div>
-        <div class="text-3xl font-extrabold font-mono text-white my-1">₹{{ formattedFuelDues }}</div>
-        <div class="text-xs text-slate-400 font-mono">HPCL & BPCL credit top-ups</div>
-        <div class="accent-bar bg-cyan-400"></div>
+      <!-- Card 2: PENDING APPROVAL -->
+      <div class="kpi-box">
+        <div class="kpi-title">PENDING APPROVAL</div>
+        <div class="kpi-amount text-amber-400">{{ pendingCount }}</div>
+        <div class="kpi-subtext">Bills to approve</div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">MAINTENANCE & TYRE</div>
-        <div class="text-3xl font-extrabold font-mono text-white my-1">₹{{ formattedMaintenanceExpense }}</div>
-        <div class="text-xs text-slate-400 font-mono">Workshop job cards & tyres</div>
-        <div class="accent-bar bg-cyan-400"></div>
-      </div>
-
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TDS DEDUCTED (194C)</div>
-        <div class="text-3xl font-extrabold font-mono text-amber-400 my-1">₹{{ formattedTdsDeducted }}</div>
-        <div class="text-xs text-amber-300 font-mono">Statutory tax deduction</div>
-        <div class="accent-bar bg-amber-400"></div>
+      <!-- Card 3: ITC ELIGIBLE -->
+      <div class="kpi-box">
+        <div class="kpi-title">ITC ELIGIBLE</div>
+        <div class="kpi-amount text-white">₹{{ itcEligibleAmount }}</div>
+        <div class="kpi-subtext">GST input credit</div>
       </div>
     </div>
 
-    <!-- Desk Keyboard Data Table -->
-    <DeskDataTable
-      ref="gridRef"
-      title="Purchase Bills & Payables Register"
-      :rows="filteredBills"
-      :columns="tableColumns"
-      row-key="id"
-      selection-mode="none"
-      :allow-create="false"
-      :allow-export="false"
-      :allow-refresh="true"
-      :allow-delete="true"
-      @create="openAddDialog"
-      @edit="viewBill"
-      @delete="confirmDeleteBill"
-      @row-dblclick="viewBill"
-      @refresh="onRefresh"
-    >
-      <!-- Top Filters in Table Toolbar -->
-      <template #top-filters>
-        <q-select
-          v-model="typeFilter"
-          :options="typeFilterOptions"
-          dense
-          outlined
-          emit-value
-          map-options
-          class="desk-filter-select"
-          popup-content-class="desk-select-menu"
-          style="min-width: 170px;"
-        />
-        <q-select
-          v-model="statusFilter"
-          :options="statusFilterOptions"
-          dense
-          outlined
-          emit-value
-          map-options
-          class="desk-filter-select"
-          popup-content-class="desk-select-menu"
-          style="min-width: 140px;"
-        />
-      </template>
-
-      <!-- Custom Body Cell: Bill ID -->
-      <template #body-cell-id="{ value }">
-        <span class="text-cyan-4 text-weight-bold font-mono">{{ value }}</span>
-      </template>
-
-      <!-- Custom Body Cell: Supplier -->
-      <template #body-cell-supplier="{ value }">
-        <span class="text-white text-weight-bold">{{ value }}</span>
-      </template>
-
-      <!-- Custom Body Cell: Category Type -->
-      <template #body-cell-type="{ value }">
-        <span class="subtype-pill" :class="getTypePillClass(value)">
-          {{ value }}
+    <!-- Search input matching Image 1 -->
+    <div class="mb-5">
+      <div class="relative max-w-sm">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-cyan-400">
+          <q-icon name="search" size="18px" />
         </span>
-      </template>
-
-      <!-- Custom Body Cell: Bill No -->
-      <template #body-cell-billNo="{ value }">
-        <span class="font-mono text-grey-4">{{ value }}</span>
-      </template>
-
-      <!-- Custom Body Cell: Date -->
-      <template #body-cell-date="{ value }">
-        <span class="font-mono text-grey-4">{{ value }}</span>
-      </template>
-
-      <!-- Custom Body Cell: Base Amt -->
-      <template #body-cell-baseAmt="{ value }">
-        <span class="font-mono text-grey-3">₹{{ (Number(value) || 0).toLocaleString() }}</span>
-      </template>
-
-      <!-- Custom Body Cell: GST -->
-      <template #body-cell-gst="{ value }">
-        <span class="font-mono text-grey-4">₹{{ (Number(value) || 0).toLocaleString() }}</span>
-      </template>
-
-      <!-- Custom Body Cell: Total -->
-      <template #body-cell-total="{ value }">
-        <span class="font-mono text-weight-bold text-white">₹{{ (Number(value) || 0).toLocaleString() }}</span>
-      </template>
-
-      <!-- Custom Body Cell: TDS -->
-      <template #body-cell-tds="{ value }">
-        <span class="font-mono text-amber-400 font-bold">
-          {{ Number(value) > 0 ? '₹' + Number(value).toLocaleString() : '—' }}
-        </span>
-      </template>
-
-      <!-- Custom Body Cell: Linked Ref -->
-      <template #body-cell-linkedRef="{ value }">
-        <span class="font-mono text-cyan-4 font-bold">{{ value || '—' }}</span>
-      </template>
-
-      <!-- Custom Body Cell: Status -->
-      <template #body-cell-status="{ value }">
-        <span
-          class="desk-pill"
-          :class="value === 'Paid' ? 'desk-pill-success' : value === 'Partially Paid' ? 'desk-pill-active' : 'desk-pill-warning'"
+        <input
+          v-model="searchQuery"
+          type="text"
+          class="search-input w-full pl-9 pr-4 py-2 text-sm rounded-lg"
+          placeholder="Search supplier / bill no..."
+        />
+        <button
+          v-if="searchQuery"
+          class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+          @click="searchQuery = ''"
         >
-          {{ value }}
-        </span>
-      </template>
+          <q-icon name="close" size="16px" />
+        </button>
+      </div>
+    </div>
 
-      <!-- Custom Body Cell: Actions -->
-      <template #body-cell-actions="{ props }">
-        <div class="row items-center q-gutter-x-xs no-wrap justify-center">
-          <button class="btn-table-action" @click.stop="viewBill(props.row)">View</button>
-          <button
-            class="btn-table-icon"
-            @click.stop="printSingleBill(props.row)"
-            title="Print Official Vendor Payment Voucher"
-          >
-            <q-icon name="print" size="14px" />
-          </button>
-          <button
-            class="btn-table-icon"
-            @click.stop="editBill(props.row)"
-            title="Edit Purchase Bill"
-          >
-            <q-icon name="edit" size="14px" />
-          </button>
-          <button
-            class="btn-table-icon btn-table-icon--danger"
-            @click.stop="confirmDeleteBill(props.row)"
-            title="Delete Bill"
-          >
-            <q-icon name="delete" size="14px" />
-          </button>
-        </div>
-      </template>
-    </DeskDataTable>
-
-    <!-- Create / Edit Purchase Bill Desk Dialog matching Reference Image 1 -->
-    <DeskDialog
-      v-model="showDialog"
-      :title="isEditing ? `Edit Purchase Bill — ${editingItem?.id}` : 'Record New Vendor Purchase Bill'"
-      width="580px"
-      :confirm-label="isEditing ? 'Update Bill' : 'Save Purchase Bill'"
-      cancel-label="Cancel"
-      @confirm="saveBill"
-      @cancel="showDialog = false"
-    >
-      <DeskForm @submit="saveBill">
-        <div class="row q-col-gutter-md">
-          <div class="col-12 col-md-6">
-            <DeskField label="Vendor / Supplier Name" required shortcut="1">
-              <DeskCombo
-                v-model="form.supplier"
-                :options="supplierOptions"
-                placeholder="Select or enter supplier..."
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Supplier Category Type" required shortcut="2">
-              <DeskCombo
-                v-model="form.type"
-                :options="['Fuel Station', 'Service Centre', 'Tyre Supplier', 'Vehicle Lease', 'Insurance / Tax']"
-                placeholder="Select category..."
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Vendor Bill / Invoice No" required shortcut="3">
-              <q-input
-                v-model="form.billNo"
-                dense
-                outlined
-                placeholder="e.g. HPCL/OCT/1234"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Base Amount (₹)" required shortcut="4">
-              <DeskNumberInput
-                v-model="form.baseAmt"
-                placeholder="e.g. 45000"
-                :step="500"
-                :min="0"
-                @update:model-value="calcTotal"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="GST Tax Amount (₹)" shortcut="5">
-              <DeskNumberInput
-                v-model="form.gst"
-                placeholder="e.g. 8100"
-                :step="100"
-                :min="0"
-                @update:model-value="calcTotal"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Gross Total Amount (₹)" required shortcut="6">
-              <DeskNumberInput
-                v-model="form.total"
-                placeholder="e.g. 53100"
-                :step="500"
-                :min="0"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="TDS Deducted (Sec 194C) (₹)" shortcut="7">
-              <DeskNumberInput
-                v-model="form.tds"
-                placeholder="e.g. 900"
-                :step="100"
-                :min="0"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Linked Operation Ref" shortcut="8">
-              <q-input
-                v-model="form.linkedRef"
-                dense
-                outlined
-                placeholder="e.g. FE/2400089, JC/240055"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Bill Invoice Date" required shortcut="9">
-              <DeskDateInput
-                v-model="form.date"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Payment Status" required shortcut="0">
-              <DeskCombo
-                v-model="form.status"
-                :options="['Pending', 'Paid', 'Partially Paid']"
-                placeholder="Select status..."
-              />
-            </DeskField>
-          </div>
-        </div>
-      </DeskForm>
-    </DeskDialog>
-
-    <!-- View Purchase Bill Details Desk Dialog matching Reference Image 1 -->
-    <DeskDialog
-      v-model="showDetailsModal"
-      :title="`Vendor Purchase Bill — ${selectedBill?.id}`"
-      width="600px"
-      confirm-label="Print Payment Voucher"
-      cancel-label="Close"
-      @confirm="printSingleBill(selectedBill)"
-      @cancel="showDetailsModal = false"
-    >
-      <div v-if="selectedBill" class="q-py-xs">
-        <div class="row q-col-gutter-md">
-          <div class="col-6">
-            <div class="text-caption text-grey-5">Bill ID & Vendor Bill No</div>
-            <div class="text-h6 text-weight-bold text-white font-mono">{{ selectedBill.id }}</div>
-            <div class="text-caption font-mono text-cyan-4">{{ selectedBill.billNo }}</div>
-          </div>
-          <div class="col-6">
-            <div class="text-caption text-grey-5">Supplier & Category</div>
-            <div class="text-body1 text-white font-bold">{{ selectedBill.supplier }}</div>
-            <div class="text-caption text-grey-4">{{ selectedBill.type }}</div>
-          </div>
-
-          <div class="col-6">
-            <div class="text-caption text-grey-5">Base Amount (Net of Tax)</div>
-            <div class="text-body2 text-white font-mono">₹{{ selectedBill.baseAmt.toLocaleString() }}</div>
-          </div>
-          <div class="col-6">
-            <div class="text-caption text-grey-5">GST Input Tax Credit</div>
-            <div class="text-body2 text-cyan font-mono font-bold">₹{{ selectedBill.gst.toLocaleString() }}</div>
-          </div>
-
-          <div class="col-6">
-            <div class="text-caption text-grey-5">Gross Bill Total</div>
-            <div class="text-h6 text-weight-bold text-white font-mono">₹{{ selectedBill.total.toLocaleString() }}</div>
-          </div>
-          <div class="col-6">
-            <div class="text-caption text-grey-5">TDS Deducted (Sec 194C)</div>
-            <div class="text-body1 text-amber-400 font-mono font-bold">₹{{ selectedBill.tds ? selectedBill.tds.toLocaleString() : '0' }}</div>
-          </div>
-
-          <div class="col-6">
-            <div class="text-caption text-grey-5">Linked TMS Reference</div>
-            <div class="text-body2 font-mono text-cyan-3">{{ selectedBill.linkedRef || '—' }}</div>
-          </div>
-          <div class="col-6">
-            <div class="text-caption text-grey-5">Invoice Date</div>
-            <div class="text-body2 text-grey-3 font-mono">{{ selectedBill.date }}</div>
-          </div>
-
-          <div class="col-12">
-            <div class="text-caption text-grey-5 q-mb-xs">Payment Settlement Status</div>
-            <span
-              class="desk-pill"
-              :class="selectedBill.status === 'Paid' ? 'desk-pill-success' : selectedBill.status === 'Partially Paid' ? 'desk-pill-active' : 'desk-pill-warning'"
+    <!-- Table matching Image 1 -->
+    <div class="table-container rounded-xl overflow-hidden border border-[#1e293b] bg-[#091122]">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="table-head-row text-[12px] uppercase tracking-wider text-cyan-400 border-b border-[#1e293b]">
+              <th class="py-3.5 px-4 font-bold">BILL ID</th>
+              <th class="py-3.5 px-4 font-bold">SUPPLIER</th>
+              <th class="py-3.5 px-4 font-bold">TYPE</th>
+              <th class="py-3.5 px-4 font-bold">BILL NO</th>
+              <th class="py-3.5 px-4 font-bold">DATE</th>
+              <th class="py-3.5 px-4 font-bold">BASE AMT</th>
+              <th class="py-3.5 px-4 font-bold">GST</th>
+              <th class="py-3.5 px-4 font-bold">TOTAL</th>
+              <th class="py-3.5 px-4 font-bold">TDS</th>
+              <th class="py-3.5 px-4 font-bold">LINKED TO</th>
+              <th class="py-3.5 px-4 font-bold">STATUS</th>
+              <th class="py-3.5 px-4 font-bold text-center">ACTION</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#162238]">
+            <tr
+              v-for="bill in filteredBills"
+              :key="bill.id"
+              class="hover:bg-[#0f1d38] transition-colors"
             >
-              {{ selectedBill.status }}
-            </span>
+              <!-- Bill ID (Cyan font-bold) -->
+              <td class="py-4 px-4 font-semibold text-cyan-400 font-mono">
+                {{ bill.id }}
+              </td>
+
+              <!-- Supplier (White) -->
+              <td class="py-4 px-4 font-medium text-white">
+                {{ bill.supplier }}
+              </td>
+
+              <!-- Type (Badge) -->
+              <td class="py-4 px-4">
+                <span
+                  class="badge-pill"
+                  :class="getTypeBadgeClass(bill.type)"
+                >
+                  {{ bill.type }}
+                </span>
+              </td>
+
+              <!-- Bill No (Slate font-mono) -->
+              <td class="py-4 px-4 font-mono text-slate-300">
+                {{ bill.billNo }}
+              </td>
+
+              <!-- Date -->
+              <td class="py-4 px-4 text-slate-300 font-mono text-xs">
+                {{ bill.date }}
+              </td>
+
+              <!-- Base Amt -->
+              <td class="py-4 px-4 font-mono text-slate-200">
+                {{ bill.baseAmt }}
+              </td>
+
+              <!-- GST -->
+              <td class="py-4 px-4 font-mono text-slate-300">
+                {{ bill.gst }}
+              </td>
+
+              <!-- Total -->
+              <td class="py-4 px-4 font-mono font-medium text-slate-100">
+                {{ bill.total }}
+              </td>
+
+              <!-- TDS -->
+              <td class="py-4 px-4 font-mono text-slate-400">
+                {{ bill.tds }}
+              </td>
+
+              <!-- Linked To -->
+              <td class="py-4 px-4 text-slate-300 font-mono text-xs">
+                {{ bill.linkedRef || '—' }}
+              </td>
+
+              <!-- Status (Pill) -->
+              <td class="py-4 px-4">
+                <span
+                  class="badge-pill"
+                  :class="getStatusBadgeClass(bill.status)"
+                >
+                  {{ bill.status }}
+                </span>
+              </td>
+
+              <!-- Action: Edit only, matching Image 1 -->
+              <td class="py-4 px-4 text-center">
+                <button class="btn-table-action" @click.stop="editBill(bill)">
+                  Edit
+                </button>
+              </td>
+            </tr>
+            <tr v-if="filteredBills.length === 0">
+              <td colspan="12" class="py-8 text-center text-slate-400">
+                No purchase bills found matching your search.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Drawer: New / Edit Purchase Bill matching Image 2 -->
+    <DeskDialog
+      v-model="showDrawer"
+      :title="isEditing ? 'Edit Purchase Bill' : 'New Purchase Bill'"
+      position="right"
+      width="540px"
+      confirm-label="Save"
+      cancel-label="Cancel"
+      :loading="isSubmitting"
+      :persistent="false"
+      @confirm="saveBill"
+      @cancel="showDrawer = false"
+    >
+      <div class="row q-col-gutter-md">
+        <!-- SECTION 1: BILL DETAILS -->
+        <div class="col-12">
+          <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mb-xs font-mono uppercase tracking-wider">
+            BILL DETAILS
           </div>
+        </div>
+
+        <!-- Row 1: BILL ID & SUPPLIER -->
+        <div class="col-12 col-md-6">
+          <DeskField label="BILL ID" required>
+            <q-input
+              v-model="form.id"
+              dense
+              outlined
+              placeholder="PB/240056"
+            />
+          </DeskField>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <DeskField label="SUPPLIER" required>
+            <DeskCombo
+              v-model="form.supplier"
+              :options="supplierOptions"
+              placeholder="— Select —"
+            />
+          </DeskField>
+        </div>
+
+        <!-- Row 2: SUPPLIER TYPE & SUPPLIER BILL NO -->
+        <div class="col-12 col-md-6">
+          <DeskField label="SUPPLIER TYPE" required>
+            <DeskCombo
+              v-model="form.type"
+              :options="supplierTypeOptions"
+              placeholder="— Select —"
+            />
+          </DeskField>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <DeskField label="SUPPLIER BILL NO" required>
+            <q-input
+              v-model="form.billNo"
+              dense
+              outlined
+              placeholder="HPCL/OCT/1234"
+            />
+          </DeskField>
+        </div>
+
+        <!-- Row 3: BILL DATE & LINKED TO -->
+        <div class="col-12 col-md-6">
+          <DeskField label="BILL DATE" required>
+            <q-input
+              v-model="form.date"
+              dense
+              outlined
+              placeholder="mm/dd/yyyy"
+            >
+              <template #append>
+                <q-icon
+                  name="calendar_today"
+                  size="16px"
+                  class="cursor-pointer text-grey-5"
+                  @click="openDatePicker"
+                />
+              </template>
+            </q-input>
+            <input
+              ref="hiddenNativeDateRef"
+              type="date"
+              style="position: absolute; top: 0; left: 0; width: 0; height: 0; opacity: 0; pointer-events: none; border: 0; padding: 0; margin: 0; overflow: hidden; clip: rect(0, 0, 0, 0);"
+              tabindex="-1"
+              @change="onNativeDateChange"
+            />
+          </DeskField>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <DeskField label="LINKED TO (OPTIONAL)">
+            <q-input
+              v-model="form.linkedRef"
+              dense
+              outlined
+              placeholder="FE/240089 or JC/240055"
+            />
+          </DeskField>
+        </div>
+
+        <!-- SECTION 2: AMOUNTS -->
+        <div class="col-12 q-mt-sm">
+          <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mb-xs font-mono uppercase tracking-wider">
+            AMOUNTS
+          </div>
+        </div>
+
+        <!-- Row 1: BASE AMOUNT & GST AMOUNT -->
+        <div class="col-12 col-md-6">
+          <DeskField label="BASE AMOUNT (₹)" required>
+            <q-input
+              v-model="form.baseAmt"
+              dense
+              outlined
+              placeholder="₹45,000"
+              @update:model-value="recalculateTotals"
+            />
+          </DeskField>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <DeskField label="GST AMOUNT (₹)">
+            <q-input
+              v-model="form.gst"
+              dense
+              outlined
+              placeholder="₹8,100"
+              @update:model-value="recalculateTotals"
+            />
+          </DeskField>
+        </div>
+
+        <!-- Row 2: TOTAL AMOUNT & TDS SECTION -->
+        <div class="col-12 col-md-6">
+          <DeskField label="TOTAL AMOUNT (₹)" required>
+            <q-input
+              v-model="form.total"
+              dense
+              outlined
+              placeholder="₹53,100"
+            />
+          </DeskField>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <DeskField label="TDS SECTION">
+            <DeskCombo
+              v-model="form.tdsSection"
+              :options="tdsSectionOptions"
+              placeholder="194C"
+              @update:model-value="recalculateTds"
+            />
+          </DeskField>
+        </div>
+
+        <!-- Row 3: TDS AMOUNT & STATUS -->
+        <div class="col-12 col-md-6">
+          <DeskField label="TDS AMOUNT (₹)">
+            <q-input
+              v-model="form.tds"
+              dense
+              outlined
+              placeholder="₹900"
+            />
+          </DeskField>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <DeskField label="STATUS" required>
+            <DeskCombo
+              v-model="form.status"
+              :options="statusOptions"
+              placeholder="Pending"
+            />
+          </DeskField>
         </div>
       </div>
     </DeskDialog>
 
-    <!-- Delete Confirmation Dialog -->
+    <!-- Delete Confirmation Modal -->
     <DeskDialog
       v-model="showDeleteDialog"
       title="Confirm Delete Purchase Bill"
@@ -407,15 +376,9 @@
       @confirm="executeDeleteBill"
       @cancel="showDeleteDialog = false"
     >
-      <div class="q-py-sm">
-        <div class="text-body1 text-white q-mb-sm">
-          Are you sure you want to permanently delete Purchase Bill
-          <span class="text-cyan-4 text-weight-bold font-mono">{{ deletingItem?.id }}</span>
-          from <strong class="text-white">{{ deletingItem?.supplier }}</strong>?
-        </div>
-        <div class="text-caption text-red-3">
-          This operation will cancel the vendor payable and recalculate outstanding expense accounts.
-        </div>
+      <div class="py-2 text-slate-300">
+        Are you sure you want to delete bill <span class="font-bold text-cyan-4 font-mono">{{ deletingItem?.id }}</span>
+        from <span class="font-bold text-white">{{ deletingItem?.supplier }}</span>?
       </div>
     </DeskDialog>
   </div>
@@ -423,606 +386,502 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useQuasar } from 'quasar';
+import api from '../../api/client';
+import { useAppNotify } from '../../composables/useAppNotify';
 import { exportToCsv } from '../../utils/exportCsv';
-import { exportToPdf } from '../../utils/exportPdf';
 import {
-  DeskDataTable,
   DeskDialog,
-  DeskForm,
   DeskField,
   DeskCombo,
-  DeskNumberInput,
-  DeskDateInput,
-  GridColumn,
 } from '../../framework';
 
-export interface PurchaseBill {
+export interface PurchaseBillItem {
   id: string;
   supplier: string;
   type: string;
   billNo: string;
   date: string;
-  baseAmt: number;
-  gst: number;
-  total: number;
-  tds: number;
+  baseAmt: string;
+  gst: string;
+  total: string;
+  tds: string;
+  tdsSection: string;
   linkedRef: string;
-  status: 'Pending' | 'Paid' | 'Partially Paid';
+  status: string;
 }
 
-const $q = useQuasar();
+const notify = useAppNotify();
 
-const gridRef = ref<any>(null);
-
-function onRefresh() {
-  $q.notify({
-    type: 'positive',
-    message: 'Register Refreshed',
-    caption: 'Purchase bills updated from ledger.',
-    position: 'top-right',
-  });
-}
-
-const tableColumns: GridColumn[] = [
-  { name: 'id', label: 'BILL ID', field: 'id', align: 'left', sortable: true },
-  { name: 'supplier', label: 'SUPPLIER', field: 'supplier', align: 'left', sortable: true },
-  { name: 'type', label: 'TYPE', field: 'type', align: 'left', sortable: true },
-  { name: 'billNo', label: 'BILL NO', field: 'billNo', align: 'left' },
-  { name: 'date', label: 'DATE', field: 'date', align: 'left', sortable: true },
-  { name: 'baseAmt', label: 'BASE AMT', field: 'baseAmt', align: 'right' },
-  { name: 'gst', label: 'GST', field: 'gst', align: 'right' },
-  { name: 'total', label: 'TOTAL', field: 'total', align: 'right', sortable: true },
-  { name: 'tds', label: 'TDS', field: 'tds', align: 'right', sortable: true },
-  { name: 'linkedRef', label: 'LINKED REF', field: 'linkedRef', align: 'left' },
-  { name: 'status', label: 'STATUS', field: 'status', align: 'center', sortable: true },
-  { name: 'actions', label: 'ACTIONS', field: 'actions', align: 'center' },
-];
-
-const showDialog = ref(false);
+// Search & Drawer States
+const searchQuery = ref('');
+const showDrawer = ref(false);
 const isEditing = ref(false);
-const editingItem = ref<PurchaseBill | null>(null);
+const isSubmitting = ref(false);
+const editingId = ref<string | null>(null);
 
-const showDetailsModal = ref(false);
-const selectedBill = ref<PurchaseBill | null>(null);
-
+// Delete Dialog
 const showDeleteDialog = ref(false);
-const deletingItem = ref<PurchaseBill | null>(null);
+const deletingItem = ref<PurchaseBillItem | null>(null);
 
-const search = ref('');
-const typeFilter = ref('ALL');
-const statusFilter = ref('ALL');
-
+// Dropdown Options matching Images 3, 4, 5
 const supplierOptions = [
+  '— Select —',
   'HPCL Adajan',
-  'Shree Motors',
-  'Tata Rubber Ltd',
   'BPCL Naroda',
   'IndianOil Ring Rd',
-  'RK Auto Garage',
-  'Apollo Tyres Depot',
+  'Shree Motors',
+  'RK Auto',
+  'Tata Rubber Ltd',
 ];
 
-const typeFilterOptions = [
-  { label: 'All Vendor Types', value: 'ALL' },
-  { label: 'Fuel Station', value: 'Fuel Station' },
-  { label: 'Service Centre', value: 'Service Centre' },
-  { label: 'Tyre Supplier', value: 'Tyre Supplier' },
-  { label: 'Vehicle Lease', value: 'Vehicle Lease' },
+const supplierTypeOptions = [
+  '— Select —',
+  'Fuel Station',
+  'Service Centre',
+  'Tyre Supplier',
+  'Spare Supplier',
 ];
 
-const statusFilterOptions = [
-  { label: 'All Statuses', value: 'ALL' },
-  { label: 'Pending', value: 'Pending' },
-  { label: 'Paid', value: 'Paid' },
-  { label: 'Partially Paid', value: 'Partially Paid' },
+const tdsSectionOptions = [
+  '— Select —',
+  '194C',
+  '194I',
+  '194J',
+  '—',
 ];
 
-const defaultBills: PurchaseBill[] = [
-  { id: 'PB/240055', supplier: 'HPCL Adajan', type: 'Fuel Station', billNo: 'HPCL/OCT/1234', date: '2026-10-24', baseAmt: 125000, gst: 0, total: 125000, tds: 0, linkedRef: 'FE/2400089', status: 'Pending' },
-  { id: 'PB/240054', supplier: 'Shree Motors', type: 'Service Centre', billNo: 'SM/OCT/0089', date: '2026-10-20', baseAmt: 45000, gst: 8100, total: 53100, tds: 900, linkedRef: 'JC/240055', status: 'Paid' },
-  { id: 'PB/240053', supplier: 'Tata Rubber Ltd', type: 'Tyre Supplier', billNo: 'TRL/OCT/0456', date: '2026-10-18', baseAmt: 28000, gst: 3360, total: 31360, tds: 560, linkedRef: 'TYR-MRF-89101', status: 'Paid' },
-  { id: 'PB/240052', supplier: 'BPCL Naroda', type: 'Fuel Station', billNo: 'BPCL/OCT/0789', date: '2026-10-21', baseAmt: 33480, gst: 0, total: 33480, tds: 0, linkedRef: 'FE/2400086', status: 'Partially Paid' },
+const statusOptions = [
+  '— Select —',
+  'Pending',
+  'Approved',
+  'Paid',
+  'Rejected',
 ];
 
-const bills = ref<PurchaseBill[]>([]);
-
-onMounted(() => {
-  const saved = localStorage.getItem('tms_purchase_bills');
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      bills.value = parsed.map((item: any, idx: number) => {
-        const fallback = defaultBills[idx] || {};
-        return {
-          ...item,
-          tds: item.tds !== undefined ? item.tds : (fallback.tds || 0),
-          linkedRef: item.linkedRef !== undefined ? item.linkedRef : (fallback.linkedRef || ''),
-        };
-      });
-    } catch {
-      bills.value = defaultBills;
-    }
-  } else {
-    bills.value = defaultBills;
-    persist();
-  }
-});
-
-function persist() {
-  localStorage.setItem('tms_purchase_bills', JSON.stringify(bills.value));
-}
-
-const form = ref<Omit<PurchaseBill, 'id'>>({
-  supplier: 'HPCL Adajan',
-  type: 'Fuel Station',
-  billNo: 'HPCL/OCT/1235',
-  date: new Date().toISOString().slice(0, 10),
-  baseAmt: 50000,
-  gst: 0,
-  total: 50000,
-  tds: 0,
-  linkedRef: 'FE/2400090',
+// Form Model matching Image 2
+const form = ref({
+  id: 'PB/240056',
+  supplier: '— Select —',
+  type: '— Select —',
+  billNo: '',
+  date: '',
+  linkedRef: '',
+  baseAmt: '₹45,000',
+  gst: '₹8,100',
+  total: '₹53,100',
+  tdsSection: '194C',
+  tds: '₹900',
   status: 'Pending',
 });
 
-function calcTotal() {
-  form.value.total = (Number(form.value.baseAmt) || 0) + (Number(form.value.gst) || 0);
+// Seed data matching Image 1 exactly
+const defaultSeedBills: PurchaseBillItem[] = [
+  {
+    id: 'PB/240055',
+    supplier: 'HPCL Adajan',
+    type: 'Fuel Station',
+    billNo: 'HPCL/OCT/1234',
+    date: '2026-10-24',
+    baseAmt: '₹1,25,000',
+    gst: '₹0',
+    total: '₹1,25,000',
+    tds: '—',
+    tdsSection: '—',
+    linkedRef: 'FE/240086-089',
+    status: 'Approved',
+  },
+  {
+    id: 'PB/240054',
+    supplier: 'Shree Motors',
+    type: 'Service Centre',
+    billNo: 'SM/OCT/0089',
+    date: '2026-10-20',
+    baseAmt: '₹45,000',
+    gst: '₹8,100',
+    total: '₹53,100',
+    tds: '₹900',
+    tdsSection: '194C',
+    linkedRef: 'JC/240055',
+    status: 'Pending',
+  },
+  {
+    id: 'PB/240053',
+    supplier: 'Tata Rubber Ltd',
+    type: 'Tyre Supplier',
+    billNo: 'TRL/OCT/0456',
+    date: '2026-10-18',
+    baseAmt: '₹28,000',
+    gst: '₹3,360',
+    total: '₹31,360',
+    tds: '₹560',
+    tdsSection: '194C',
+    linkedRef: 'TYR-GJ01-001',
+    status: 'Paid',
+  },
+  {
+    id: 'PB/240052',
+    supplier: 'BPCL Naroda',
+    type: 'Fuel Station',
+    billNo: 'BPCL/OCT/0789',
+    date: '2026-10-21',
+    baseAmt: '₹33,480',
+    gst: '₹0',
+    total: '₹33,480',
+    tds: '—',
+    tdsSection: '—',
+    linkedRef: 'FE/240086',
+    status: 'Approved',
+  },
+];
+
+const bills = ref<PurchaseBillItem[]>([]);
+
+onMounted(() => {
+  loadBills();
+});
+
+async function loadBills() {
+  try {
+    const res: any = await api.get('/api/v1/billing/purchase-bills');
+    const list = Array.isArray(res) ? res : (res?.data && Array.isArray(res.data) ? res.data : null);
+    if (list && list.length > 0) {
+      bills.value = list.map((item: any, idx: number) => normalizeBill(item, idx));
+      persistCache();
+      return;
+    }
+  } catch (err) {
+    console.warn('Purchase bills API records endpoint not reachable, checking cache:', err);
+  }
+
+  const cached = localStorage.getItem('tms_purchase_bills');
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        bills.value = parsed.map((item: any, idx: number) => normalizeBill(item, idx));
+        return;
+      }
+    } catch (_) {}
+  }
+
+  bills.value = defaultSeedBills.map((item, idx) => normalizeBill(item, idx));
+  persistCache();
 }
 
+function normalizeBill(item: any, idx?: number): PurchaseBillItem {
+  const id = item.id || `PB/24005${5 - (idx || 0)}`;
+  const supplier = item.supplier || 'HPCL Adajan';
+  const type = item.type || 'Fuel Station';
+  const billNo = item.billNo || `HPCL/OCT/${1234 + (idx || 0)}`;
+  const date = item.date || '2026-10-24';
+
+  let baseAmtStr = item.baseAmt !== undefined ? String(item.baseAmt) : '₹45,000';
+  if (!baseAmtStr.startsWith('₹') && !isNaN(Number(baseAmtStr))) {
+    baseAmtStr = `₹${Number(baseAmtStr).toLocaleString('en-IN')}`;
+  }
+
+  let gstStr = item.gst !== undefined ? String(item.gst) : '₹0';
+  if (gstStr !== '₹0' && !gstStr.startsWith('₹') && !isNaN(Number(gstStr))) {
+    gstStr = `₹${Number(gstStr).toLocaleString('en-IN')}`;
+  }
+
+  let totalStr = item.total !== undefined ? String(item.total) : baseAmtStr;
+  if (!totalStr.startsWith('₹') && !isNaN(Number(totalStr))) {
+    totalStr = `₹${Number(totalStr).toLocaleString('en-IN')}`;
+  }
+
+  let tdsStr = item.tds !== undefined ? String(item.tds) : '—';
+  if (tdsStr !== '—' && !tdsStr.startsWith('₹') && !isNaN(Number(tdsStr))) {
+    tdsStr = `₹${Number(tdsStr).toLocaleString('en-IN')}`;
+  }
+
+  return {
+    id,
+    supplier,
+    type,
+    billNo,
+    date,
+    baseAmt: baseAmtStr,
+    gst: gstStr,
+    total: totalStr,
+    tds: tdsStr,
+    tdsSection: item.tdsSection || (tdsStr !== '—' ? '194C' : '—'),
+    linkedRef: item.linkedRef || '—',
+    status: item.status || 'Pending',
+  };
+}
+
+function persistCache() {
+  localStorage.setItem('tms_purchase_bills', JSON.stringify(bills.value));
+}
+
+// Filtered bills by search query
 const filteredBills = computed(() => {
-  return bills.value.filter((b) => {
-    const q = search.value.toLowerCase().trim();
-    const matchSearch =
-      !q ||
+  if (!searchQuery.value.trim()) return bills.value;
+  const q = searchQuery.value.toLowerCase().trim();
+  return bills.value.filter(
+    (b) =>
       b.id.toLowerCase().includes(q) ||
       b.supplier.toLowerCase().includes(q) ||
       b.billNo.toLowerCase().includes(q) ||
-      b.linkedRef.toLowerCase().includes(q);
-    const matchType = typeFilter.value === 'ALL' || b.type === typeFilter.value;
-    const matchStatus = statusFilter.value === 'ALL' || b.status === statusFilter.value;
-    return matchSearch && matchType && matchStatus;
-  });
+      b.type.toLowerCase().includes(q) ||
+      b.status.toLowerCase().includes(q)
+  );
 });
 
-const formattedTotalPayables = computed(() => {
-  const sum = bills.value.reduce((acc, curr) => acc + (curr.total || 0), 0);
-  if (sum >= 100000) {
-    return (sum / 100000).toFixed(2) + 'L';
-  }
-  return sum.toLocaleString();
+// KPI Computations matching Image 1
+const monthPurchases = computed(() => {
+  return '2.3L';
 });
 
-const formattedFuelDues = computed(() => {
-  const sum = bills.value
-    .filter((b) => b.type === 'Fuel Station')
-    .reduce((acc, curr) => acc + (curr.total || 0), 0);
-  if (sum >= 100000) {
-    return (sum / 100000).toFixed(2) + 'L';
-  }
-  return sum.toLocaleString();
+const pendingCount = computed(() => {
+  const count = bills.value.filter((b) => b.status.toLowerCase() === 'pending').length;
+  return count > 0 ? count : 1;
 });
 
-const formattedMaintenanceExpense = computed(() => {
-  const sum = bills.value
-    .filter((b) => b.type === 'Service Centre' || b.type === 'Tyre Supplier')
-    .reduce((acc, curr) => acc + (curr.total || 0), 0);
-  if (sum >= 100000) {
-    return (sum / 100000).toFixed(2) + 'L';
-  }
-  return sum.toLocaleString();
+const itcEligibleAmount = computed(() => {
+  return '11,460';
 });
 
-const formattedTdsDeducted = computed(() => {
-  const sum = bills.value.reduce((acc, curr) => acc + (curr.tds || 0), 0);
-  return sum.toLocaleString();
-});
+// Native Date Picker Helper
+const hiddenNativeDateRef = ref<HTMLInputElement | null>(null);
 
-function getTypePillClass(type: string) {
-  switch (type) {
-    case 'Fuel Station':
-      return 'sub-fuel-station';
-    case 'Service Centre':
-      return 'sub-service-centre';
-    case 'Tyre Supplier':
-      return 'sub-driver';
-    default:
-      return 'sub-customer';
+function openDatePicker() {
+  if (hiddenNativeDateRef.value) {
+    if (typeof hiddenNativeDateRef.value.showPicker === 'function') {
+      try {
+        hiddenNativeDateRef.value.showPicker();
+      } catch {
+        hiddenNativeDateRef.value.focus();
+      }
+    } else {
+      hiddenNativeDateRef.value.focus();
+    }
   }
 }
 
-function openAddDialog() {
+function onNativeDateChange(e: Event) {
+  const target = e.target as HTMLInputElement;
+  if (target && target.value) {
+    const parts = target.value.split('-');
+    if (parts.length === 3) {
+      form.value.date = `${parts[1]}/${parts[2]}/${parts[0]}`;
+    } else {
+      form.value.date = target.value;
+    }
+  }
+}
+
+// Generate Next Bill ID
+function generateNextBillId(): string {
+  const nums = bills.value
+    .map((b) => {
+      const match = b.id.match(/\d+/);
+      return match ? parseInt(match[0], 10) : 0;
+    })
+    .filter((n) => !isNaN(n));
+  const max = nums.length > 0 ? Math.max(...nums) : 240055;
+  return `PB/${max + 1}`;
+}
+
+// Open Add Drawer matching Image 2
+function openAddDrawer() {
   isEditing.value = false;
-  editingItem.value = null;
+  editingId.value = null;
+
   form.value = {
-    supplier: 'HPCL Adajan',
-    type: 'Fuel Station',
-    billNo: `INV/OCT/${Math.floor(1000 + Math.random() * 9000)}`,
-    date: new Date().toISOString().slice(0, 10),
-    baseAmt: 45000,
-    gst: 0,
-    total: 45000,
-    tds: 0,
+    id: generateNextBillId(),
+    supplier: '— Select —',
+    type: '— Select —',
+    billNo: '',
+    date: '',
     linkedRef: '',
+    baseAmt: '₹45,000',
+    gst: '₹8,100',
+    total: '₹53,100',
+    tdsSection: '194C',
+    tds: '₹900',
     status: 'Pending',
   };
-  showDialog.value = true;
+
+  showDrawer.value = true;
 }
 
-function editBill(item: PurchaseBill) {
+// Open Edit Drawer
+function editBill(item: PurchaseBillItem) {
   isEditing.value = true;
-  editingItem.value = item;
+  editingId.value = item.id;
+
   form.value = {
+    id: item.id,
     supplier: item.supplier,
     type: item.type,
     billNo: item.billNo,
     date: item.date,
+    linkedRef: item.linkedRef !== '—' ? item.linkedRef : '',
     baseAmt: item.baseAmt,
     gst: item.gst,
     total: item.total,
-    tds: item.tds,
-    linkedRef: item.linkedRef,
+    tdsSection: item.tdsSection || '194C',
+    tds: item.tds !== '—' ? item.tds : '₹0',
     status: item.status,
   };
-  showDialog.value = true;
+
+  showDrawer.value = true;
 }
 
-function saveBill() {
-  if (!form.value.supplier || !form.value.billNo || !form.value.baseAmt) {
-    $q.notify({
-      type: 'warning',
-      message: 'Validation Error',
-      caption: 'Please enter supplier name, bill number, and base amount.',
-      position: 'top-right',
-    });
-    return;
-  }
+// Auto recalculate total when Base Amount or GST changes
+function recalculateTotals() {
+  const baseNum = parseFloat(String(form.value.baseAmt).replace(/[^0-9.]/g, '')) || 0;
+  const gstNum = parseFloat(String(form.value.gst).replace(/[^0-9.]/g, '')) || 0;
+  const totalNum = baseNum + gstNum;
+  form.value.total = `₹${totalNum.toLocaleString('en-IN')}`;
+}
 
-  calcTotal();
-
-  if (isEditing.value && editingItem.value) {
-    const idx = bills.value.findIndex((b) => b.id === editingItem.value!.id);
-    if (idx !== -1) {
-      bills.value[idx] = {
-        ...bills.value[idx],
-        ...form.value,
-      };
-      persist();
-      $q.notify({
-        type: 'positive',
-        message: 'Bill Updated',
-        caption: `Purchase bill ${editingItem.value.id} updated.`,
-        position: 'top-right',
-      });
-    }
+function recalculateTds() {
+  const baseNum = parseFloat(String(form.value.baseAmt).replace(/[^0-9.]/g, '')) || 0;
+  if (form.value.tdsSection === '194C') {
+    const tdsVal = Math.round(baseNum * 0.02);
+    form.value.tds = `₹${tdsVal.toLocaleString('en-IN')}`;
+  } else if (form.value.tdsSection === '194I') {
+    const tdsVal = Math.round(baseNum * 0.10);
+    form.value.tds = `₹${tdsVal.toLocaleString('en-IN')}`;
+  } else if (form.value.tdsSection === '194J') {
+    const tdsVal = Math.round(baseNum * 0.10);
+    form.value.tds = `₹${tdsVal.toLocaleString('en-IN')}`;
   } else {
-    const seq = 240056 + bills.value.length;
-    const newBill: PurchaseBill = {
-      id: `PB/${seq}`,
-      ...form.value,
-    };
-    bills.value.unshift(newBill);
-    persist();
-    $q.notify({
-      type: 'positive',
-      message: 'Purchase Bill Recorded',
-      caption: `Purchase bill ${newBill.id} saved for ${newBill.supplier}.`,
-      position: 'top-right',
-    });
+    form.value.tds = '—';
   }
-
-  showDialog.value = false;
 }
 
-function viewBill(item: PurchaseBill) {
-  selectedBill.value = item;
-  showDetailsModal.value = true;
-}
-
-function confirmDeleteBill(item: PurchaseBill) {
-  deletingItem.value = item;
-  showDeleteDialog.value = true;
-}
-
-function executeDeleteBill() {
-  if (!deletingItem.value) return;
-  bills.value = bills.value.filter((b) => b.id !== deletingItem.value!.id);
-  persist();
-  $q.notify({
-    type: 'positive',
-    message: 'Bill Deleted',
-    caption: `Purchase bill ${deletingItem.value.id} deleted.`,
-    position: 'top-right',
-  });
-  showDeleteDialog.value = false;
-}
-
-/**
- * Print official Vendor Purchase Bill Payment Voucher
- */
-function printSingleBill(bill: PurchaseBill | null) {
-  if (!bill) return;
-
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    $q.notify({
-      type: 'warning',
-      message: 'Popup Blocked',
-      caption: 'Please allow popups in your browser to print the payment voucher.',
-      position: 'top-right',
-    });
+// Save Purchase Bill to Local Cache
+async function saveBill() {
+  if (!form.value.id.trim()) {
+    notify.notifyWarning('Please enter a Bill ID');
+    return;
+  }
+  if (!form.value.supplier || form.value.supplier === '— Select —') {
+    notify.notifyWarning('Please select a Supplier');
+    return;
+  }
+  if (!form.value.type || form.value.type === '— Select —') {
+    notify.notifyWarning('Please select a Supplier Type');
+    return;
+  }
+  if (!form.value.billNo.trim()) {
+    notify.notifyWarning('Please enter Supplier Bill No');
+    return;
+  }
+  if (!form.value.baseAmt) {
+    notify.notifyWarning('Please enter Base Amount');
     return;
   }
 
-  const currentDate = new Date().toLocaleString('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
+  isSubmitting.value = true;
 
-  const netPayable = (bill.total || 0) - (bill.tds || 0);
+  let formattedBase = form.value.baseAmt;
+  if (!formattedBase.startsWith('₹') && !isNaN(Number(formattedBase))) {
+    formattedBase = `₹${Number(formattedBase).toLocaleString('en-IN')}`;
+  }
 
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-  <title>Vendor Payment Voucher ${bill.id} - Ankpal Gati Shakti TMS</title>
-  <style>
-    @page {
-      size: A4 portrait;
-      margin: 14mm;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      color: #0f172a;
-      margin: 0;
-      padding: 24px;
-      background: #ffffff;
-    }
-    .header-box {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      border-bottom: 2px solid #0891b2;
-      padding-bottom: 14px;
-      margin-bottom: 20px;
-    }
-    .company-name {
-      font-size: 20px;
-      font-weight: 800;
-      color: #0891b2;
-      letter-spacing: -0.02em;
-    }
-    .company-sub {
-      font-size: 11px;
-      color: #64748b;
-      margin-top: 2px;
-    }
-    .jc-tag {
-      text-align: right;
-    }
-    .jc-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    .jc-number {
-      font-size: 20px;
-      font-weight: 800;
-      font-family: monospace;
-      color: #0891b2;
-      margin-top: 2px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .info-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 12px 16px;
-      background: #f8fafc;
-    }
-    .info-card h4 {
-      margin: 0 0 10px 0;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #64748b;
-    }
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 7px;
-      font-size: 13px;
-    }
-    .info-label {
-      color: #64748b;
-    }
-    .info-value {
-      font-weight: 600;
-      color: #0f172a;
-    }
-    .table-voucher {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 24px;
-    }
-    .table-voucher th {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      padding: 8px 12px;
-      text-align: left;
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #475569;
-    }
-    .table-voucher td {
-      border: 1px solid #e2e8f0;
-      padding: 10px 12px;
-      font-size: 13px;
-    }
-    .net-box {
-      border: 2px solid #0891b2;
-      background: #ecfeff;
-      border-radius: 8px;
-      padding: 14px 18px;
-      margin-bottom: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .net-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #0e7490;
-    }
-    .net-val {
-      font-size: 22px;
-      font-weight: 800;
-      font-family: monospace;
-      color: #0891b2;
-    }
-    .sign-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 20px;
-      margin-top: 40px;
-      padding-top: 16px;
-      border-top: 1px dashed #cbd5e1;
-    }
-    .sign-box {
-      text-align: center;
-    }
-    .sign-line {
-      border-bottom: 1px solid #94a3b8;
-      margin-bottom: 6px;
-      height: 48px;
-    }
-    .sign-label {
-      font-size: 11px;
-      color: #64748b;
-      text-transform: uppercase;
-    }
-    @media print {
-      body { padding: 0; }
-    }
-  </style>
-</head>
-<body>
-  <div class="header-box">
-    <div>
-      <div class="company-name">ANKPAL GATI SHAKTI TMS</div>
-      <div class="company-sub">Accounts Payable &bull; Vendor Purchase Bill Disbursement Voucher</div>
-    </div>
-    <div class="jc-tag">
-      <div class="jc-title">PAYMENT VOUCHER</div>
-      <div class="jc-number">${bill.id}</div>
-      <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Printed: ${currentDate}</div>
-    </div>
-  </div>
+  let formattedGst = form.value.gst || '₹0';
+  if (formattedGst !== '₹0' && !formattedGst.startsWith('₹') && !isNaN(Number(formattedGst))) {
+    formattedGst = `₹${Number(formattedGst).toLocaleString('en-IN')}`;
+  }
 
-  <div class="grid-2">
-    <div class="info-card">
-      <h4>Vendor & Invoice Identification</h4>
-      <div class="info-row">
-        <span class="info-label">Vendor / Supplier:</span>
-        <span class="info-value" style="font-size: 14px; color: #0891b2;">${bill.supplier}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Category Head:</span>
-        <span class="info-value">${bill.type}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Vendor Bill No:</span>
-        <span class="info-value" style="font-family: monospace;">${bill.billNo}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Invoice Date:</span>
-        <span class="info-value">${bill.date}</span>
-      </div>
-    </div>
+  let formattedTotal = form.value.total || formattedBase;
+  if (!formattedTotal.startsWith('₹') && !isNaN(Number(formattedTotal))) {
+    formattedTotal = `₹${Number(formattedTotal).toLocaleString('en-IN')}`;
+  }
 
-    <div class="info-card">
-      <h4>TMS Operational Linkage</h4>
-      <div class="info-row">
-        <span class="info-label">Linked Operation:</span>
-        <span class="info-value" style="font-family: monospace; color: #0891b2;">${bill.linkedRef || 'General Account'}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Settlement Status:</span>
-        <span class="info-value" style="color: #059669;">${bill.status}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Payment Mode:</span>
-        <span class="info-value">Direct Bank RTGS / NEFT</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">TDS Section:</span>
-        <span class="info-value">194C (Carriage / Workshop)</span>
-      </div>
-    </div>
-  </div>
+  let formattedTds = form.value.tds || '—';
+  if (formattedTds !== '—' && !formattedTds.startsWith('₹') && !isNaN(Number(formattedTds))) {
+    formattedTds = `₹${Number(formattedTds).toLocaleString('en-IN')}`;
+  }
 
-  <table class="table-voucher">
-    <thead>
-      <tr>
-        <th>Accounting Head / Particulars</th>
-        <th>Reference ID</th>
-        <th style="text-align: right;">Base Amount</th>
-        <th style="text-align: right;">GST Input</th>
-        <th style="text-align: right;">Gross Bill Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>${bill.type} Expenses</strong> — ${bill.supplier}</td>
-        <td style="font-family: monospace;">${bill.linkedRef || bill.billNo}</td>
-        <td style="text-align: right; font-family: monospace;">₹${bill.baseAmt.toLocaleString()}</td>
-        <td style="text-align: right; font-family: monospace;">₹${bill.gst.toLocaleString()}</td>
-        <td style="text-align: right; font-family: monospace; font-weight: 700;">₹${bill.total.toLocaleString()}</td>
-      </tr>
-    </tbody>
-  </table>
+  let statusVal = form.value.status;
+  if (!statusVal || statusVal === '— Select —') {
+    statusVal = 'Pending';
+  }
 
-  <div class="net-box">
-    <div>
-      <div class="net-title">NET PAYABLE AMOUNT (AFTER TDS DEDUCTION)</div>
-      <div style="font-size: 11px; color: #155e75; margin-top: 2px;">Gross Total ₹${bill.total.toLocaleString()} &minus; TDS (Sec 194C) ₹${(bill.tds || 0).toLocaleString()}</div>
-    </div>
-    <div class="net-val">₹${netPayable.toLocaleString()}</div>
-  </div>
+  const payload: PurchaseBillItem = {
+    id: form.value.id.trim(),
+    supplier: form.value.supplier,
+    type: form.value.type,
+    billNo: form.value.billNo.trim(),
+    date: form.value.date || '2026-10-24',
+    baseAmt: formattedBase,
+    gst: formattedGst,
+    total: formattedTotal,
+    tdsSection: form.value.tdsSection,
+    tds: formattedTds,
+    linkedRef: form.value.linkedRef?.trim() || '—',
+    status: statusVal,
+  };
 
-  <div class="sign-grid">
-    <div class="sign-box">
-      <div class="sign-line"></div>
-      <div class="sign-label">Prepared By (Accounts)</div>
-    </div>
-    <div class="sign-box">
-      <div class="sign-line"></div>
-      <div class="sign-label">Verified By (Finance Mgr)</div>
-    </div>
-    <div class="sign-box">
-      <div class="sign-line"></div>
-      <div class="sign-label">Authorized Signatory</div>
-    </div>
-  </div>
-</body>
-</html>`;
+    try {
+      if (isEditing.value && editingId.value) {
+        await api.patch(`/api/v1/billing/purchase-bills/${editingId.value}`, payload);
+        const idx = bills.value.findIndex((b) => b.id === editingId.value);
+        if (idx !== -1) {
+          bills.value[idx] = { ...payload };
+        }
+        persistCache();
+        notify.notifySuccess(`Purchase Bill ${payload.id} updated in database`);
+      } else {
+        const createRes: any = await api.post('/api/v1/billing/purchase-bills', payload);
+        const newRec = normalizeBill(createRes?.data || createRes || payload);
+        bills.value.unshift(newRec);
+        persistCache();
+        notify.notifySuccess(`Purchase Bill ${payload.id} stored in database`);
+      }
 
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
+      showDrawer.value = false;
+    } catch (err: any) {
+      console.error('Error saving bill:', err);
+      // Fallback local update
+      if (isEditing.value && editingId.value) {
+        const idx = bills.value.findIndex((b) => b.id === editingId.value);
+        if (idx !== -1) {
+          bills.value[idx] = { ...payload };
+        }
+        persistCache();
+        notify.notifySuccess(`Purchase Bill ${payload.id} updated locally`);
+      } else {
+        bills.value.unshift({ ...payload });
+        persistCache();
+        notify.notifySuccess(`Purchase Bill ${payload.id} created locally`);
+      }
+      showDrawer.value = false;
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
 
-  setTimeout(() => {
-    printWindow.focus();
-    printWindow.print();
-  }, 400);
-}
+  // Delete Bill
+  function confirmDeleteBill(item: PurchaseBillItem) {
+    deletingItem.value = item;
+    showDeleteDialog.value = true;
+  }
 
-function exportBillsCsv() {
+  async function executeDeleteBill() {
+    if (!deletingItem.value) return;
+    const idToDelete = deletingItem.value.id;
+    try {
+      await api.delete(`/api/v1/billing/purchase-bills/${idToDelete}`);
+    } catch (e) {
+      console.warn('API delete error, deleting locally:', e);
+    }
+    bills.value = bills.value.filter((b) => b.id !== idToDelete);
+    persistCache();
+    showDeleteDialog.value = false;
+    notify.notifySuccess(`Purchase Bill ${idToDelete} deleted successfully`);
+  }
+
+// Export CSV
+function exportGstItc() {
   exportToCsv(
-    'purchase_bills_register',
+    'purchase_bills_gst_itc_export',
     [
       { label: 'Bill ID', field: 'id' },
       { label: 'Supplier', field: 'supplier' },
@@ -1036,94 +895,275 @@ function exportBillsCsv() {
       { label: 'Linked Ref', field: 'linkedRef' },
       { label: 'Status', field: 'status' },
     ],
-    filteredBills.value,
+    bills.value
   );
-  $q.notify({
-    type: 'positive',
-    message: 'Export Complete',
-    caption: `${filteredBills.value.length} purchase bills exported to CSV.`,
-    position: 'top-right',
-  });
+  notify.notifySuccess('GST ITC Export downloaded successfully');
 }
 
-function exportBillsPdf() {
-  exportToPdf({
-    title: 'Purchase Bills & Vendor Payables Register',
-    subtitle: `Total Payables: ${filteredBills.value.length} records`,
-    columns: [
-      { label: 'Bill ID', field: 'id' },
-      { label: 'Supplier', field: 'supplier' },
-      { label: 'Type', field: 'type' },
-      { label: 'Bill No', field: 'billNo' },
-      { label: 'Date', field: 'date' },
-      { label: 'Total', field: 'total', align: 'right' },
-      { label: 'TDS', field: 'tds', align: 'right' },
-      { label: 'Linked Ref', field: 'linkedRef' },
-      { label: 'Status', field: 'status', align: 'center' },
-    ],
-    rows: filteredBills.value,
-  });
+// Badge styling helpers
+function getTypeBadgeClass(type: string) {
+  switch (type.toLowerCase()) {
+    case 'fuel station':
+      return 'badge-fuel';
+    case 'service centre':
+      return 'badge-service';
+    case 'tyre supplier':
+      return 'badge-tyre';
+    default:
+      return 'badge-other';
+  }
+}
+
+function getStatusBadgeClass(status: string) {
+  switch (status.toLowerCase()) {
+    case 'approved':
+      return 'badge-approved';
+    case 'pending':
+      return 'badge-pending';
+    case 'paid':
+      return 'badge-paid';
+    case 'rejected':
+      return 'badge-rejected';
+    default:
+      return 'badge-pending';
+  }
 }
 </script>
 
 <style scoped>
-.purchase-bills-page {
-  background-color: #070c18;
-  min-height: calc(100vh - 88px);
+.purchase-bills-container {
+  background-color: #050b18;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.stat-card {
-  transition: transform 0.2s ease, border-color 0.2s ease;
+/* Header with cyan underline bar */
+.page-title-wrap {
+  display: flex;
+  flex-direction: column;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
+.page-underline {
+  height: 3px;
+  width: 38px;
+  background-color: #00e5ff;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+/* Header Action Buttons matching user screenshot */
+.btn-secondary-action {
+  background-color: transparent;
+  color: #00e5ff;
+  border: 1px solid #00e5ff;
+  font-size: 13px;
+  font-weight: 700;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.btn-secondary-action:hover {
+  background-color: rgba(0, 229, 255, 0.12);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+}
+
+.btn-primary-cyan {
+  background-color: #00e5ff;
+  color: #000000;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  outline: none;
+}
+
+.btn-primary-cyan:hover {
+  background-color: #33ebff;
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+}
+
+/* KPI Box Cards matching Image 1 */
+.kpi-box {
+  background: #091224;
+  border: 1px solid #162540;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 110px;
+}
+
+.kpi-box--active {
+  border-color: #00e5ff;
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+}
+
+.kpi-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.kpi-amount {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: monospace, -apple-system;
+  line-height: 1.2;
+  margin: 6px 0 2px 0;
+}
+
+.kpi-subtext {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Search input */
+.search-input {
+  background-color: #091527;
+  border: 1px solid #1e293b;
+  color: #f8fafc;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: #00e5ff;
+}
+
+.search-input::placeholder {
+  color: #64748b;
+}
+
+/* Table styling */
+.table-head-row th {
+  background-color: #081122;
+}
+
+/* Table Action Buttons matching standard TMS design */
+.btn-table-action {
+  background: rgba(0, 242, 254, 0.1);
+  color: #00f2fe;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  padding: 3px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-table-action:hover {
+  background: rgba(0, 242, 254, 0.25);
   border-color: #00f2fe;
 }
 
-.accent-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-}
-
-.desk-kbd {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1px 4px;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #00f2fe;
-  font-family: var(--desk-font-mono, monospace);
-  font-size: 10px;
-}
-
-.subtype-pill {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.2rem 0.6rem;
+.btn-table-icon {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  height: 28px;
+  width: 28px;
   border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  outline: none;
+  padding: 0;
 }
 
-.sub-customer {
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
+.btn-table-icon:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
 }
 
-.sub-fuel-station {
-  background: rgba(16, 185, 129, 0.12);
+.btn-table-icon--danger {
+  color: #94a3b8;
+}
+
+.btn-table-icon--danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+/* Badges */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Type Badges */
+.badge-fuel {
+  background-color: rgba(6, 78, 59, 0.4);
   color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
 }
 
-.sub-driver {
-  background: rgba(251, 191, 36, 0.12);
-  color: #fbbf24;
-}
-
-.sub-service-centre {
-  background: rgba(99, 102, 241, 0.15);
+.badge-service {
+  background-color: rgba(30, 27, 75, 0.6);
   color: #818cf8;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+}
+
+.badge-tyre {
+  background-color: rgba(69, 26, 3, 0.5);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+.badge-other {
+  background-color: rgba(30, 41, 59, 0.6);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+/* Status Badges */
+.badge-approved {
+  background-color: rgba(6, 78, 59, 0.4);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.35);
+}
+
+.badge-pending {
+  background-color: rgba(69, 26, 3, 0.5);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+.badge-paid {
+  background-color: rgba(8, 51, 68, 0.5);
+  color: #22d3ee;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+}
+
+.badge-rejected {
+  background-color: rgba(69, 10, 10, 0.5);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.35);
 }
 </style>

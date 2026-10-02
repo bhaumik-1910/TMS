@@ -16,19 +16,6 @@
       <div class="row items-center q-gutter-x-sm">
         <q-btn
           unelevated
-          icon="refresh"
-          label="Refresh"
-          class="desk-btn-secondary"
-          :loading="loading"
-          @click="loadShipments(true)"
-        >
-          <template #loading>
-            <q-spinner color="cyan" size="16px" />
-          </template>
-          <q-tooltip>Refresh Shipments List</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
           icon="picture_as_pdf"
           label="Export PDF"
           class="desk-btn-secondary"
@@ -192,17 +179,11 @@
     </DeskDataTable>
 
       <!-- Inner Loading Overlay on Shipments Refresh -->
-      <q-inner-loading :showing="loading" style="background: rgba(7, 12, 24, 0.75); backdrop-filter: blur(4px); z-index: 50; border-radius: 16px;">
-        <div class="column items-center">
-          <q-spinner-dots size="56px" color="cyan" />
-          <div class="text-sm font-mono font-bold text-cyan-300 q-mt-md tracking-wider">
-            Refreshing Active Shipments...
-          </div>
-          <div class="text-xs font-mono text-slate-400 q-mt-xs">
-            Syncing consignment legs, milestones, and carrier statuses
-          </div>
-        </div>
-      </q-inner-loading>
+      <AppLoadingOverlay
+        :showing="loading"
+        title="Refreshing Active Shipments..."
+        subtitle="Syncing consignment legs, milestones, and carrier statuses"
+      />
     </div>
 
     <!-- Assign Resources Desk Dialog -->

@@ -48,14 +48,14 @@
     </q-table>
 
     <!-- Create Driver Dialog -->
-    <q-dialog v-model="createDialog">
-      <q-card style="width: 450px; max-width: 90vw;" class="tms-card">
-        <div class="row items-center justify-between q-pa-md" style="border-bottom: 1px solid var(--surface-border);">
-          <div class="text-subtitle1 text-weight-bold text-slate-900">Add Fleet Driver</div>
-          <q-btn icon="close" flat round dense v-close-popup />
+    <q-dialog v-model="createDialog" position="right" full-height>
+      <div style="width: 480px; max-width: 95vw; height: 100vh; background: #091024; border-left: 1px solid rgba(0, 242, 254, 0.28); border-radius: 16px 0 0 16px;" class="column text-white">
+        <div class="row items-center justify-between q-pa-md" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: #070c18;">
+          <div class="text-subtitle1 text-weight-bold text-white">Add Fleet Driver</div>
+          <q-btn icon="close" flat round dense v-close-popup text-color="grey-5" />
         </div>
 
-        <q-card-section class="q-pa-md">
+        <div class="col scroll q-pa-md">
           <q-form @submit.prevent="submitDriver" class="q-gutter-y-md">
             <div class="row q-col-gutter-sm">
               <div class="col-6">
@@ -67,13 +67,13 @@
             </div>
             <q-input v-model="newDriver.phone" dense outlined label="Phone Number *" :rules="[val => !!val || 'Required']" />
             <q-input v-model="newDriver.licenseNumber" dense outlined label="CDL License Number *" :rules="[val => !!val || 'Required']" />
-            <div class="row justify-end q-gutter-sm">
+            <div class="row justify-end q-gutter-sm q-mt-lg">
               <q-btn flat no-caps label="Cancel" v-close-popup />
               <q-btn color="primary" no-caps label="Save Driver" type="submit" />
             </div>
           </q-form>
-        </q-card-section>
-      </q-card>
+        </div>
+      </div>
     </q-dialog>
   </q-page>
 </template>

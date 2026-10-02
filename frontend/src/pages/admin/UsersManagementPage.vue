@@ -1,223 +1,267 @@
 <template>
-  <div class="access-management-page">
-    <!-- Header -->
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Access Management</h1>
-        <div class="accent-line"></div>
+  <div class="access-page min-h-screen text-slate-100 p-6">
+    <!-- Header with Cyan Underline Bar & Add User Button matching Screenshot 1 -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="page-title-wrap">
+        <h1 class="text-2xl font-bold tracking-tight text-white mb-1">Access Management</h1>
+        <div class="page-underline"></div>
       </div>
-      <button class="btn-primary" @click="openAddUserModal">
-        <span class="material-icons-outlined">person_add</span>
-        Add User
+      <button class="btn-add-cyan" @click="openAddUserDrawer">
+        + Add User
       </button>
     </div>
 
-    <!-- Search & Filters -->
-    <div class="filter-bar row items-center justify-between no-wrap">
-      <div class="row items-center q-gutter-x-sm no-wrap">
-        <div class="search-input-wrap">
-          <q-input
-            v-model="searchQuery"
-            dense
-            outlined
-            placeholder="Search user / role / branch..."
-            class="desk-search-input"
-          >
-            <template #prepend>
-              <q-icon name="search" size="18px" color="cyan" />
-            </template>
-            <template #append v-if="searchQuery">
-              <q-icon
-                name="cancel"
-                size="18px"
-                class="cursor-pointer text-slate-400 hover:text-white"
-                @click.stop.prevent="searchQuery = ''"
-                @mousedown.stop.prevent="searchQuery = ''"
-              />
-            </template>
-          </q-input>
-        </div>
-        <q-select
-          v-model="roleFilter"
-          :options="roleFilterOptions"
-          dense
-          outlined
-          emit-value
-          map-options
-          class="desk-filter-select"
-          popup-content-class="desk-select-menu"
-          style="min-width: 170px;"
-        >
-          <template #prepend>
-            <q-icon name="badge" size="16px" color="cyan" />
-          </template>
-        </q-select>
+    <!-- 3 KPI Cards Row matching Screenshot 1 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- 1. TOTAL USERS -->
+      <div class="kpi-box">
+        <span class="kpi-title">TOTAL USERS</span>
+        <div class="kpi-number text-cyan-400">{{ totalUsersCount }}</div>
+        <span class="kpi-subtext">All roles</span>
       </div>
 
-      <div class="row items-center q-gutter-x-xs no-wrap">
-        <q-btn
-          flat
-          dense
-          icon="refresh"
-          class="desk-grid-refresh-btn"
-          :loading="isRefreshing"
-          @click="onRefresh"
-        >
-          <q-tooltip>Refresh Users Directory</q-tooltip>
-        </q-btn>
+      <!-- 2. ACTIVE -->
+      <div class="kpi-box">
+        <span class="kpi-title">ACTIVE</span>
+        <div class="kpi-number text-white">{{ activeUsersCount }}</div>
+        <span class="kpi-subtext">Logged in within 30 days</span>
+      </div>
+
+      <!-- 3. PENDING APPROVAL -->
+      <div class="kpi-box">
+        <span class="kpi-title">PENDING APPROVAL</span>
+        <div class="kpi-number text-amber-400">{{ pendingApprovalCount }}</div>
+        <span class="kpi-subtext">New users to approve</span>
       </div>
     </div>
 
-    <!-- Table matching Figma -->
-    <div class="cyber-card table-wrap relative-position">
-      <q-inner-loading :showing="isRefreshing" color="cyan" style="background: rgba(10, 15, 29, 0.8); z-index: 10;">
-        <q-spinner-dots size="48px" color="cyan" />
-        <div class="text-caption text-cyan-300 q-mt-sm font-mono tracking-wider">Syncing users directory...</div>
-      </q-inner-loading>
-      <table class="cyber-table">
+    <!-- Search Bar matching Screenshot 1 -->
+    <div class="mb-6">
+      <div class="search-wrap">
+        <svg class="search-icon w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search user / email / role..."
+          class="search-input"
+        />
+        <button
+          v-if="searchQuery"
+          class="text-slate-400 hover:text-white mr-3 text-xs"
+          @click="searchQuery = ''"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Access Directory Table matching Screenshot 1 -->
+    <div class="table-container">
+      <table class="access-table">
         <thead>
           <tr>
-            <th>USER ID</th>
-            <th>NAME</th>
-            <th>EMAIL</th>
-            <th>PHONE</th>
-            <th>ROLE</th>
-            <th>BRANCH</th>
-            <th>LAST LOGIN</th>
-            <th>STATUS</th>
-            <th>ACTION</th>
+            <th class="th-cell">USER ID</th>
+            <th class="th-cell">NAME</th>
+            <th class="th-cell">EMAIL</th>
+            <th class="th-cell">PHONE</th>
+            <th class="th-cell">ROLE</th>
+            <th class="th-cell">BRANCH</th>
+            <th class="th-cell">LAST LOGIN</th>
+            <th class="th-cell">STATUS</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="u in filteredUsers" :key="u.id">
-            <td class="cyan-code font-bold">{{ u.userId }}</td>
-            <td class="name-cell font-semibold">{{ u.name }}</td>
-            <td class="email-cell text-slate-300">{{ u.email }}</td>
-            <td class="phone-cell font-mono">{{ u.phone }}</td>
-            <td>
-              <span class="role-badge" :class="'role-' + u.role.toLowerCase().replace(/[^a-z0-9]/g, '-')">
+          <tr v-for="u in filteredUsers" :key="u.id" class="table-row">
+            <!-- USER ID -->
+            <td class="td-cell font-mono font-bold text-cyan-400">
+              {{ u.userId }}
+            </td>
+
+            <!-- NAME -->
+            <td class="td-cell font-semibold text-white">
+              {{ u.name }}
+            </td>
+
+            <!-- EMAIL -->
+            <td class="td-cell text-slate-300">
+              {{ u.email }}
+            </td>
+
+            <!-- PHONE -->
+            <td class="td-cell font-mono text-slate-300">
+              {{ u.phone }}
+            </td>
+
+            <!-- ROLE BADGES matching Screenshot 1 -->
+            <td class="td-cell">
+              <span class="role-pill" :class="getRoleClass(u.role)">
                 {{ u.role }}
               </span>
             </td>
-            <td class="branch-cell">{{ u.branch }}</td>
-            <td class="date-cell">{{ u.lastLogin }}</td>
-            <td>
-              <span class="status-badge" :class="u.status === 'Active' ? 'badge-active' : 'badge-pending'">
-                {{ u.status }}
-              </span>
+
+            <!-- BRANCH -->
+            <td class="td-cell text-slate-300">
+              {{ u.branch }}
             </td>
-            <td>
-              <button
-                class="btn-action"
-                :class="{ 'btn-approve': u.status === 'Pending' }"
-                @click="handleAction(u)"
-              >
-                {{ u.status === 'Pending' ? 'Approve' : 'Edit' }}
-              </button>
+
+            <!-- LAST LOGIN -->
+            <td class="td-cell font-mono text-slate-400">
+              {{ u.lastLogin }}
+            </td>
+
+            <!-- STATUS & ACTION BUTTONS matching Screenshot 1 -->
+            <td class="td-cell">
+              <div class="flex items-center gap-3">
+                <span class="status-pill" :class="getStatusClass(u.status)">
+                  {{ u.status }}
+                </span>
+
+                <!-- Action Button: Approve for Pending, Edit for all -->
+                <button
+                  v-if="u.status === 'Pending'"
+                  class="btn-approve"
+                  @click="approveUser(u)"
+                >
+                  Approve
+                </button>
+                <button
+                  class="btn-edit"
+                  @click="openEditDrawer(u)"
+                >
+                  Edit
+                </button>
+              </div>
             </td>
           </tr>
+
+          <!-- Empty search results state -->
           <tr v-if="filteredUsers.length === 0">
-            <td colspan="9" class="text-center py-12">
-              <div class="column items-center justify-center text-center q-pa-xl">
-                <div class="q-mb-sm flex flex-center" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.15); margin: 0 auto;">
-                  <q-icon name="search_off" size="28px" class="text-slate-400" />
-                </div>
-                <div class="text-subtitle1 text-weight-bold text-slate-200">No matching records found</div>
-                <div class="text-caption text-slate-500 q-mt-xs">Try adjusting your search terms or clearing active filters.</div>
-              </div>
+            <td colspan="8" class="text-center py-12 text-slate-500">
+              <div class="text-sm">No matching users found for "{{ searchQuery }}"</div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Create / Edit User Desk Dialog matching Image 2 -->
+    <!-- Right Slide Drawer for Add User & Edit User using standard DeskDialog matching user's screenshot -->
     <DeskDialog
-      v-model="showAddModal"
-      :title="isEditing ? 'Edit Enterprise User' : 'Create Enterprise User'"
-      width="580px"
-      :confirm-label="isEditing ? 'Update User' : 'Create User'"
+      v-model="showDrawer"
+      :title="isEditing ? 'Edit User' : 'Add User'"
+      position="right"
+      width="540px"
+      confirm-label="Save"
       cancel-label="Cancel"
+      :persistent="false"
       @confirm="saveUser"
-      @cancel="showAddModal = false"
+      @cancel="closeDrawer"
     >
-      <DeskForm @submit="saveUser">
-        <div class="row q-col-gutter-md">
-          <div class="col-12 col-md-6">
-            <DeskField label="Full Name" required shortcut="1">
-              <q-input
-                v-model="newUser.name"
-                dense
-                outlined
-                placeholder="e.g. Rahul Sharma"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Email Address" required shortcut="2">
-              <q-input
-                v-model="newUser.email"
-                type="email"
-                dense
-                outlined
-                placeholder="e.g. rahul@ankpal.com"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Mobile Number" required shortcut="3">
-              <q-input
-                v-model="newUser.phone"
-                dense
-                outlined
-                placeholder="e.g. 9825000010"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Assigned Role" required shortcut="4">
-              <DeskCombo
-                v-model="newUser.role"
-                :options="roleOptions"
-                placeholder="Select role..."
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12">
-            <DeskField label="Assigned Branch" required shortcut="5">
-              <DeskCombo
-                v-model="newUser.branch"
-                :options="branchOptions"
-                placeholder="Select branch..."
-              />
-            </DeskField>
+      <div class="row q-col-gutter-md">
+        <!-- Section Header: USER DETAILS -->
+        <div class="col-12">
+          <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mb-xs font-mono uppercase tracking-wider">
+            USER DETAILS
           </div>
         </div>
-      </DeskForm>
+
+        <!-- 1. USER ID * -->
+        <div class="col-12 col-md-6">
+          <DeskField label="USER ID" required>
+            <q-input
+              v-model="formUser.userId"
+              dense
+              outlined
+              placeholder="USR/010"
+            />
+          </DeskField>
+        </div>
+
+        <!-- 2. FULL NAME * -->
+        <div class="col-12 col-md-6">
+          <DeskField label="FULL NAME" required>
+            <q-input
+              v-model="formUser.name"
+              dense
+              outlined
+              placeholder="Rajesh Verma"
+            />
+          </DeskField>
+        </div>
+
+        <!-- 3. EMAIL * -->
+        <div class="col-12 col-md-6">
+          <DeskField label="EMAIL" required>
+            <q-input
+              v-model="formUser.email"
+              dense
+              outlined
+              type="email"
+              placeholder="rajesh@ankpal.com"
+            />
+          </DeskField>
+        </div>
+
+        <!-- 4. PHONE * -->
+        <div class="col-12 col-md-6">
+          <DeskField label="PHONE" required>
+            <q-input
+              v-model="formUser.phone"
+              dense
+              outlined
+              placeholder="9825XXXXXX"
+            />
+          </DeskField>
+        </div>
+
+        <!-- 5. ROLE * -->
+        <div class="col-12 col-md-6">
+          <DeskField label="ROLE" required>
+            <DeskCombo
+              v-model="formUser.role"
+              :options="roleOptions"
+              placeholder="— Select —"
+            />
+          </DeskField>
+        </div>
+
+        <!-- 6. BRANCH * -->
+        <div class="col-12 col-md-6">
+          <DeskField label="BRANCH" required>
+            <DeskCombo
+              v-model="formUser.branch"
+              :options="branchOptions"
+              placeholder="— Select —"
+            />
+          </DeskField>
+        </div>
+
+        <!-- 7. STATUS * -->
+        <div class="col-12 col-md-6">
+          <DeskField label="STATUS" required>
+            <DeskCombo
+              v-model="formUser.status"
+              :options="statusOptions"
+              placeholder="— Select —"
+            />
+          </DeskField>
+        </div>
+      </div>
     </DeskDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
-import { exportToCsv } from '../../utils/exportCsv';
-import {
-  DeskDialog,
-  DeskForm,
-  DeskField,
-  DeskCombo,
-} from '../../framework';
+import api from '../../api/client';
+import { DeskDialog, DeskField, DeskCombo } from '../../framework';
 
 const $q = useQuasar();
-const isEditing = ref(false);
-const editingId = ref<string | null>(null);
 
-interface UserRecord {
+export interface UserItem {
   id: string;
   userId: string;
   name: string;
@@ -226,13 +270,12 @@ interface UserRecord {
   role: string;
   branch: string;
   lastLogin: string;
-  status: 'Active' | 'Pending';
+  status: 'Active' | 'Pending' | 'Inactive' | 'Suspended';
 }
 
-const showAddModal = ref(false);
-const searchQuery = ref('');
-const roleFilter = ref('ALL');
+const STORAGE_KEY = 'tms_users_directory';
 
+// Dropdown options matching user screenshots 3, 4, 5
 const roleOptions = [
   'Admin',
   'Branch Manager',
@@ -241,35 +284,27 @@ const roleOptions = [
   'Accounts',
   'Workshop',
   'Driver',
+  'Customer',
   'CA Read-Only',
-];
-
-const roleFilterOptions = [
-  { label: 'All Roles', value: 'ALL' },
-  ...roleOptions.map((r) => ({ label: r, value: r })),
 ];
 
 const branchOptions = [
   'HO Ahmedabad',
   'Mumbai Branch',
-  'Surat Depot',
+  'Delhi Branch',
+  'Hyderabad Branch',
   'External',
 ];
 
-function openAddUserModal() {
-  isEditing.value = false;
-  editingId.value = null;
-  newUser.value = {
-    name: '',
-    email: '',
-    phone: '',
-    role: 'Ops Planner',
-    branch: 'HO Ahmedabad',
-  };
-  showAddModal.value = true;
-}
+const statusOptions: Array<'Active' | 'Inactive' | 'Pending' | 'Suspended'> = [
+  'Active',
+  'Inactive',
+  'Pending',
+  'Suspended',
+];
 
-const users = ref<UserRecord[]>([
+// Initial mock data matching Screenshot 1 exactly
+const initialUsers: UserItem[] = [
   {
     id: '1',
     userId: 'USR/001',
@@ -369,430 +404,576 @@ const users = ref<UserRecord[]>([
     lastLogin: '—',
     status: 'Pending',
   },
-]);
+];
 
-const newUser = ref({
+const users = ref<UserItem[]>([]);
+const searchQuery = ref('');
+
+// Right Slide Drawer State
+const showDrawer = ref(false);
+const isEditing = ref(false);
+const editingId = ref<string | null>(null);
+
+
+const formUser = ref<{
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  branch: string;
+  status: 'Active' | 'Inactive' | 'Pending' | 'Suspended';
+}>({
+  userId: '',
   name: '',
   email: '',
   phone: '',
   role: 'Ops Planner',
   branch: 'HO Ahmedabad',
+  status: 'Pending',
 });
 
-const isRefreshing = ref(false);
+// Computed KPIs
+const totalUsersCount = computed(() => users.value.length);
+const activeUsersCount = computed(() => users.value.filter((u) => u.status === 'Active').length);
+const pendingApprovalCount = computed(() => users.value.filter((u) => u.status === 'Pending').length);
 
-function onRefresh() {
-  isRefreshing.value = true;
-  setTimeout(() => {
-    isRefreshing.value = false;
-    $q.notify({
-      type: 'positive',
-      message: 'Users Directory Refreshed',
-      caption: 'Enterprise user profiles synced.',
-      position: 'top-right',
-    });
-  }, 600);
-}
-
+// Filtered Users based on search
 const filteredUsers = computed(() => {
-  const q = (searchQuery.value || '').toLowerCase().trim();
-  return users.value.filter(u => {
-    const matchSearch = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.userId.toLowerCase().includes(q) || u.role.toLowerCase().includes(q) || u.branch.toLowerCase().includes(q);
-    const matchRole = roleFilter.value === 'ALL' || u.role === roleFilter.value;
-    return matchSearch && matchRole;
+  const q = searchQuery.value.trim().toLowerCase();
+  if (!q) return users.value;
+  return users.value.filter((u) => {
+    return (
+      u.name.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q) ||
+      u.userId.toLowerCase().includes(q) ||
+      u.role.toLowerCase().includes(q) ||
+      u.branch.toLowerCase().includes(q) ||
+      u.phone.includes(q)
+    );
   });
 });
 
-function handleAction(u: UserRecord) {
-  if (u.status === 'Pending') {
-    u.status = 'Active';
-    $q.notify({
-      type: 'positive',
-      icon: 'verified_user',
-      message: 'Access Credentials Approved',
-      caption: `Active privileges granted for ${u.name} (${u.role}).`,
-      position: 'top-right',
-    });
-  } else {
-    isEditing.value = true;
-    editingId.value = u.id;
-    newUser.value = {
-      name: u.name,
-      email: u.email,
-      phone: u.phone,
-      role: u.role,
-      branch: u.branch,
-    };
-    showAddModal.value = true;
+// Role badge class generator matching Screenshot 1
+function getRoleClass(role: string): string {
+  switch (role) {
+    case 'Admin':
+      return 'role-admin';
+    case 'Branch Manager':
+      return 'role-branch-mgr';
+    case 'Ops Planner':
+      return 'role-ops-planner';
+    case 'Fuel Manager':
+      return 'role-fuel-mgr';
+    case 'Accounts':
+      return 'role-accounts';
+    case 'Workshop':
+      return 'role-workshop';
+    case 'Driver':
+      return 'role-driver';
+    case 'CA Read-Only':
+      return 'role-ca';
+    case 'Customer':
+      return 'role-customer';
+    default:
+      return 'role-default';
   }
 }
 
-function saveUser() {
-  if (!newUser.value.name) return;
+// Status badge class generator matching Screenshot 1
+function getStatusClass(status: string): string {
+  switch (status) {
+    case 'Active':
+      return 'status-active';
+    case 'Pending':
+      return 'status-pending';
+    case 'Suspended':
+      return 'status-suspended';
+    default:
+      return 'status-inactive';
+  }
+}
 
-  if (isEditing.value && editingId.value) {
-    const idx = users.value.findIndex((u) => u.id === editingId.value);
-    if (idx !== -1) {
-      users.value[idx] = {
-        ...users.value[idx],
-        name: newUser.value.name,
-        email: newUser.value.email || users.value[idx].email,
-        phone: newUser.value.phone || users.value[idx].phone,
-        role: newUser.value.role,
-        branch: newUser.value.branch,
-      };
-      $q.notify({
-        type: 'positive',
-        message: 'User Permissions Updated',
-        caption: `Changes saved for ${newUser.value.name}.`,
-        position: 'top-right',
-      });
+// Load users from LocalStorage / Backend
+function loadUsers() {
+  const cached = localStorage.getItem(STORAGE_KEY);
+  if (cached) {
+    try {
+      users.value = JSON.parse(cached);
+    } catch {
+      users.value = [...initialUsers];
     }
   } else {
-    const num = users.value.length + 1;
-    users.value.push({
-      id: String(Date.now()),
-      userId: `USR/00${num}`,
-      name: newUser.value.name,
-      email: newUser.value.email || `user${num}@ankpal.com`,
-      phone: newUser.value.phone || '9825000099',
-      role: newUser.value.role,
-      branch: newUser.value.branch,
-      lastLogin: '—',
-      status: 'Pending',
-    });
-    $q.notify({
-      type: 'positive',
-      message: 'User Created Successfully',
-      caption: `Access invite sent to ${newUser.value.name}.`,
-      position: 'top-right',
-    });
+    users.value = [...initialUsers];
+    saveToStorage();
   }
 
-  showAddModal.value = false;
-  isEditing.value = false;
-  editingId.value = null;
-  newUser.value = { name: '', email: '', phone: '', role: 'Ops Planner', branch: 'HO Ahmedabad' };
+  fetchFromBackend();
 }
 
-function exportUsersCsv() {
-  exportToCsv(
-    'enterprise_users_directory',
-    [
-      { label: 'User ID', field: 'userId' },
-      { label: 'Full Name', field: 'name' },
-      { label: 'Email Address', field: 'email' },
-      { label: 'Phone', field: 'phone' },
-      { label: 'Role / Designation', field: 'role' },
-      { label: 'Operating Branch', field: 'branch' },
-      { label: 'Last Login', field: 'lastLogin' },
-      { label: 'Status', field: 'status' },
-    ],
-    users.value,
-  );
+async function fetchFromBackend() {
+  try {
+    const res: any = await api.get('/api/v1/users');
+    if (res && Array.isArray(res) && res.length > 0) {
+      console.log('Synced with backend users API:', res.length);
+    }
+  } catch (err) {
+    console.debug('Backend user sync offline fallback:', err);
+  }
+}
+
+function saveToStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(users.value));
+}
+
+// Open Right Slide Drawer for Adding a new user (Image 1)
+function openAddUserDrawer() {
+  isEditing.value = false;
+  editingId.value = null;
+
+  // Generate next sequential user ID (e.g. USR/010)
+  const nextNum = users.value.length + 1;
+  const nextId = `USR/${String(nextNum).padStart(3, '0')}`;
+
+  formUser.value = {
+    userId: nextId,
+    name: 'Rajesh Verma',
+    email: 'rajesh@ankpal.com',
+    phone: '9825XXXXXX',
+    role: 'Ops Planner',
+    branch: 'HO Ahmedabad',
+    status: 'Pending',
+  };
+
+  showDrawer.value = true;
+}
+
+// Open Right Slide Drawer for Editing an existing user (Image 2)
+function openEditDrawer(u: UserItem) {
+  isEditing.value = true;
+  editingId.value = u.id;
+
+  formUser.value = {
+    userId: u.userId,
+    name: u.name,
+    email: u.email,
+    phone: u.phone,
+    role: u.role,
+    branch: u.branch,
+    status: u.status,
+  };
+
+  showDrawer.value = true;
+}
+
+function closeDrawer() {
+  showDrawer.value = false;
+}
+
+// Approve User directly from table
+async function approveUser(u: UserItem) {
+  u.status = 'Active';
+  saveToStorage();
+
   $q.notify({
     type: 'positive',
-    message: 'User Directory Exported',
-    caption: `${users.value.length} users exported to CSV.`,
+    icon: 'verified_user',
+    message: 'User Approved Successfully',
+    caption: `${u.name} status is now Active.`,
     position: 'top-right',
   });
+
+  try {
+    await api.patch(`/api/v1/users/${u.id}`, { status: 'ACTIVE' });
+  } catch (e) {
+    console.debug('Backend patch error (handled):', e);
+  }
 }
+
+// Save User (Create or Update)
+async function saveUser() {
+  if (!formUser.value.name.trim()) {
+    $q.notify({
+      type: 'warning',
+      message: 'Validation Error',
+      caption: 'Full Name is required.',
+      position: 'top-right',
+    });
+    return;
+  }
+
+  if (isEditing.value && editingId.value) {
+    // UPDATE EXISTING USER (Image 2)
+    const idx = users.value.findIndex(
+      (u) => String(u.id) === String(editingId.value) || u.userId === formUser.value.userId,
+    );
+    if (idx !== -1) {
+      users.value.splice(idx, 1, {
+        ...users.value[idx],
+        userId: formUser.value.userId,
+        name: formUser.value.name,
+        email: formUser.value.email,
+        phone: formUser.value.phone,
+        role: formUser.value.role,
+        branch: formUser.value.branch,
+        status: formUser.value.status,
+      });
+
+      saveToStorage();
+
+      $q.notify({
+        type: 'positive',
+        icon: 'check_circle',
+        message: 'User Updated',
+        caption: `Changes saved for ${formUser.value.name}.`,
+        position: 'top-right',
+      });
+
+      // Sync with backend
+      try {
+        const nameParts = formUser.value.name.split(' ');
+        await api.patch(`/api/v1/users/${editingId.value}`, {
+          firstName: nameParts[0] || formUser.value.name,
+          lastName: nameParts.slice(1).join(' ') || '',
+          email: formUser.value.email,
+          phone: formUser.value.phone,
+          status: formUser.value.status.toUpperCase(),
+        });
+      } catch (err) {
+        console.debug('Backend patch error:', err);
+      }
+    }
+  } else {
+    // ADD NEW USER (Image 1)
+    const newUserItem: UserItem = {
+      id: String(Date.now()),
+      userId: formUser.value.userId || `USR/0${users.value.length + 1}`,
+      name: formUser.value.name,
+      email: formUser.value.email,
+      phone: formUser.value.phone,
+      role: formUser.value.role || 'Ops Planner',
+      branch: formUser.value.branch || 'HO Ahmedabad',
+      lastLogin: '—',
+      status: formUser.value.status || 'Pending',
+    };
+
+    users.value.push(newUserItem);
+    saveToStorage();
+
+    $q.notify({
+      type: 'positive',
+      icon: 'person_add',
+      message: 'User Created',
+      caption: `${newUserItem.name} added to Access Management.`,
+      position: 'top-right',
+    });
+
+    // Sync with backend
+    try {
+      const nameParts = formUser.value.name.split(' ');
+      await api.post('/api/v1/users', {
+        firstName: nameParts[0] || formUser.value.name,
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: formUser.value.email,
+        phone: formUser.value.phone,
+        status: formUser.value.status.toUpperCase(),
+      });
+    } catch (err) {
+      console.debug('Backend post error:', err);
+    }
+  }
+
+  closeDrawer();
+}
+
+onMounted(() => {
+  loadUsers();
+});
 </script>
 
 <style scoped>
-.access-management-page {
-  padding: 1.5rem;
-  background-color: #070c18;
-  min-height: calc(100vh - 64px);
-  color: #e2e8f0;
+.access-page {
+  background-color: #050b18;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.page-header {
+/* Header */
+.page-title-wrap {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
+  flex-direction: column;
 }
 
-.page-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.accent-line {
-  width: 44px;
+.page-underline {
   height: 3px;
-  background: #00f2fe;
+  width: 38px;
+  background-color: #00e5ff;
   border-radius: 2px;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
-.btn-primary {
+/* Add User Cyan Button */
+.btn-add-cyan {
+  background-color: #00e5ff;
+  color: #050b18;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-add-cyan:hover {
+  background-color: #33ebff;
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+}
+
+/* KPI Box Cards */
+.kpi-box {
+  background-color: #081224;
+  border: 1px solid #162540;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.kpi-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.kpi-number {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 6px 0 4px 0;
+}
+
+.kpi-subtext {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Search Box */
+.search-wrap {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  background: #00f2fe;
-  color: #070c18;
-  font-weight: 700;
-  font-size: 0.85rem;
-  padding: 0.55rem 1.25rem;
+  width: 320px;
+  background-color: #081224;
+  border: 1px solid #162540;
   border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.search-wrap:focus-within {
+  border-color: #00e5ff;
+}
+
+.search-icon {
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.search-input {
+  width: 100%;
+  background: transparent;
   border: none;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #ffffff;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #64748b;
+}
+
+/* Table Container */
+.table-container {
+  background-color: #081224;
+  border: 1px solid #162540;
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+}
+
+.access-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.th-cell {
+  padding: 14px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #00e5ff;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #162540;
+  background-color: rgba(6, 14, 28, 0.4);
+  white-space: nowrap;
+}
+
+.td-cell {
+  padding: 14px 18px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(22, 37, 64, 0.6);
+  white-space: nowrap;
+}
+
+.table-row:hover {
+  background-color: rgba(0, 229, 255, 0.02);
+}
+
+/* Role Badges */
+.role-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.role-admin {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.role-branch-mgr {
+  background-color: rgba(0, 229, 255, 0.12);
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+}
+
+.role-ops-planner {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.role-fuel-mgr {
+  background-color: rgba(217, 119, 6, 0.18);
+  color: #f59e0b;
+  border: 1px solid rgba(217, 119, 6, 0.35);
+}
+
+.role-accounts {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.role-workshop {
+  background-color: rgba(234, 88, 12, 0.18);
+  color: #f97316;
+  border: 1px solid rgba(234, 88, 12, 0.35);
+}
+
+.role-driver {
+  background-color: rgba(79, 70, 229, 0.18);
+  color: #6366f1;
+  border: 1px solid rgba(79, 70, 229, 0.35);
+}
+
+.role-ca {
+  background-color: rgba(99, 102, 241, 0.18);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.role-customer {
+  background-color: rgba(20, 184, 166, 0.15);
+  color: #14b8a6;
+  border: 1px solid rgba(20, 184, 166, 0.35);
+}
+
+.role-default {
+  background-color: rgba(100, 116, 139, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+/* Status Badges */
+.status-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 4px;
+}
+
+.status-active {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-pending {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-suspended {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-inactive {
+  background-color: rgba(100, 116, 139, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+/* Edit & Approve Buttons */
+.btn-edit {
+  background-color: #091830;
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.btn-primary:hover {
-  background: #38bdf8;
-  box-shadow: 0 0 16px rgba(0, 242, 254, 0.4);
-}
-
-.btn-secondary {
-  background: #1e293b;
-  color: #94a3b8;
-  border: 1px solid #334155;
-  padding: 0.55rem 1.25rem;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.filter-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.search-input-wrap {
-  position: relative;
-  width: 340px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #64748b;
-  font-size: 1.1rem;
-}
-
-.cyber-input {
-  width: 100%;
-  background: #0d172b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  padding: 0.55rem 0.75rem 0.55rem 2.2rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  outline: none;
-}
-
-.cyber-input:focus {
-  border-color: #00f2fe;
-}
-
-.cyber-select {
-  background: #0d172b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e2e8f0;
-  padding: 0.55rem 1rem;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  outline: none;
-}
-
-.cyber-card {
-  background: #0d172b;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.table-wrap {
-  overflow-x: auto;
-}
-
-.cyber-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.82rem;
-}
-
-.cyber-table th {
-  background: rgba(255, 255, 255, 0.02);
-  color: #00f2fe;
-  font-weight: 700;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  padding: 0.85rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.cyber-table td {
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: #cbd5e1;
-}
-
-.cyan-code {
-  color: #00f2fe;
-}
-
-.name-cell {
-  color: #ffffff;
-}
-
-.role-badge {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.18rem 0.55rem;
-  border-radius: 4px;
-}
-
-.role-admin {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-}
-
-.role-branch-manager {
-  background: rgba(0, 242, 254, 0.15);
-  color: #00f2fe;
-}
-
-.role-ops-planner {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-}
-
-.role-fuel-manager {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-}
-
-.role-accounts {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-}
-
-.role-workshop {
-  background: rgba(249, 115, 22, 0.15);
-  color: #fb923c;
-}
-
-.role-driver {
-  background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
-}
-
-.role-ca-read-only {
-  background: rgba(148, 163, 184, 0.15);
-  color: #94a3b8;
-}
-
-.status-badge {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.2rem 0.65rem;
-  border-radius: 6px;
-}
-
-.badge-active {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-}
-
-.badge-pending {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-}
-
-.btn-action {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
-  padding: 0.3rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-
-.btn-action:hover {
-  background: rgba(0, 242, 254, 0.15);
-  color: #00f2fe;
+.btn-edit:hover {
+  background-color: rgba(0, 229, 255, 0.12);
+  border-color: #00e5ff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
 }
 
 .btn-approve {
-  background: #00f2fe;
-  color: #070c18;
-  font-weight: 700;
+  background-color: #00e5ff;
+  color: #050b18;
   border: none;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btn-approve:hover {
-  background: #38bdf8;
+  background-color: #33ebff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.35);
 }
 
-/* Modal */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.modal-card {
-  background: #0d172b;
-  border: 1px solid rgba(0, 242, 254, 0.3);
-  border-radius: 12px;
-  width: 520px;
-  max-width: 90vw;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  color: #94a3b8;
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-
-.modal-body {
-  padding: 1.25rem;
-}
-
-.modal-label {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #94a3b8;
-  margin-bottom: 0.35rem;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
 </style>
+

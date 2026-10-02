@@ -1,5 +1,5 @@
 <template>
-  <div class="figma-dark-console min-h-screen p-4 sm:p-6 text-slate-100 font-sans w-full">
+  <div class="figma-dark-console min-h-screen p-4 sm:p-6 text-slate-100 font-sans w-full relative">
     <!-- Top Super Admin Header & Organization Context Scope -->
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
       <div>
@@ -507,6 +507,13 @@
         </div>
       </div>
     </div>
+
+    <!-- Inner Loading Overlay on Platform Telemetry Refresh -->
+    <AppLoadingOverlay
+      :showing="loading"
+      title="Refreshing Live Telemetry..."
+      subtitle="Updating KPI metrics, active trips and fleet radar"
+    />
   </div>
 </template>
 

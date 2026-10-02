@@ -493,17 +493,11 @@
     </div>
 
       <!-- Inner Loading Overlay on Refresh -->
-      <q-inner-loading :showing="loading" style="background: rgba(7, 12, 24, 0.75); backdrop-filter: blur(4px); z-index: 50; border-radius: 16px;">
-        <div class="column items-center">
-          <q-spinner-dots size="56px" color="cyan" />
-          <div class="text-sm font-mono font-bold text-cyan-300 q-mt-md tracking-wider">
-            Refreshing Planning Console...
-          </div>
-          <div class="text-xs font-mono text-slate-400 q-mt-xs">
-            Syncing multi-drop orders & live fleet capacity
-          </div>
-        </div>
-      </q-inner-loading>
+      <AppLoadingOverlay
+        :showing="loading"
+        title="Refreshing Planning Console..."
+        subtitle="Syncing multi-drop orders & live fleet capacity"
+      />
     </div>
   </div>
 </template>

@@ -99,10 +99,12 @@
       <!-- Notifications Scroll List -->
       <div class="col overflow-auto q-pa-sm custom-scroll relative-position">
         <!-- Inner Loading Indicator -->
-        <q-inner-loading :showing="notifStore.loading" style="background: rgba(7, 12, 24, 0.85); z-index: 10;">
-          <q-spinner-dots size="40px" color="cyan" />
-          <div class="text-xs font-mono text-cyan-400 q-mt-sm">Syncing Live Events...</div>
-        </q-inner-loading>
+        <AppLoadingOverlay
+          :showing="notifStore.loading"
+          title="Syncing Live Events..."
+          subtitle="Connecting to real-time notification socket"
+          spinner-size="40px"
+        />
 
         <!-- Empty State -->
         <div v-if="!notifStore.loading && filteredList.length === 0" class="column flex-center q-pa-xl text-center">

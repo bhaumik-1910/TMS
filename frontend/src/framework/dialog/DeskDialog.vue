@@ -1,29 +1,36 @@
 <template>
   <q-dialog
     v-model="isOpen"
+    :position="dialogPosition"
+    :full-height="isRightDrawer"
     :persistent="persistent"
-    no-backdrop-dismiss
     @show="onShow"
     @hide="onHide"
   >
     <div
       class="desk-dialog"
-      :style="{ width: width || '560px', maxWidth: '95vw' }"
+      :class="isRightDrawer ? 'desk-dialog--drawer' : 'desk-dialog--standard'"
+      :style="dialogCardStyle"
       ref="dialogCardRef"
       @keydown="handleKeyDown"
     >
-      <!-- Dialog Header matching Image 1 -->
+      <!-- Dialog Header matching Screenshot -->
       <div class="desk-dialog-header">
-        <h2 class="text-lg font-bold text-white font-sans">{{ title }}</h2>
-        <button class="btn-dialog-close" @click="cancel" aria-label="Close dialog">✕</button>
+        <div class="desk-dialog-title">
+          <q-icon v-if="icon" :name="icon" size="22px" class="text-cyan-400" />
+          <span>{{ title }}</span>
+        </div>
+        <button type="button" class="btn-dialog-close" @click="cancel" aria-label="Close dialog">
+          <q-icon name="close" size="20px" />
+        </button>
       </div>
 
       <!-- Dialog Body -->
-      <div class="desk-dialog-body scroll" :style="{ maxHeight: maxHeight || '75vh' }">
+      <div class="desk-dialog-body scroll" :style="bodyStyle">
         <slot></slot>
       </div>
 
-      <!-- Dialog Footer matching Image 1 -->
+      <!-- Dialog Footer matching Screenshot -->
       <div v-if="showFooter" class="desk-dialog-footer">
         <div v-if="footerHint" class="footer-hint-text">
           {{ footerHint }}
@@ -75,12 +82,13 @@ const props = withDefaults(
     cancelLabel?: string;
     showFooter?: boolean;
     footerHint?: string;
+    position?: 'standard' | 'top' | 'right' | 'bottom' | 'left';
   }>(),
   {
-    persistent: true,
+    persistent: false, // Default false so clicking outside immediately closes the drawer!
     loading: false,
     showFooter: true,
-    width: '560px',
+    width: '620px',
   },
 );
 
@@ -97,13 +105,51 @@ let openerElement: HTMLElement | null = null;
 
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (val: boolean) => emit('update:modelValue', val),
+  set: (val: boolean) => {
+    emit('update:modelValue', val);
+    if (!val) {
+      emit('cancel');
+    }
+  },
 });
 
 const isDeleteAction = computed(() => {
   const lbl = (props.confirmLabel || '').toLowerCase();
   const tit = (props.title || '').toLowerCase();
   return lbl.includes('delete') || lbl.includes('remove') || tit.includes('delete');
+});
+
+// If position is explicitly specified, use it. Otherwise, delete confirmations stay centered, while all add/edit forms slide out from the right drawer!
+const dialogPosition = computed(() => {
+  if (props.position) return props.position;
+  return isDeleteAction.value ? 'standard' : 'right';
+});
+
+const isRightDrawer = computed(() => dialogPosition.value === 'right');
+
+const dialogCardStyle = computed(() => {
+  if (isRightDrawer.value) {
+    return {
+      width: props.width || '620px',
+      maxWidth: '96vw',
+    };
+  }
+  return {
+    width: props.width || '520px',
+    maxWidth: '95vw',
+  };
+});
+
+const bodyStyle = computed(() => {
+  if (isRightDrawer.value) {
+    return {
+      flex: '1 1 auto',
+      maxHeight: 'none',
+    };
+  }
+  return {
+    maxHeight: props.maxHeight || '75vh',
+  };
 });
 
 function confirm() {
@@ -165,80 +211,128 @@ function onHide() {
 .desk-dialog {
   display: flex;
   flex-direction: column;
-  background: #0d172b !important;
-  border: 1px solid rgba(0, 242, 254, 0.3) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8) !important;
-  overflow: hidden;
+  background: #091024 !important;
   color: #f1f5f9;
+  overflow: hidden;
+}
+
+/* Right Slide-over Drawer Mode */
+.desk-dialog--drawer {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border-radius: 16px 0 0 16px !important;
+  border-left: 1px solid rgba(0, 242, 254, 0.28) !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  box-shadow: -15px 0 50px rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Centered Standard Modal Mode (for Delete / Alerts) */
+.desk-dialog--standard {
+  border-radius: 14px !important;
+  border: 1px solid rgba(0, 242, 254, 0.3) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.85) !important;
 }
 
 .desk-dialog-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.25rem;
+  padding: 1.15rem 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: transparent;
+  background: #070c18;
+  flex-shrink: 0;
+}
+
+.desk-dialog-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: inherit;
 }
 
 .btn-dialog-close {
-  background: none;
+  background: transparent;
   border: none;
   color: #94a3b8;
-  font-size: 1.15rem;
-  line-height: 1;
-  padding: 4px;
+  padding: 6px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-dialog-close:hover {
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .desk-dialog-body {
-  padding: 1.25rem;
+  flex: 1 1 auto;
+  padding: 1.5rem;
   overflow-y: auto;
-  background: #0d172b;
+  background: #091024;
+}
+
+.desk-dialog-body::-webkit-scrollbar {
+  width: 6px;
+}
+.desk-dialog-body::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+.desk-dialog-body::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+.desk-dialog-body::-webkit-scrollbar-thumb:hover {
+  background: #00f2fe;
 }
 
 .desk-dialog-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: transparent;
+  background: #070c18;
+  flex-shrink: 0;
 }
 
 .modal-btn-cancel {
-  background: #1e293b;
-  color: #94a3b8;
-  border: 1px solid #334155;
-  padding: 0.55rem 1.25rem;
+  background: #131d35;
+  color: #cbd5e1;
+  border: 1px solid #223253;
+  padding: 0.6rem 1.4rem;
   border-radius: 8px;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .modal-btn-cancel:hover:not(:disabled) {
-  background: #334155;
+  background: #1e293b;
   color: #ffffff;
+  border-color: #334155;
 }
 
 .modal-btn-confirm {
   background: #00f2fe;
   color: #070c18;
   border: none;
-  padding: 0.55rem 1.25rem;
+  padding: 0.6rem 1.6rem;
   border-radius: 8px;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 242, 254, 0.3);
+  box-shadow: 0 4px 14px rgba(0, 242, 254, 0.35);
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
@@ -246,23 +340,32 @@ function onHide() {
 }
 
 .modal-btn-confirm:hover:not(:disabled) {
-  box-shadow: 0 4px 18px rgba(0, 242, 254, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 242, 254, 0.55);
   filter: brightness(1.05);
 }
 
 .modal-btn-danger {
   background: #ef4444 !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;
 }
 
 .modal-btn-danger:hover:not(:disabled) {
   background: #dc2626 !important;
-  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.55) !important;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.55) !important;
 }
 
 .footer-hint-text {
   font-size: 11px;
   color: #64748b;
+  font-family: monospace;
+}
+
+@media (max-width: 640px) {
+  .desk-dialog--drawer {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 0 !important;
+  }
 }
 </style>

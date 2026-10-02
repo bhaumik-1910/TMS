@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { DispatchService } from './dispatch.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -26,7 +26,19 @@ export class DispatchController {
   @Post()
   @ApiOperation({ summary: 'Create dispatch and assign vehicle/driver transactionally' })
   async create(@CurrentUser() user: any, @Body() body: any) {
-    return this.dispatchService.create(user.organizationId, body, user.userId);
+    return this.dispatchService.create(user?.organizationId, body, user?.userId);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update trip allocation' })
+  async updateTrip(@Param('id') id: string, @Body() body: any) {
+    return this.dispatchService.updateTrip(id, body);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete trip allocation' })
+  async deleteTrip(@Param('id') id: string) {
+    return this.dispatchService.deleteTrip(id);
   }
 
   @Patch(':id/status')

@@ -3,7 +3,7 @@
     <div v-if="label" class="desk-field-label-row row items-center justify-between q-mb-xs">
       <label class="desk-field-label">
         {{ cleanLabel }}
-        <span v-if="required" class="text-negative text-weight-bold q-ml-xs">*</span>
+        <span v-if="required" class="text-cyan-4 text-weight-bold q-ml-xs">*</span>
       </label>
       <kbd v-if="hintKey" class="desk-field-kbd">
         {{ hintKey }}
@@ -50,9 +50,10 @@ const cleanLabel = computed(() => {
   display: inline-flex;
   align-items: center;
   font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: none;
-  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #38bdf8;
   margin: 0;
   user-select: none;
   font-family: var(--tms-font-sans, inherit);

@@ -15,6 +15,9 @@ import {
   ClaimModel,
   ClaimItemModel,
   CarrierModel,
+  BillingInvoiceModel,
+  PurchaseBillModel,
+  SettlementModel,
 } from '../database/models';
 
 @Module({
@@ -32,6 +35,9 @@ import {
       ClaimModel,
       ClaimItemModel,
       CarrierModel,
+      BillingInvoiceModel,
+      PurchaseBillModel,
+      SettlementModel,
     ]),
   ],
   controllers: [BillingController],

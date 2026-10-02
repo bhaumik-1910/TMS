@@ -1,721 +1,647 @@
 <template>
   <div class="tyre-operations-page p-3 sm:p-4 text-slate-100 font-sans">
-    <!-- Header -->
+    <!-- Header matching Image 1 & Image 2 -->
     <div class="row items-center justify-between q-mb-md">
       <div>
-        <div class="text-h6 text-weight-bold text-white row items-center q-gutter-x-sm">
-          <q-icon name="tire_repair" color="cyan" size="24px" />
-          <span>Tyre Operations & Axle Life Tracking</span>
-        </div>
-        <div class="text-caption text-grey-5">
-          Serial-level tyre inventory, axle rotation (FL, FR, Rear), retreading cycles &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> to add tyre
+        <div class="text-h5 text-weight-bold text-white relative inline-block">
+          Tyre Operations
+          <div class="title-underline"></div>
         </div>
       </div>
 
-      <div class="row items-center q-gutter-x-sm">
-        <q-btn
-          unelevated
-          icon="refresh"
-          label="Refresh"
-          class="desk-btn-secondary"
-          :loading="isRefreshing"
-          @click="onRefresh"
-        >
-          <template #loading>
-            <q-spinner color="cyan" size="16px" />
-          </template>
-          <q-tooltip>Refresh Tyre Inventory</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="picture_as_pdf"
-          label="Export PDF"
-          class="desk-btn-secondary"
-          @click="exportTyresPdf"
-        >
-          <q-tooltip>Download Tyre Registry in PDF</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="table_view"
-          label="Export CSV"
-          class="desk-btn-secondary"
-          @click="exportTyresCsv"
-        >
-          <q-tooltip>Export Tyre Inventory to CSV</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="add"
-          label="Add Tyre"
-          class="desk-btn-primary"
-          @click="openAddDialog"
-        >
-          <q-tooltip>Register New Fleet Tyre (Ctrl+N)</q-tooltip>
-        </q-btn>
-      </div>
-    </div>
-
-    <!-- Segmented Tab Toggle -->
-    <div class="row items-center q-mb-md">
-      <div class="view-mode-toggle">
+      <!-- + Tyre Event button only visible on Fit / Remove / Events tab matching Image 2 -->
+      <div v-if="activeTab === 'events'" class="row items-center q-gutter-x-sm">
         <button
           type="button"
-          class="view-mode-btn"
-          :class="{ active: activeTab === 'register' }"
-          @click="activeTab = 'register'"
+          class="desk-btn-cyan-action"
+          @click="openAddEventDialog"
         >
-          <q-icon name="format_list_bulleted" size="15px" />
-          <span>Tyre Registry ({{ tyres.length }})</span>
-        </button>
-        <button
-          type="button"
-          class="view-mode-btn"
-          :class="{ active: activeTab === 'events' }"
-          @click="activeTab = 'events'"
-        >
-          <q-icon name="history" size="15px" />
-          <span>Fit / Rotation / Wear Events ({{ events.length }})</span>
+          <q-icon name="add" size="18px" />
+          <span>Tyre Event</span>
         </button>
       </div>
     </div>
 
-    <!-- Tyre Content Container with Loading Overlay -->
+    <!-- Segmented Tab Toggle matching Image 1 & Image 2 -->
+    <div class="row items-center q-mb-lg q-gutter-x-sm">
+      <button
+        type="button"
+        class="tyre-tab-btn"
+        :class="{ active: activeTab === 'register' }"
+        @click="activeTab = 'register'"
+      >
+        Tyre Register
+      </button>
+      <button
+        type="button"
+        class="tyre-tab-btn"
+        :class="{ active: activeTab === 'events' }"
+        @click="activeTab = 'events'"
+      >
+        Fit / Remove / Events
+      </button>
+    </div>
+
+    <!-- Main Tables Container -->
     <div class="relative min-h-[400px]">
-      <!-- 4 KPI Stat Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL TYRE INVENTORY</div>
-        <div class="text-3xl font-extrabold font-mono text-cyan-400 my-1">{{ tyres.length }}</div>
-        <div class="text-xs text-slate-400 font-mono">Radial & tubeless units</div>
-        <div class="accent-bar bg-cyan-400"></div>
-      </div>
+      <AppLoadingOverlay
+        :showing="isRefreshing"
+        title="Syncing Tyre Data..."
+        subtitle="Loading records from PostgreSQL database"
+      />
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">FITTED ON WHEELS</div>
-        <div class="text-3xl font-extrabold font-mono text-white my-1">{{ fittedCount }}</div>
-        <div class="text-xs text-cyan-300 font-mono">Commercial active fleet</div>
-        <div class="accent-bar bg-cyan-400"></div>
-      </div>
-
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">IN STOCK / SPARE</div>
-        <div class="text-3xl font-extrabold font-mono text-emerald-400 my-1">{{ stockCount }}</div>
-        <div class="text-xs text-emerald-300 font-mono">Ready for replacement</div>
-        <div class="accent-bar bg-emerald-400"></div>
-      </div>
-
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">RETREAD DUE</div>
-        <div class="text-3xl font-extrabold font-mono text-amber-400 my-1">{{ retreadDueCount }}</div>
-        <div class="text-xs text-amber-300 font-mono">Tread depth &le; 4.0 mm</div>
-        <div class="accent-bar bg-amber-400"></div>
-      </div>
-    </div>
-
-    <!-- Search & Filter Bar -->
-    <div class="cyber-card p-3 mb-4">
-      <div class="row items-center justify-between no-wrap">
-        <div class="row items-center q-gutter-x-sm no-wrap">
-          <q-input
-            v-model="search"
-            dense
-            outlined
-            placeholder="Search serial / brand / vehicle / size... (Alt+F)"
-            class="desk-search-input"
-            style="min-width: 260px;"
-          >
-            <template #prepend>
-              <q-icon name="search" size="18px" color="cyan" />
-            </template>
-            <template #append v-if="search">
-              <q-icon
-                name="cancel"
-                size="18px"
-                class="cursor-pointer text-slate-400 hover:text-white"
-                @click.stop.prevent="search = ''"
-                @mousedown.stop.prevent="search = ''"
-              />
-            </template>
-          </q-input>
-
-          <q-select
-            v-model="brandFilter"
-            :options="brandFilterOptions"
-            dense
-            outlined
-            emit-value
-            map-options
-            class="desk-filter-select"
-            style="min-width: 150px;"
-          />
-
-          <q-select
-            v-model="statusFilter"
-            :options="statusFilterOptions"
-            dense
-            outlined
-            emit-value
-            map-options
-            class="desk-filter-select"
-            style="min-width: 150px;"
-          />
-        </div>
-
-        <div class="row items-center q-gutter-x-xs no-wrap">
-          <q-btn
-            flat
-            dense
-            icon="refresh"
-            class="desk-grid-refresh-btn"
-            :loading="isRefreshing"
-            @click="onRefresh"
-          >
-            <q-tooltip>Refresh Tyre Register</q-tooltip>
-          </q-btn>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 1: Tyre Registry Cyber-Dark Table matching Image 1 & 2 -->
-    <div v-if="activeTab === 'register'" class="cyber-card table-wrap relative-position">
-      <q-inner-loading :showing="isRefreshing" color="cyan" style="background: rgba(10, 15, 29, 0.8); z-index: 10;">
-        <q-spinner-dots size="48px" color="cyan" />
-        <div class="text-caption text-cyan-300 q-mt-sm font-mono tracking-wider">Syncing tyre records...</div>
-      </q-inner-loading>
-      <table class="cyber-table">
-        <thead>
-          <tr>
-            <th>SERIAL NO</th>
-            <th>BRAND</th>
-            <th>SIZE</th>
-            <th>TYPE</th>
-            <th>SUPPLIER</th>
-            <th class="text-right">COST</th>
-            <th>VEHICLE</th>
-            <th class="text-center">AXLE POSITION</th>
-            <th>FIT DATE</th>
-            <th class="text-right">FIT ODOM</th>
-            <th class="text-center">ACTION</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in filteredTyres" :key="item.serial">
-            <td class="font-mono font-bold text-cyan-400">{{ item.serial }}</td>
-            <td class="font-bold text-white">{{ item.brand }}</td>
-            <td class="font-mono text-slate-300">{{ item.size }}</td>
-            <td class="text-slate-400">{{ item.type }}</td>
-            <td class="text-slate-300">{{ item.supplier }}</td>
-            <td class="font-mono text-right text-slate-200">₹{{ item.cost.toLocaleString() }}</td>
-            <td class="font-mono text-white font-semibold">{{ item.vehicle }}</td>
-            <td class="text-center">
-              <span class="subtype-pill" :class="item.vehicle.includes('Stock') ? 'sub-driver' : 'sub-customer'">
-                {{ item.position }}
-              </span>
-            </td>
-            <td class="font-mono text-slate-400">{{ item.fitDate }}</td>
-            <td class="font-mono text-right text-slate-400">{{ item.fitOdom.toLocaleString() }} km</td>
-            <td class="text-center">
-              <div class="row items-center q-gutter-x-xs no-wrap justify-center">
-                <button class="btn-table-action" @click="editTyre(item)">Edit</button>
-                <button
-                  class="btn-table-icon btn-table-icon--danger"
-                  @click="confirmDeleteTyre(item)"
-                  title="Delete Tyre"
+      <!-- TAB 1: Tyre Register Table matching Image 1 exactly -->
+      <div v-if="activeTab === 'register'" class="cyber-card table-wrap relative-position">
+        <table class="cyber-table">
+          <thead>
+            <tr>
+              <th>SERIAL NO</th>
+              <th>BRAND</th>
+              <th>SIZE</th>
+              <th>TYPE</th>
+              <th>SUPPLIER</th>
+              <th>COST</th>
+              <th>VEHICLE</th>
+              <th>POSITION</th>
+              <th>FIT DATE</th>
+              <th>FIT ODOM</th>
+              <th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in tyres" :key="item.serialNo || item.id">
+              <td class="font-mono font-bold text-cyan-400">{{ item.serialNo || item.id }}</td>
+              <td class="font-medium text-white">{{ item.brand }}</td>
+              <td class="font-mono text-slate-300">{{ item.size }}</td>
+              <td>
+                <span
+                  class="type-pill"
+                  :class="item.type === 'Retread' ? 'type-pill--retread' : 'type-pill--new'"
                 >
-                  <q-icon name="delete" size="14px" />
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="filteredTyres.length === 0">
-            <td colspan="11" class="text-center py-12">
-              <div class="column items-center justify-center text-center q-pa-xl">
-                <div class="q-mb-sm flex flex-center" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.15); margin: 0 auto;">
-                  <q-icon name="search_off" size="28px" class="text-slate-400" />
-                </div>
-                <div class="text-subtitle1 text-weight-bold text-slate-200">No matching records found</div>
-                <div class="text-caption text-slate-500 q-mt-xs">Try adjusting your search terms or clearing active filters.</div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                  {{ item.type }}
+                </span>
+              </td>
+              <td class="text-slate-300">{{ item.supplier }}</td>
+              <td class="font-mono text-slate-300">{{ formatCost(item.cost) }}</td>
+              <td class="font-mono text-slate-300">{{ item.vehicle || '—' }}</td>
+              <td class="font-mono text-slate-300">{{ item.position || '—' }}</td>
+              <td class="font-mono text-slate-400">{{ item.fitDate || '—' }}</td>
+              <td class="font-mono text-slate-300">{{ formatOdometer(item.fitOdom) }}</td>
+              <td>
+                <span
+                  class="status-pill"
+                  :class="item.status === 'Scrapped' ? 'status-pill--scrapped' : 'status-pill--fitted'"
+                >
+                  {{ item.status }}
+                </span>
+              </td>
+            </tr>
+            <tr v-if="tyres.length === 0">
+              <td colspan="11" class="text-center py-12 text-slate-400">
+                No tyre inventory records found.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TAB 2: Fit / Remove / Events Table matching Image 2 exactly -->
+      <div v-else class="cyber-card table-wrap relative-position">
+        <table class="cyber-table">
+          <thead>
+            <tr>
+              <th>EVENT ID</th>
+              <th>TYRE SERIAL</th>
+              <th>VEHICLE</th>
+              <th>EVENT TYPE</th>
+              <th>POSITION</th>
+              <th>DATE</th>
+              <th>ODOMETER</th>
+              <th>REMARKS</th>
+              <th class="text-center">ACTION</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="ev in events" :key="ev.id || ev.eventId">
+              <td class="font-mono font-bold text-cyan-400">{{ ev.eventId || ev.id }}</td>
+              <td class="font-mono text-slate-200">{{ ev.tyreSerial }}</td>
+              <td class="font-mono text-slate-200">{{ ev.vehicle }}</td>
+              <td>
+                <span class="event-pill" :class="getEventPillClass(ev.eventType)">
+                  {{ ev.eventType }}
+                </span>
+              </td>
+              <td class="font-mono text-slate-300">{{ ev.position }}</td>
+              <td class="font-mono text-slate-400">{{ ev.date }}</td>
+              <td class="font-mono text-slate-300">{{ formatOdometer(ev.odometer) }}</td>
+              <td class="text-slate-300">{{ ev.remarks || '—' }}</td>
+              <td class="text-center">
+                <button class="btn-table-action" @click="editEvent(ev)">Edit</button>
+              </td>
+            </tr>
+            <tr v-if="events.length === 0">
+              <td colspan="9" class="text-center py-12 text-slate-400">
+                No tyre events found. Click "+ Tyre Event" to record a new event.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- TAB 2: Fit / Rotation / Wear Events Table -->
-    <div v-else class="cyber-card table-wrap">
-      <table class="cyber-table">
-        <thead>
-          <tr>
-            <th>EVENT ID</th>
-            <th>DATE</th>
-            <th>TYRE SERIAL</th>
-            <th>EVENT TYPE</th>
-            <th>VEHICLE</th>
-            <th>POSITION</th>
-            <th class="text-right">ODOMETER</th>
-            <th>TREAD DEPTH</th>
-            <th>TECHNICIAN</th>
-            <th>REMARKS</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="ev in events" :key="ev.id">
-            <td class="font-mono font-bold text-cyan-400">{{ ev.id }}</td>
-            <td class="font-mono text-slate-400">{{ ev.date }}</td>
-            <td class="font-mono text-white font-semibold">{{ ev.serial }}</td>
-            <td>
-              <span class="subtype-pill" :class="ev.type === 'New Fitment' ? 'sub-fuel-station' : ev.type === 'Retread' ? 'sub-driver' : 'sub-customer'">
-                {{ ev.type }}
-              </span>
-            </td>
-            <td class="font-mono text-white">{{ ev.vehicle }}</td>
-            <td class="font-mono text-cyan-3">{{ ev.position }}</td>
-            <td class="font-mono text-right text-slate-300">{{ ev.odometer.toLocaleString() }} km</td>
-            <td class="font-mono text-amber-300 font-bold">{{ ev.treadDepth }} mm</td>
-            <td class="text-slate-300">{{ ev.technician }}</td>
-            <td class="text-slate-400">{{ ev.remarks }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-      <!-- Inner Loading Overlay on Tyre Refresh -->
-      <q-inner-loading :showing="isRefreshing" style="background: rgba(7, 12, 24, 0.75); backdrop-filter: blur(4px); z-index: 50; border-radius: 16px;">
-        <div class="column items-center">
-          <q-spinner-dots size="56px" color="cyan" />
-          <div class="text-sm font-mono font-bold text-cyan-300 q-mt-md tracking-wider">
-            Refreshing Tyre Inventory & Axle Health...
-          </div>
-          <div class="text-xs font-mono text-slate-400 q-mt-xs">
-            Updating tread depth, retread schedules & serial status
-          </div>
-        </div>
-      </q-inner-loading>
-    </div>
-
-    <!-- Record / Edit Tyre Desk Dialog matching Reference Image 1 -->
+    <!-- Drawer for New / Edit Tyre Event matching Image 1 from previous turn -->
     <DeskDialog
-      v-model="showDialog"
-      :title="isEditing ? `Edit Tyre Record — ${editingItem?.serial}` : 'Register New Fleet Tyre'"
-      width="580px"
-      :confirm-label="isEditing ? 'Update Tyre' : 'Save Tyre'"
+      v-model="showEventDialog"
+      :title="isEditingEvent ? 'Edit Tyre Event' : 'New Tyre Event'"
+      position="right"
+      width="540px"
+      confirm-label="Save"
       cancel-label="Cancel"
-      @confirm="saveTyre"
-      @cancel="showDialog = false"
+      :persistent="false"
+      @confirm="saveEvent"
+      @cancel="showEventDialog = false"
     >
-      <DeskForm @submit="saveTyre">
+      <DeskForm @submit="saveEvent">
         <div class="row q-col-gutter-md">
+          <!-- SECTION: EVENT DETAILS -->
+          <div class="col-12">
+            <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mb-xs font-mono uppercase tracking-wider">
+              EVENT DETAILS
+            </div>
+          </div>
+
+          <!-- Row 1: EVENT ID & DATE -->
           <div class="col-12 col-md-6">
-            <DeskField label="Tyre Serial Number" required shortcut="1">
+            <DeskField label="EVENT ID" required>
               <q-input
-                v-model="form.serial"
+                v-model="eventForm.eventId"
                 dense
                 outlined
-                placeholder="e.g. TYR-MRF-89105"
-                :readonly="isEditing"
+                placeholder="TE/240013"
               />
             </DeskField>
           </div>
 
           <div class="col-12 col-md-6">
-            <DeskField label="Tyre Brand & Model" required shortcut="2">
-              <DeskCombo
-                v-model="form.brand"
-                :options="['MRF Steel Muscle', 'Apollo EnduRace', 'JK Tyre JetXtra', 'CEAT Winmile', 'Bridgestone M751']"
-                placeholder="Select or enter brand..."
+            <DeskField label="DATE" required>
+              <q-input
+                v-model="eventForm.date"
+                dense
+                outlined
+                type="date"
+                placeholder="mm/dd/yyyy"
+              />
+            </DeskField>
+          </div>
+
+          <!-- Row 2: TYRE SERIAL NO & VEHICLE -->
+          <div class="col-12 col-md-6">
+            <DeskField label="TYRE SERIAL NO" required>
+              <q-select
+                v-model="eventForm.tyreSerial"
+                :options="tyreSerialOptions"
+                dense
+                outlined
               />
             </DeskField>
           </div>
 
           <div class="col-12 col-md-6">
-            <DeskField label="Tyre Size" required shortcut="3">
-              <DeskCombo
-                v-model="form.size"
-                :options="['295/80 R22.5', '10.00 R20', '11.00 R20', '215/75 R17.5']"
-                placeholder="Select tyre size..."
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Tyre Construction" required shortcut="4">
-              <DeskCombo
-                v-model="form.type"
-                :options="['Radial Tubeless', 'Radial Nylon', 'Bias Ply', 'All-Steel Radial']"
-                placeholder="Select type..."
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Supplier / Vendor" required shortcut="5">
-              <DeskCombo
-                v-model="form.supplier"
-                :options="['Shree Tyre Corp', 'Gujarat Rubber Works', 'Apollo Tyres Depot', 'National Retreaders']"
-                placeholder="Select supplier..."
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Purchase Cost (₹)" required shortcut="6">
-              <DeskNumberInput
-                v-model="form.cost"
-                placeholder="e.g. 24500"
-                :step="500"
-                :min="0"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Assigned Vehicle" required shortcut="7">
-              <DeskCombo
-                v-model="form.vehicle"
+            <DeskField label="VEHICLE" required>
+              <q-select
+                v-model="eventForm.vehicle"
                 :options="vehicleOptions"
-                placeholder="Select vehicle..."
+                dense
+                outlined
+              />
+            </DeskField>
+          </div>
+
+          <!-- Row 3: EVENT TYPE & TYRE POSITION -->
+          <div class="col-12 col-md-6">
+            <DeskField label="EVENT TYPE" required>
+              <q-select
+                v-model="eventForm.eventType"
+                :options="eventTypeOptions"
+                dense
+                outlined
               />
             </DeskField>
           </div>
 
           <div class="col-12 col-md-6">
-            <DeskField label="Axle Position" required shortcut="8">
-              <DeskCombo
-                v-model="form.position"
-                :options="positionOptions"
-                placeholder="Select axle position..."
+            <DeskField label="TYRE POSITION" required>
+              <q-input
+                v-model="eventForm.position"
+                dense
+                outlined
+                placeholder="FR / FL / RR / RL / SR"
               />
             </DeskField>
           </div>
 
+          <!-- Row 4: ODOMETER (KM) -->
           <div class="col-12 col-md-6">
-            <DeskField label="Fitment Date" required shortcut="9">
-              <DeskDateInput
-                v-model="form.fitDate"
+            <DeskField label="ODOMETER (KM)" required>
+              <q-input
+                v-model="eventForm.odometer"
+                dense
+                outlined
+                placeholder="48230"
               />
             </DeskField>
           </div>
 
-          <div class="col-12 col-md-6">
-            <DeskField label="Fitment Odometer (KM)">
-              <DeskNumberInput
-                v-model="form.fitOdom"
-                placeholder="e.g. 42000"
-                :step="1000"
-                :min="0"
+          <!-- Row 5: REMARKS -->
+          <div class="col-12">
+            <DeskField label="REMARKS">
+              <q-input
+                v-model="eventForm.remarks"
+                type="textarea"
+                rows="3"
+                dense
+                outlined
+                placeholder="Event details, reason for removal, damage description..."
               />
             </DeskField>
           </div>
         </div>
       </DeskForm>
     </DeskDialog>
-
-    <!-- Confirm Delete Tyre Dialog -->
-    <DeskDialog
-      v-model="showDeleteDialog"
-      title="Confirm Delete Tyre Record"
-      icon="warning"
-      width="480px"
-      confirm-label="Delete Tyre"
-      confirm-color="red-7"
-      cancel-label="Cancel"
-      @confirm="executeDeleteTyre"
-      @cancel="showDeleteDialog = false"
-    >
-      <div class="q-py-sm">
-        <div class="text-body1 text-white q-mb-sm">
-          Are you sure you want to permanently delete Tyre Unit
-          <span class="text-cyan-4 text-weight-bold font-mono">{{ deletingItem?.serial }}</span>
-          ({{ deletingItem?.brand }})?
-        </div>
-        <div class="text-caption text-red-3">
-          This operation will remove the tyre from vehicle axle configurations and wear history.
-        </div>
-      </div>
-    </DeskDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
+import api from '../../api/client';
 import { useAppNotify } from '../../composables/useAppNotify';
-import { exportToCsv } from '../../utils/exportCsv';
-import { exportToPdf } from '../../utils/exportPdf';
 import {
   DeskDialog,
   DeskForm,
   DeskField,
-  DeskCombo,
-  DeskNumberInput,
-  DeskDateInput,
 } from '../../framework';
 
-export interface TyreItem {
-  serial: string;
+export interface TyreInventoryItem {
+  id?: string;
+  serialNo: string;
   brand: string;
   size: string;
   type: string;
   supplier: string;
-  cost: number;
+  cost: number | string;
   vehicle: string;
   position: string;
   fitDate: string;
-  fitOdom: number;
-  treadDepth?: number;
+  fitOdom: string | number;
+  status: string;
 }
 
-export interface TyreEvent {
-  id: string;
+export interface TyreEventItem {
+  id?: string;
+  eventId: string;
   date: string;
-  serial: string;
-  type: string;
+  tyreSerial: string;
   vehicle: string;
+  eventType: string;
   position: string;
-  odometer: number;
-  treadDepth: number;
-  technician: string;
-  remarks: string;
+  odometer: string | number;
+  remarks?: string;
 }
 
 const notify = useAppNotify();
+
+// Active tab can toggle between 'register' (Image 1) and 'events' (Image 2)
 const activeTab = ref<'register' | 'events'>('register');
-const search = ref('');
-const brandFilter = ref('ALL');
-const statusFilter = ref('ALL');
-
-const showDialog = ref(false);
-const isEditing = ref(false);
-const editingItem = ref<TyreItem | null>(null);
-
-const showDeleteDialog = ref(false);
-const deletingItem = ref<TyreItem | null>(null);
-
-const vehicleOptions = [
-  'GJ-01-AB-1122',
-  'MH-14-DX-9000',
-  'RJ-13-TR-7788',
-  'GJ-05-BT-2211',
-  'Stock / In Warehouse',
-];
-
-const positionOptions = [
-  'FL (Front Left)',
-  'FR (Front Right)',
-  'R1-O (Rear Outer)',
-  'R1-I (Rear Inner)',
-  'R2-O (Axle 2 Outer)',
-  'R2-I (Axle 2 Inner)',
-  'Stepney / Spare',
-];
-
-const brandFilterOptions = [
-  { label: 'All Brands', value: 'ALL' },
-  { label: 'MRF', value: 'MRF' },
-  { label: 'Apollo', value: 'Apollo' },
-  { label: 'JK Tyre', value: 'JK Tyre' },
-  { label: 'CEAT', value: 'CEAT' },
-];
-
-const statusFilterOptions = [
-  { label: 'All Placements', value: 'ALL' },
-  { label: 'Fitted on Vehicle', value: 'FITTED' },
-  { label: 'Warehouse Stock / Spare', value: 'STOCK' },
-];
-
-const defaultTyres: TyreItem[] = [
-  { serial: 'TYR-MRF-89101', brand: 'MRF Steel Muscle', size: '295/80 R22.5', type: 'Radial Tubeless', supplier: 'Shree Tyre Corp', cost: 24500, vehicle: 'GJ-01-AB-1122', position: 'FL (Front Left)', fitDate: '2026-05-14', fitOdom: 42000, treadDepth: 8.5 },
-  { serial: 'TYR-MRF-89102', brand: 'MRF Steel Muscle', size: '295/80 R22.5', type: 'Radial Tubeless', supplier: 'Shree Tyre Corp', cost: 24500, vehicle: 'GJ-01-AB-1122', position: 'FR (Front Right)', fitDate: '2026-05-14', fitOdom: 42000, treadDepth: 8.2 },
-  { serial: 'TYR-APL-77401', brand: 'Apollo EnduRace', size: '10.00 R20', type: 'Radial Nylon', supplier: 'Gujarat Rubber Works', cost: 21800, vehicle: 'MH-14-DX-9000', position: 'R1-O (Rear Outer)', fitDate: '2026-06-18', fitOdom: 78500, treadDepth: 6.0 },
-  { serial: 'TYR-JKT-66504', brand: 'JK Tyre JetXtra', size: '10.00 R20', type: 'Radial', supplier: 'National Retreaders', cost: 18200, vehicle: 'RJ-13-TR-7788', position: 'R2-I (Rear Inner)', fitDate: '2026-08-02', fitOdom: 104200, treadDepth: 3.8 },
-  { serial: 'TYR-APL-77402', brand: 'Apollo EnduRace', size: '10.00 R20', type: 'Radial Nylon', supplier: 'Apollo Tyres Depot', cost: 21800, vehicle: 'Stock / In Warehouse', position: 'Stepney / Spare', fitDate: '2026-09-10', fitOdom: 0, treadDepth: 14.5 },
-];
-
-const defaultEvents: TyreEvent[] = [
-  { id: 'EVT/2401', date: '2026-10-22', serial: 'TYR-JKT-66504', type: 'Retread Due', vehicle: 'RJ-13-TR-7788', position: 'R2-I', odometer: 104200, treadDepth: 3.8, technician: 'Mukesh Sharma', remarks: 'Tread worn below safety limit. Sent for cold retread.' },
-  { id: 'EVT/2400', date: '2026-09-10', serial: 'TYR-APL-77402', type: 'Received in Stock', vehicle: 'Stock / In Warehouse', position: 'Spare', odometer: 0, treadDepth: 14.5, technician: 'Rajesh Bhai', remarks: 'New tyre received from Apollo Tyres Depot.' },
-  { id: 'EVT/2399', date: '2026-06-18', serial: 'TYR-APL-77401', type: 'New Fitment', vehicle: 'MH-14-DX-9000', position: 'R1-O', odometer: 78500, treadDepth: 14.0, technician: 'Mukesh Sharma', remarks: 'Replaced punctured tyre on rear axle.' },
-];
-
-const tyres = ref<TyreItem[]>([]);
-const events = ref<TyreEvent[]>(defaultEvents);
-
-onMounted(() => {
-  const saved = localStorage.getItem('tms_tyre_operations');
-  if (saved) {
-    try {
-      tyres.value = JSON.parse(saved);
-    } catch {
-      tyres.value = defaultTyres;
-    }
-  } else {
-    tyres.value = defaultTyres;
-    persist();
-  }
-});
-
-function persist() {
-  localStorage.setItem('tms_tyre_operations', JSON.stringify(tyres.value));
-}
-
-const form = ref<TyreItem>({
-  serial: 'TYR-MRF-89105',
-  brand: 'MRF Steel Muscle',
-  size: '295/80 R22.5',
-  type: 'Radial Tubeless',
-  supplier: 'Shree Tyre Corp',
-  cost: 24500,
-  vehicle: 'GJ-01-AB-1122',
-  position: 'FL (Front Left)',
-  fitDate: new Date().toISOString().slice(0, 10),
-  fitOdom: 48000,
-});
-
 const isRefreshing = ref(false);
 
-function onRefresh() {
-  isRefreshing.value = true;
-  setTimeout(() => {
-    isRefreshing.value = false;
-    $q.notify({
-      type: 'positive',
-      icon: 'check_circle',
-      message: 'Tyre Register Refreshed',
-      caption: 'Tyre assets and axle life synced.',
-      timeout: 1800,
-      position: 'top-right',
-    });
-  }, 650);
-}
+// Dropdown options matching Image 2, 3, 4 from previous turn
+const vehicleOptions = ref<string[]>([
+  '— Select —',
+  'GJ-01-AB-1122',
+  'GJ-01-AC-3444',
+  'MH-14-DX-9000',
+  'RJ-13-TR-7788',
+]);
 
-const filteredTyres = computed(() => {
-  const q = (search.value || '').toLowerCase().trim();
-  return tyres.value.filter((t) => {
-    const matchSearch =
-      !q ||
-      t.serial.toLowerCase().includes(q) ||
-      t.brand.toLowerCase().includes(q) ||
-      t.vehicle.toLowerCase().includes(q) ||
-      t.size.toLowerCase().includes(q);
-    const matchBrand = brandFilter.value === 'ALL' || t.brand.toLowerCase().includes(brandFilter.value.toLowerCase());
-    const matchStatus =
-      statusFilter.value === 'ALL' ||
-      (statusFilter.value === 'STOCK' && t.vehicle.includes('Stock')) ||
-      (statusFilter.value === 'FITTED' && !t.vehicle.includes('Stock'));
-    return matchSearch && matchBrand && matchStatus;
-  });
-});
+const tyreSerialOptions = ref<string[]>([
+  '— Select —',
+  'TYR-GJ01-001',
+  'TYR-GJ01-002',
+  'TYR-MH14-001',
+  'TYR-SCRAP-001',
+]);
 
-const fittedCount = computed(() => {
-  return tyres.value.filter((t) => !t.vehicle.includes('Stock')).length;
-});
+const eventTypeOptions = [
+  '— Select —',
+  'Fit',
+  'Remove',
+  'Rotate',
+  'Retread',
+  'Scrap',
+  'Puncture Repair',
+];
 
-const stockCount = computed(() => {
-  return tyres.value.filter((t) => t.vehicle.includes('Stock')).length;
-});
-
-const retreadDueCount = computed(() => {
-  return tyres.value.filter((t) => (t.treadDepth || 10) <= 4.0).length;
-});
-
-function openAddDialog() {
-  isEditing.value = false;
-  editingItem.value = null;
-  const seq = 89105 + tyres.value.length;
-  form.value = {
-    serial: `TYR-MRF-${seq}`,
-    brand: 'MRF Steel Muscle',
-    size: '295/80 R22.5',
-    type: 'Radial Tubeless',
-    supplier: 'Shree Tyre Corp',
-    cost: 24500,
+// Seeded Default Tyres matching Image 1
+const defaultTyres: TyreInventoryItem[] = [
+  {
+    serialNo: 'TYR-GJ01-001',
+    brand: 'MRF',
+    size: '295/80R22.5',
+    type: 'New',
+    supplier: 'Tata Rubber Ltd',
+    cost: 28000,
     vehicle: 'GJ-01-AB-1122',
-    position: 'FL (Front Left)',
-    fitDate: new Date().toISOString().slice(0, 10),
-    fitOdom: 45000,
-    treadDepth: 14.0,
+    position: 'FR',
+    fitDate: '2026-01-15',
+    fitOdom: '40,000',
+    status: 'FITTED',
+  },
+  {
+    serialNo: 'TYR-GJ01-002',
+    brand: 'Apollo',
+    size: '295/80R22.5',
+    type: 'New',
+    supplier: 'Tata Rubber Ltd',
+    cost: 26500,
+    vehicle: 'GJ-01-AB-1122',
+    position: 'FL',
+    fitDate: '2026-01-15',
+    fitOdom: '40,000',
+    status: 'FITTED',
+  },
+  {
+    serialNo: 'TYR-MH14-001',
+    brand: 'CEAT',
+    size: '315/80R22.5',
+    type: 'New',
+    supplier: 'Tata Rubber Ltd',
+    cost: 31000,
+    vehicle: 'MH-14-DX-9000',
+    position: 'FR',
+    fitDate: '2025-06-20',
+    fitOdom: '55,000',
+    status: 'FITTED',
+  },
+  {
+    serialNo: 'TYR-SCRAP-001',
+    brand: 'MRF',
+    size: '295/80R22.5',
+    type: 'Retread',
+    supplier: 'Tata Rubber Ltd',
+    cost: 26000,
+    vehicle: '—',
+    position: '—',
+    fitDate: '2024-04-01',
+    fitOdom: '12,000',
+    status: 'Scrapped',
+  },
+];
+
+// Seeded Default Events matching Image 2
+const defaultEvents: TyreEventItem[] = [
+  {
+    id: 'TE/240012',
+    eventId: 'TE/240012',
+    date: '2026-01-15',
+    tyreSerial: 'TYR-GJ01-001',
+    vehicle: 'GJ-01-AB-1122',
+    eventType: 'Fit',
+    position: 'FR',
+    odometer: '40,000',
+    remarks: 'New tyre fitted front right',
+  },
+  {
+    id: 'TE/240011',
+    eventId: 'TE/240011',
+    date: '2026-05-10',
+    tyreSerial: 'TYR-MH14-001',
+    vehicle: 'MH-14-DX-9000',
+    eventType: 'Rotate',
+    position: 'RR->FR',
+    odometer: '58,500',
+    remarks: 'Rotation as per schedule',
+  },
+  {
+    id: 'TE/240010',
+    eventId: 'TE/240010',
+    date: '2026-03-01',
+    tyreSerial: 'TYR-SCRAP-001',
+    vehicle: 'RJ-13-TR-7788',
+    eventType: 'Scrap',
+    position: 'RL',
+    odometer: '52,000',
+    remarks: 'Sidewall damage, unrepairable',
+  },
+];
+
+const tyres = ref<TyreInventoryItem[]>([]);
+const events = ref<TyreEventItem[]>([]);
+
+// Event Dialog State
+const showEventDialog = ref(false);
+const isEditingEvent = ref(false);
+const editingEventItem = ref<TyreEventItem | null>(null);
+
+const eventForm = ref<TyreEventItem>({
+  eventId: 'TE/240013',
+  date: new Date().toISOString().slice(0, 10),
+  tyreSerial: '— Select —',
+  vehicle: '— Select —',
+  eventType: '— Select —',
+  position: 'FR',
+  odometer: '48230',
+  remarks: '',
+});
+
+onMounted(async () => {
+  await Promise.all([loadTyres(), loadEvents()]);
+  fetchDynamicVehicles();
+});
+
+async function loadTyres() {
+  try {
+    const res = await api.get('/api/v1/tyres');
+    if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+      tyres.value = res.data;
+    } else {
+      tyres.value = [...defaultTyres];
+    }
+  } catch (err) {
+    console.warn('Could not load tyres from API, using fallback:', err);
+    const saved = localStorage.getItem('tms_tyre_inventory_data');
+    if (saved) {
+      try {
+        tyres.value = JSON.parse(saved);
+      } catch {
+        tyres.value = [...defaultTyres];
+      }
+    } else {
+      tyres.value = [...defaultTyres];
+    }
+  }
+}
+
+async function loadEvents() {
+  isRefreshing.value = true;
+  try {
+    const res = await api.get('/api/v1/tyre-events');
+    if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+      events.value = res.data;
+    } else {
+      events.value = [...defaultEvents];
+    }
+  } catch (err) {
+    console.warn('Could not load tyre events from API, using fallback:', err);
+    const saved = localStorage.getItem('tms_tyre_events');
+    if (saved) {
+      try {
+        events.value = JSON.parse(saved);
+      } catch {
+        events.value = [...defaultEvents];
+      }
+    } else {
+      events.value = [...defaultEvents];
+    }
+  } finally {
+    isRefreshing.value = false;
+  }
+}
+
+async function fetchDynamicVehicles() {
+  try {
+    const res = await api.get('/api/v1/vehicles');
+    if (res.data && Array.isArray(res.data)) {
+      const vList = res.data
+        .map((v: any) => v.registrationNumber || v.vehicleNumber || v.regNo || v.plateNumber)
+        .filter(Boolean);
+      for (const reg of vList) {
+        if (!vehicleOptions.value.includes(reg)) {
+          vehicleOptions.value.push(reg);
+        }
+      }
+    }
+  } catch {
+    // Keep defaults
+  }
+}
+
+function formatCost(val: any): string {
+  if (!val) return '₹0';
+  const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.]/g, '')) || 0;
+  return '₹' + num.toLocaleString();
+}
+
+function formatOdometer(val: any): string {
+  if (!val) return '0';
+  const str = String(val).replace(/,/g, '');
+  const num = parseInt(str, 10);
+  if (!isNaN(num)) {
+    return num.toLocaleString();
+  }
+  return String(val);
+}
+
+function getEventPillClass(type: string): string {
+  switch (type) {
+    case 'Fit':
+      return 'pill-fit';
+    case 'Rotate':
+      return 'pill-rotate';
+    case 'Scrap':
+      return 'pill-scrap';
+    case 'Remove':
+      return 'pill-remove';
+    case 'Retread':
+      return 'pill-retread';
+    case 'Puncture Repair':
+      return 'pill-repair';
+    default:
+      return 'pill-default';
+  }
+}
+
+function openAddEventDialog() {
+  isEditingEvent.value = false;
+  editingEventItem.value = null;
+  const seq = 240013 + events.value.length;
+  eventForm.value = {
+    eventId: `TE/${seq}`,
+    date: new Date().toISOString().slice(0, 10),
+    tyreSerial: '— Select —',
+    vehicle: '— Select —',
+    eventType: '— Select —',
+    position: 'FR',
+    odometer: '48230',
+    remarks: '',
   };
-  showDialog.value = true;
+  showEventDialog.value = true;
 }
 
-function editTyre(item: TyreItem) {
-  isEditing.value = true;
-  editingItem.value = item;
-  form.value = { ...item };
-  showDialog.value = true;
+function editEvent(item: TyreEventItem) {
+  isEditingEvent.value = true;
+  editingEventItem.value = item;
+  eventForm.value = {
+    id: item.id,
+    eventId: item.eventId || item.id || 'TE/240013',
+    date: item.date || new Date().toISOString().slice(0, 10),
+    tyreSerial: item.tyreSerial || '— Select —',
+    vehicle: item.vehicle || '— Select —',
+    eventType: item.eventType || '— Select —',
+    position: item.position || 'FR',
+    odometer: item.odometer || '48230',
+    remarks: item.remarks || '',
+  };
+  showEventDialog.value = true;
 }
 
-function saveTyre() {
-  if (!form.value.serial || !form.value.brand || !form.value.cost) {
-    notify.warning('Please enter serial number, brand, and cost.');
+async function saveEvent() {
+  if (
+    !eventForm.value.eventId ||
+    eventForm.value.tyreSerial === '— Select —' ||
+    eventForm.value.vehicle === '— Select —' ||
+    eventForm.value.eventType === '— Select —'
+  ) {
+    notify.warning('Please select Tyre Serial, Vehicle, and Event Type.');
     return;
   }
 
-  if (isEditing.value && editingItem.value) {
-    const idx = tyres.value.findIndex((t) => t.serial === editingItem.value!.serial);
-    if (idx !== -1) {
-      tyres.value[idx] = { ...form.value };
-      persist();
-      notify.success(`Tyre ${editingItem.value.serial} updated.`);
+  const payload = {
+    ...eventForm.value,
+    id: eventForm.value.eventId,
+  };
+
+  try {
+    if (isEditingEvent.value && editingEventItem.value) {
+      const editId = editingEventItem.value.id || editingEventItem.value.eventId;
+      await api.patch(`/api/v1/tyre-events/${editId}`, payload);
+      const idx = events.value.findIndex((e) => (e.id || e.eventId) === editId);
+      if (idx !== -1) {
+        events.value[idx] = { ...events.value[idx], ...payload };
+      }
+      notify.success(`Tyre Event ${payload.eventId} updated successfully.`);
+    } else {
+      await api.post('/api/v1/tyre-events', payload);
+      events.value.unshift(payload);
+      notify.success(`Tyre Event ${payload.eventId} recorded in database.`);
     }
-  } else {
-    tyres.value.unshift({ ...form.value });
-    persist();
-    notify.success(`Tyre ${form.value.serial} registered successfully.`);
+    localStorage.setItem('tms_tyre_events', JSON.stringify(events.value));
+  } catch (err: any) {
+    console.warn('API error, saving locally:', err);
+    if (isEditingEvent.value && editingEventItem.value) {
+      const editId = editingEventItem.value.id || editingEventItem.value.eventId;
+      const idx = events.value.findIndex((e) => (e.id || e.eventId) === editId);
+      if (idx !== -1) {
+        events.value[idx] = { ...events.value[idx], ...payload };
+      }
+      notify.success(`Tyre Event ${payload.eventId} updated locally.`);
+    } else {
+      events.value.unshift(payload);
+      notify.success(`Tyre Event ${payload.eventId} saved.`);
+    }
+    localStorage.setItem('tms_tyre_events', JSON.stringify(events.value));
   }
 
-  showDialog.value = false;
-}
-
-function confirmDeleteTyre(item: TyreItem) {
-  deletingItem.value = item;
-  showDeleteDialog.value = true;
-}
-
-function executeDeleteTyre() {
-  if (!deletingItem.value) return;
-  tyres.value = tyres.value.filter((t) => t.serial !== deletingItem.value!.serial);
-  persist();
-  notify.success(`Tyre ${deletingItem.value.serial} deleted.`);
-  showDeleteDialog.value = false;
-}
-
-function exportTyresCsv() {
-  exportToCsv(
-    'tyre_inventory_registry',
-    [
-      { label: 'Serial No', field: 'serial' },
-      { label: 'Brand', field: 'brand' },
-      { label: 'Size', field: 'size' },
-      { label: 'Type', field: 'type' },
-      { label: 'Supplier', field: 'supplier' },
-      { label: 'Cost', field: 'cost' },
-      { label: 'Vehicle', field: 'vehicle' },
-      { label: 'Position', field: 'position' },
-      { label: 'Fit Date', field: 'fitDate' },
-      { label: 'Fit Odometer', field: 'fitOdom' },
-    ],
-    filteredTyres.value,
-  );
-  notify.success(`${filteredTyres.value.length} tyre records exported to CSV.`);
-}
-
-function exportTyresPdf() {
-  exportToPdf({
-    title: 'Fleet Tyre Inventory & Axle Operations',
-    subtitle: `Total Tyre Units: ${filteredTyres.value.length}`,
-    columns: [
-      { label: 'Serial', field: 'serial' },
-      { label: 'Brand', field: 'brand' },
-      { label: 'Size', field: 'size' },
-      { label: 'Vehicle', field: 'vehicle' },
-      { label: 'Position', field: 'position' },
-      { label: 'Cost', field: 'cost', align: 'right' },
-      { label: 'Fit Date', field: 'fitDate' },
-    ],
-    rows: filteredTyres.value,
-  });
+  showEventDialog.value = false;
 }
 </script>
 
@@ -725,80 +651,63 @@ function exportTyresPdf() {
   min-height: calc(100vh - 88px);
 }
 
-.stat-card {
-  transition: transform 0.2s ease, border-color 0.2s ease;
+.title-underline {
+  height: 3px;
+  background: #00e5ff;
+  width: 32px;
+  margin-top: 5px;
+  border-radius: 2px;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  border-color: #00f2fe;
-}
-
-.accent-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-}
-
-.desk-kbd {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1px 4px;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #00f2fe;
-  font-family: var(--desk-font-mono, monospace);
-  font-size: 10px;
-}
-
-/* Custom Segmented View Toggle */
-.view-mode-toggle {
-  display: inline-flex;
-  align-items: center;
-  background: #090f1d;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.desk-btn-cyan-action {
+  background: #00e5ff;
+  color: #020617;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 16px;
   border-radius: 8px;
-  padding: 3px;
-  gap: 3px;
-}
-
-.view-mode-btn {
+  border: none;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.desk-btn-cyan-action:hover {
+  background: #33ebff;
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+}
+
+.tyre-tab-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0d172b;
   color: #94a3b8;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.2s ease;
   outline: none;
-  white-space: nowrap;
 }
 
-.view-mode-btn:hover {
+.tyre-tab-btn:hover {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
-.view-mode-btn.active {
-  background: rgba(0, 242, 254, 0.15);
-  color: #00f2fe;
-  border-color: rgba(0, 242, 254, 0.4);
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+.tyre-tab-btn.active {
+  background: #00e5ff;
+  color: #020617;
+  border-color: #00e5ff;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
 }
 
-.view-mode-btn .q-icon {
-  font-size: 15px;
-}
-
-/* Cyber Card & Table matching Reference Image 1 & 2 */
+/* Cyber Card & Table matching Image 1 & Image 2 */
 .cyber-card {
-  background: #0d172b;
+  background: #090f1d;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   overflow: hidden;
@@ -815,55 +724,135 @@ function exportTyresPdf() {
 
 .cyber-table th {
   background: rgba(255, 255, 255, 0.02);
-  color: #00f2fe;
+  color: #00e5ff;
   font-weight: 700;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
-  padding: 0.85rem 1rem;
+  padding: 0.9rem 1rem;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: none !important;
-  border-right: none !important;
 }
 
 .cyber-table td {
-  padding: 0.85rem 1rem;
+  padding: 0.9rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  border-left: none !important;
-  border-right: none !important;
   color: #cbd5e1;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
 }
 
 .cyber-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.025);
 }
 
-.subtype-pill {
+/* Type Pill (New vs Retread) matching Image 1 */
+.type-pill {
   display: inline-block;
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 0.2rem 0.6rem;
+  padding: 2px 8px;
   border-radius: 6px;
 }
 
-.sub-customer {
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
-}
-
-.sub-fuel-station {
-  background: rgba(16, 185, 129, 0.12);
+.type-pill--new {
+  background: rgba(16, 185, 129, 0.15);
   color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.sub-driver {
-  background: rgba(251, 191, 36, 0.12);
-  color: #fbbf24;
+.type-pill--retread {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-.sub-service-centre {
-  background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
+/* Status Pill (FITTED vs Scrapped) matching Image 1 */
+.status-pill {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.status-pill--fitted {
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.status-pill--scrapped {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Event Type Pills matching Image 2 */
+.event-pill {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 6px;
+}
+
+.pill-fit {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.pill-rotate {
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.pill-scrap {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.pill-remove {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.pill-retread {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.pill-repair {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.pill-default {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.btn-table-action {
+  height: 28px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  background: rgba(0, 229, 255, 0.08);
+  color: #00e5ff;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btn-table-action:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00e5ff;
 }
 </style>

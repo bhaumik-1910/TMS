@@ -120,10 +120,7 @@
 
       <!-- Custom Loading Overlay -->
       <template #loading>
-        <q-inner-loading showing color="cyan" style="background: rgba(10, 15, 29, 0.8); z-index: 10;">
-          <q-spinner-dots size="48px" color="cyan" />
-          <div class="text-caption text-cyan-300 q-mt-sm font-mono tracking-wider">Loading records...</div>
-        </q-inner-loading>
+        <AppLoadingOverlay showing title="Loading Records..." subtitle="Fetching and indexing data" />
       </template>
       <!-- Header Row with column shortcuts if needed -->
       <template #header="props">

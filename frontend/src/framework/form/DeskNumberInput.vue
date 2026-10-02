@@ -54,7 +54,7 @@ import { computed } from 'vue';
 
 const props = withDefaults(
   defineProps<{
-    modelValue: number | undefined | null;
+    modelValue: number | string | undefined | null;
     placeholder?: string;
     step?: number;
     min?: number;
@@ -74,7 +74,10 @@ const emit = defineEmits<{
   (e: 'update:modelValue', val: number): void;
 }>();
 
-const numValue = computed(() => Number(props.modelValue) || 0);
+const numValue = computed(() => {
+  if (props.modelValue === undefined || props.modelValue === null || props.modelValue === '') return 0;
+  return Number(props.modelValue) || 0;
+});
 
 function onInput(val: string | number | null) {
   emit('update:modelValue', Number(val) || 0);
@@ -83,13 +86,13 @@ function onInput(val: string | number | null) {
 function increment() {
   const next = numValue.value + props.step;
   if (props.max !== undefined && next > props.max) return;
-  emit('update:modelValue', parseFloat(next.toFixed(10)));
+  emit('update:modelValue', parseFloat(next.toFixed(4)));
 }
 
 function decrement() {
   const next = numValue.value - props.step;
   if (props.min !== undefined && next < props.min) return;
-  emit('update:modelValue', parseFloat(next.toFixed(10)));
+  emit('update:modelValue', parseFloat(next.toFixed(4)));
 }
 </script>
 

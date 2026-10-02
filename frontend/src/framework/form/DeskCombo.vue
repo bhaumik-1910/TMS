@@ -7,8 +7,10 @@
     :emit-value="isObjectOptions ? emitValue : false"
     :map-options="isObjectOptions ? mapOptions : false"
     :placeholder="placeholder"
+    :display-value="modelValueComputed || placeholder"
     :disable="disable"
     :loading="loading"
+    dropdown-icon="keyboard_arrow_down"
     dense
     outlined
     behavior="menu"
@@ -125,5 +127,11 @@ const modelValueComputed = computed({
 
 .desk-combo :deep(.q-field__marginal) {
   height: 40px !important;
+}
+
+.desk-combo :deep(.q-field__append .q-icon) {
+  color: #ffffff !important;
+  font-size: 20px !important;
+  transition: transform 0.2s ease !important;
 }
 </style>

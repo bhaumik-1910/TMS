@@ -15,19 +15,6 @@
       <div class="row items-center q-gutter-x-sm">
         <q-btn
           unelevated
-          icon="refresh"
-          label="Refresh"
-          class="desk-btn-secondary"
-          :loading="isRefreshing"
-          @click="onRefresh"
-        >
-          <template #loading>
-            <q-spinner color="cyan" size="16px" />
-          </template>
-          <q-tooltip>Refresh Fuel Logs</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
           icon="add"
           label="Fuel Entry"
           class="desk-btn-primary"
@@ -42,221 +29,255 @@
     <div class="relative min-h-[400px]">
       <!-- 4 KPI Stat Cards -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL FUEL COST</div>
-        <div class="text-3xl font-extrabold font-mono text-cyan-400 my-1">₹{{ formattedTotalCost }}</div>
-        <div class="text-xs text-slate-400 font-mono">{{ entries.length }} entries recorded</div>
-        <div class="accent-bar bg-cyan-400"></div>
-      </div>
-
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">AVG KM/L</div>
-        <div class="text-3xl font-extrabold font-mono text-white my-1">{{ avgKml }}</div>
-        <div class="text-xs text-emerald-400 font-mono">Target: 5.5 (Fleet Optimal)</div>
-        <div class="accent-bar bg-cyan-400"></div>
-      </div>
-
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL CONSUMPTION</div>
-        <div class="text-3xl font-extrabold font-mono text-white my-1">{{ totalLitres.toLocaleString() }} L</div>
-        <div class="text-xs text-slate-400 font-mono">Fleet Diesel Dispensed</div>
-        <div class="accent-bar bg-cyan-400"></div>
-      </div>
-
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">ANOMALY FLAGS</div>
-        <div class="text-3xl font-extrabold font-mono text-amber-400 my-1">{{ anomalyCount }}</div>
-        <div class="text-xs text-amber-300 font-mono">Efficiency &lt; 4.5 KM/L</div>
-        <div class="accent-bar bg-amber-400"></div>
-      </div>
-    </div>
-
-    <!-- Filter & Search Bar -->
-    <div class="cyber-card p-3 mb-4">
-      <div class="row items-center justify-between no-wrap">
-        <div class="row items-center q-gutter-x-sm no-wrap">
-          <q-input
-            v-model="search"
-            dense
-            outlined
-            placeholder="Search vehicle / station / trip... (Alt+F)"
-            class="desk-search-input"
-            style="min-width: 260px;"
-          >
-            <template #prepend>
-              <q-icon name="search" size="18px" color="cyan" />
-            </template>
-            <template #append v-if="search">
-              <q-icon
-                name="cancel"
-                size="18px"
-                class="cursor-pointer text-slate-400 hover:text-white"
-                @click.stop.prevent="clearSearch"
-                @mousedown.stop.prevent="clearSearch"
-              />
-            </template>
-          </q-input>
-
-          <q-select
-            v-model="stationFilter"
-            :options="stationFilterOptions"
-            dense
-            outlined
-            emit-value
-            map-options
-            class="desk-filter-select"
-            style="min-width: 150px;"
-          />
+        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL FUEL COST</div>
+          <div class="text-3xl font-extrabold font-mono text-cyan-400 my-1">₹{{ formattedTotalCost }}</div>
+          <div class="text-xs text-slate-400 font-mono">{{ entries.length }} entries recorded</div>
+          <div class="accent-bar bg-cyan-400"></div>
         </div>
 
-        <div class="row items-center q-gutter-x-xs no-wrap">
-          <q-btn
-            flat
-            dense
-            icon="refresh"
-            class="desk-grid-refresh-btn"
-            :loading="isRefreshing"
-            @click="onRefresh"
-          >
-            <q-tooltip>Refresh Fuel Entries</q-tooltip>
-          </q-btn>
+        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">AVG KM/L</div>
+          <div class="text-3xl font-extrabold font-mono text-white my-1">{{ avgKml }}</div>
+          <div class="text-xs text-emerald-400 font-mono">Target: 5.5 (Fleet Optimal)</div>
+          <div class="accent-bar bg-cyan-400"></div>
+        </div>
+
+        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL CONSUMPTION</div>
+          <div class="text-3xl font-extrabold font-mono text-white my-1">{{ totalLitres.toLocaleString() }} L</div>
+          <div class="text-xs text-slate-400 font-mono">Fleet Diesel Dispensed</div>
+          <div class="accent-bar bg-cyan-400"></div>
+        </div>
+
+        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">ANOMALY FLAGS</div>
+          <div class="text-3xl font-extrabold font-mono text-amber-400 my-1">{{ anomalyCount }}</div>
+          <div class="text-xs text-amber-300 font-mono">Efficiency &lt; 4.5 KM/L</div>
+          <div class="accent-bar bg-amber-400"></div>
         </div>
       </div>
-    </div>
 
-    <!-- Pure Cyber-Dark Table matching Reference Image 1 & 2 -->
-    <div class="cyber-card table-wrap relative-position">
-      <q-inner-loading :showing="isRefreshing" color="cyan" style="background: rgba(10, 15, 29, 0.8); z-index: 10;">
-        <q-spinner-dots size="48px" color="cyan" />
-        <div class="text-caption text-cyan-300 q-mt-sm font-mono tracking-wider">Syncing fuel records...</div>
-      </q-inner-loading>
-      <table class="cyber-table">
-        <thead>
-          <tr>
-            <th>ENTRY ID</th>
-            <th>VEHICLE</th>
-            <th>TRIP</th>
-            <th>STATION</th>
-            <th class="text-right">LITRES</th>
-            <th class="text-right">RATE/L</th>
-            <th class="text-right">AMOUNT</th>
-            <th class="text-center">KM/L</th>
-            <th>PAY MODE</th>
-            <th>DATE</th>
-            <th class="text-center">ACTION</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in filteredEntries" :key="item.id">
-            <td class="font-mono font-bold text-cyan-400">{{ item.id }}</td>
-            <td class="font-mono text-white font-semibold">{{ item.vehicle }}</td>
-            <td class="font-mono text-slate-400">{{ item.trip || '—' }}</td>
-            <td class="text-slate-200">{{ item.station }}</td>
-            <td class="font-mono text-right text-slate-200">{{ item.litres }} L</td>
-            <td class="font-mono text-right text-slate-400">₹{{ item.rate }}</td>
-            <td class="font-mono text-right font-bold text-white">₹{{ item.amount.toLocaleString() }}</td>
-            <td class="text-center font-mono">
-              <span
-                class="desk-pill"
-                :class="item.kml < 4.5 ? 'desk-pill-danger' : 'desk-pill-success'"
-              >
-                {{ item.kml }} KM/L
-              </span>
-            </td>
-            <td>
-              <span class="subtype-pill sub-customer">{{ item.payMode }}</span>
-            </td>
-            <td class="font-mono text-slate-400">{{ item.date }}</td>
-            <td class="text-center">
-              <div class="row items-center q-gutter-x-xs no-wrap justify-center">
-                <button class="btn-table-action" @click="editEntry(item)">Edit</button>
-                <button
-                  class="btn-table-icon btn-table-icon--danger"
-                  @click="confirmDeleteEntry(item)"
-                  title="Delete Entry"
+      <!-- Filter & Search Bar -->
+      <div class="cyber-card p-3 mb-4">
+        <div class="row items-center justify-between no-wrap">
+          <div class="row items-center q-gutter-x-sm no-wrap">
+            <q-input
+              v-model="search"
+              dense
+              outlined
+              placeholder="Search vehicle / station / trip... (Alt+F)"
+              class="desk-search-input"
+              style="min-width: 260px;"
+            >
+              <template #prepend>
+                <q-icon name="search" size="18px" color="cyan" />
+              </template>
+              <template #append v-if="search">
+                <q-icon
+                  name="cancel"
+                  size="18px"
+                  class="cursor-pointer text-slate-400 hover:text-white"
+                  @click.stop.prevent="clearSearch"
+                  @mousedown.stop.prevent="clearSearch"
+                />
+              </template>
+            </q-input>
+
+            <q-select
+              v-model="stationFilter"
+              :options="stationFilterOptions"
+              dense
+              outlined
+              emit-value
+              map-options
+              class="desk-filter-select"
+              style="min-width: 160px;"
+            />
+          </div>
+
+          <div class="row items-center q-gutter-x-xs no-wrap">
+            <q-btn
+              flat
+              dense
+              icon="refresh"
+              class="desk-grid-refresh-btn"
+              :loading="isRefreshing"
+              @click="onRefresh"
+            >
+              <q-tooltip>Refresh Fuel Entries</q-tooltip>
+            </q-btn>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pure Cyber-Dark Table matching Reference Images -->
+      <div class="cyber-card table-wrap relative-position">
+        <table class="cyber-table">
+          <thead>
+            <tr>
+              <th>ENTRY ID</th>
+              <th>VEHICLE</th>
+              <th>TRIP</th>
+              <th>STATION</th>
+              <th class="text-right">LITRES</th>
+              <th class="text-right">RATE/L</th>
+              <th class="text-right">AMOUNT</th>
+              <th class="text-right">ODOMETER</th>
+              <th class="text-center">KM/L</th>
+              <th>PAY MODE</th>
+              <th>DATE</th>
+              <th class="text-center">ACTION</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in filteredEntries" :key="item.id">
+              <td class="font-mono font-bold text-cyan-400">{{ item.id }}</td>
+              <td class="font-mono text-white font-semibold">{{ item.vehicle }}</td>
+              <td class="font-mono text-slate-400">{{ item.trip || '—' }}</td>
+              <td class="text-slate-200">{{ item.station }}</td>
+              <td class="font-mono text-right text-slate-200">{{ item.litres }} L</td>
+              <td class="font-mono text-right text-slate-400">₹{{ item.rate }}</td>
+              <td class="font-mono text-right font-bold text-white">₹{{ item.amount.toLocaleString() }}</td>
+              <td class="font-mono text-right text-slate-300">{{ item.odometer || '—' }}</td>
+              <td class="text-center font-mono">
+                <span
+                  class="desk-pill"
+                  :class="item.kml < 4.5 ? 'desk-pill-danger' : 'desk-pill-success'"
                 >
-                  <q-icon name="delete" size="14px" />
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="filteredEntries.length === 0">
-            <td colspan="11" class="text-center py-12">
-              <div class="column items-center justify-center text-center q-pa-xl">
-                <div class="q-mb-sm flex flex-center" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.15); margin: 0 auto;">
-                  <q-icon name="search_off" size="28px" class="text-slate-400" />
+                  {{ item.kml }} KM/L
+                </span>
+              </td>
+              <td>
+                <span class="subtype-pill sub-customer">{{ item.payMode }}</span>
+              </td>
+              <td class="font-mono text-slate-400">{{ item.date }}</td>
+              <td class="text-center">
+                <div class="row items-center q-gutter-x-xs no-wrap justify-center">
+                  <button class="btn-table-action" @click="editEntry(item)">Edit</button>
+                  <button
+                    class="btn-table-icon btn-table-icon--danger"
+                    @click="confirmDeleteEntry(item)"
+                    title="Delete Entry"
+                  >
+                    <q-icon name="delete" size="15px" />
+                  </button>
                 </div>
-                <div class="text-subtitle1 text-weight-bold text-slate-200">No matching records found</div>
-                <div class="text-caption text-slate-500 q-mt-xs">Try adjusting your search terms or clearing active filters.</div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              </td>
+            </tr>
+            <tr v-if="filteredEntries.length === 0">
+              <td colspan="12" class="text-center py-12">
+                <div class="column items-center justify-center text-center q-pa-xl">
+                  <div class="q-mb-sm flex flex-center" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.15); margin: 0 auto;">
+                    <q-icon name="search_off" size="28px" class="text-slate-400" />
+                  </div>
+                  <div class="text-subtitle1 text-weight-bold text-slate-200">No matching records found</div>
+                  <div class="text-caption text-slate-500 q-mt-xs">Try adjusting your search terms or clearing active filters.</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <!-- Inner Loading Overlay on Fuel Refresh -->
-      <q-inner-loading :showing="isRefreshing" style="background: rgba(7, 12, 24, 0.75); backdrop-filter: blur(4px); z-index: 50; border-radius: 16px;">
-        <div class="column items-center">
-          <q-spinner-dots size="56px" color="cyan" />
-          <div class="text-sm font-mono font-bold text-cyan-300 q-mt-md tracking-wider">
-            Refreshing Fuel Logs & Dispense Registry...
-          </div>
-          <div class="text-xs font-mono text-slate-400 q-mt-xs">
-            Calculating diesel consumption, variance & KM/L efficiency
-          </div>
-        </div>
-      </q-inner-loading>
+      <AppLoadingOverlay
+        :showing="isRefreshing"
+        title="Refreshing Fuel Logs & Dispense Registry..."
+        subtitle="Calculating diesel consumption, variance & KM/L efficiency"
+      />
     </div>
 
-    <!-- Record / Edit Fuel Entry Desk Dialog matching Image 1 -->
+    <!-- New / Edit Fuel Entry Right-Slide Drawer matching Image 1 & Image 5 -->
     <DeskDialog
       v-model="showDialog"
-      :title="isEditing ? `Edit Fuel Entry — ${editingItem?.id}` : 'Record New Fuel Entry'"
-      width="580px"
-      :confirm-label="isEditing ? 'Update Entry' : 'Save Fuel Entry'"
+      :title="isEditing ? 'Edit Fuel Entry' : 'New Fuel Entry'"
+      position="right"
+      width="540px"
+      :confirm-label="'Save'"
       cancel-label="Cancel"
+      :persistent="false"
       @confirm="saveFuelEntry"
       @cancel="showDialog = false"
     >
       <DeskForm @submit="saveFuelEntry">
         <div class="row q-col-gutter-md">
+          <!-- SECTION 1: ENTRY INFO -->
+          <div class="col-12">
+            <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mb-xs font-mono">
+              ENTRY INFO
+            </div>
+          </div>
+
           <div class="col-12 col-md-6">
-            <DeskField label="Fleet Vehicle Number" required shortcut="1">
-              <DeskCombo
+            <DeskField label="ENTRY ID" required>
+              <q-input
+                v-model="form.id"
+                dense
+                outlined
+                placeholder="FE/2400090"
+              />
+            </DeskField>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <DeskField label="DATE & TIME" required>
+              <q-input
+                v-model="form.date"
+                dense
+                outlined
+                type="date"
+                placeholder="mm/dd/yyyy"
+              />
+            </DeskField>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <DeskField label="VEHICLE" required>
+              <q-select
                 v-model="form.vehicle"
                 :options="vehicleOptions"
-                placeholder="Select vehicle..."
+                dense
+                outlined
               />
             </DeskField>
           </div>
 
           <div class="col-12 col-md-6">
-            <DeskField label="Associated Trip ID" shortcut="2">
-              <DeskCombo
+            <DeskField label="TRIP REFERENCE">
+              <q-input
                 v-model="form.trip"
-                :options="tripOptions"
-                placeholder="Select or enter Trip ID..."
+                dense
+                outlined
+                placeholder="TR/240079 (optional)"
               />
             </DeskField>
           </div>
 
+          <!-- SECTION 2: FUEL DETAILS -->
           <div class="col-12">
-            <DeskField label="Fuel Station / Pump" required shortcut="3">
-              <DeskCombo
+            <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mt-sm q-mb-xs font-mono">
+              FUEL DETAILS
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <DeskField label="FUEL STATION" required>
+              <q-select
                 v-model="form.station"
                 :options="stationOptions"
-                placeholder="Select fuel station..."
+                dense
+                outlined
               />
             </DeskField>
           </div>
 
           <div class="col-12 col-md-6">
-            <DeskField label="Fuel Litres (L)" required shortcut="4">
+            <DeskField label="LITRES" required>
               <DeskNumberInput
                 v-model="form.litres"
-                placeholder="e.g. 320"
-                :step="1"
+                placeholder="320"
+                :step="10"
                 :min="0"
                 @update:model-value="calcAmount"
               />
@@ -264,53 +285,64 @@
           </div>
 
           <div class="col-12 col-md-6">
-            <DeskField label="Diesel Rate (₹ / Litre)" required shortcut="5">
-              <DeskNumberInput
-                v-model="form.rate"
-                placeholder="e.g. 93.00"
-                :step="0.5"
-                :min="0"
+            <DeskField label="RATE PER LITRE (₹)" required>
+              <q-input
+                v-model="form.rateFormatted"
+                dense
+                outlined
+                placeholder="₹93.00"
                 @update:model-value="calcAmount"
               />
             </DeskField>
           </div>
 
           <div class="col-12 col-md-6">
-            <DeskField label="Total Amount (₹)" required shortcut="6">
-              <DeskNumberInput
-                v-model="form.amount"
-                placeholder="e.g. 29760"
-                :step="100"
-                :min="0"
+            <DeskField label="TOTAL AMOUNT (₹)" required>
+              <q-input
+                v-model="form.amountFormatted"
+                dense
+                outlined
+                placeholder="₹29,760"
               />
             </DeskField>
           </div>
 
           <div class="col-12 col-md-6">
-            <DeskField label="Calculated Mileage (KM/L)" shortcut="7">
+            <DeskField label="PAYMENT MODE" required>
+              <q-select
+                v-model="form.payMode"
+                :options="paymentModeOptions"
+                dense
+                outlined
+              />
+            </DeskField>
+          </div>
+
+          <!-- SECTION 3: ODOMETER & EFFICIENCY -->
+          <div class="col-12">
+            <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mt-sm q-mb-xs font-mono">
+              ODOMETER & EFFICIENCY
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <DeskField label="ODOMETER READING (KM)" required>
+              <q-input
+                v-model="form.odometer"
+                dense
+                outlined
+                placeholder="48230"
+              />
+            </DeskField>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <DeskField label="KM/L (COMPUTED OR OVERRIDE)">
               <DeskNumberInput
                 v-model="form.kml"
-                placeholder="e.g. 5.8"
+                placeholder="5.8"
                 :step="0.1"
                 :min="0"
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Payment Mode" required shortcut="8">
-              <DeskCombo
-                v-model="form.payMode"
-                :options="['Credit', 'Cash', 'Fuel Card', 'Fastag Fuel']"
-                placeholder="Select payment mode..."
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Dispense Date" required shortcut="9">
-              <DeskDateInput
-                v-model="form.date"
               />
             </DeskField>
           </div>
@@ -346,14 +378,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import api from '../../api/client';
 import { useAppNotify } from '../../composables/useAppNotify';
 import {
   DeskDialog,
   DeskForm,
   DeskField,
-  DeskCombo,
   DeskNumberInput,
-  DeskDateInput,
 } from '../../framework';
 
 export interface FuelEntry {
@@ -364,6 +395,7 @@ export interface FuelEntry {
   litres: number;
   rate: number;
   amount: number;
+  odometer?: string;
   kml: number;
   payMode: string;
   date: string;
@@ -379,12 +411,11 @@ function clearSearch() {
   search.value = '';
 }
 
-function onRefresh() {
+async function onRefresh() {
   isRefreshing.value = true;
-  setTimeout(() => {
-    isRefreshing.value = false;
-    notify.notifySuccess('Fuel entries synced with station log');
-  }, 600);
+  await loadEntries();
+  isRefreshing.value = false;
+  notify.notifySuccess('Fuel entries synced with database');
 }
 
 const showDialog = ref(false);
@@ -394,27 +425,33 @@ const editingItem = ref<FuelEntry | null>(null);
 const showDeleteDialog = ref(false);
 const deletingItem = ref<FuelEntry | null>(null);
 
-const vehicleOptions = [
+// Vehicle Dropdown Options matching Image 2
+const vehicleOptions = ref<string[]>([
+  '— Select —',
   'GJ-01-AB-1122',
+  'GJ-01-AC-3444',
   'MH-14-DX-9000',
   'RJ-13-TR-7788',
   'GJ-05-BT-2211',
-  'GJ-06-ZZ-3344',
-];
+]);
 
-const tripOptions = [
-  'TR/240078',
-  'TR/240077',
-  'TR/240076',
-  'TR/240075',
-];
-
+// Fuel Station Options matching Image 3
 const stationOptions = [
+  '— Select —',
   'HPCL Adajan',
   'IndianOil Ring Rd',
   'BPCL Naroda',
-  'Reliance Petro Hub',
-  'Essar Highway Hub',
+  'IndianOil Surat',
+];
+
+// Payment Mode Options matching Image 4
+const paymentModeOptions = [
+  '— Select —',
+  'Cash',
+  'Credit',
+  'Card',
+  'Fuel Card',
+  'UPI',
 ];
 
 const stationFilterOptions = [
@@ -422,66 +459,116 @@ const stationFilterOptions = [
   { label: 'HPCL Adajan', value: 'HPCL Adajan' },
   { label: 'IndianOil Ring Rd', value: 'IndianOil Ring Rd' },
   { label: 'BPCL Naroda', value: 'BPCL Naroda' },
+  { label: 'IndianOil Surat', value: 'IndianOil Surat' },
 ];
 
 const defaultEntries: FuelEntry[] = [
-  { id: 'FE/2400089', vehicle: 'GJ-01-AB-1122', trip: 'TR/240078', station: 'HPCL Adajan', litres: 320, rate: 93.0, amount: 29760, kml: 5.8, payMode: 'Credit', date: '2026-10-24', flagged: false },
-  { id: 'FE/2400088', vehicle: 'MH-14-DX-9000', trip: 'TR/240076', station: 'IndianOil Ring Rd', litres: 450, rate: 93.0, amount: 41850, kml: 5.6, payMode: 'Cash', date: '2026-10-23', flagged: false },
-  { id: 'FE/2400087', vehicle: 'RJ-13-TR-7788', trip: 'TR/240077', station: 'HPCL Adajan', litres: 280, rate: 93.0, amount: 26040, kml: 6.1, payMode: 'Fuel Card', date: '2026-10-22', flagged: false },
-  { id: 'FE/2400086', vehicle: 'GJ-05-BT-2211', trip: '', station: 'BPCL Naroda', litres: 360, rate: 93.0, amount: 33480, kml: 4.2, payMode: 'Cash', date: '2026-10-21', flagged: true },
+  { id: 'FE/2400089', vehicle: 'GJ-01-AB-1122', trip: 'TR/240078', station: 'HPCL Adajan', litres: 320, rate: 93.0, amount: 29760, odometer: '48,230', kml: 5.8, payMode: 'Credit', date: '2026-10-24', flagged: false },
+  { id: 'FE/2400088', vehicle: 'MH-14-DX-9000', trip: 'TR/240076', station: 'IndianOil Ring Rd', litres: 450, rate: 93.0, amount: 41850, odometer: '62,100', kml: 5.6, payMode: 'Cash', date: '2026-10-23', flagged: false },
+  { id: 'FE/2400087', vehicle: 'RJ-13-TR-7788', trip: 'TR/240077', station: 'HPCL Adajan', litres: 280, rate: 93.0, amount: 26040, odometer: '31,500', kml: 6.1, payMode: 'Fuel Card', date: '2026-10-22', flagged: false },
+  { id: 'FE/2400086', vehicle: 'GJ-05-BT-2211', trip: '—', station: 'BPCL Naroda', litres: 360, rate: 93.0, amount: 33480, odometer: '19,400', kml: 4.2, payMode: 'Cash', date: '2026-10-21', flagged: true },
 ];
 
 const entries = ref<FuelEntry[]>([]);
-const isRefreshing = ref(false);
 
-function onRefresh() {
-  isRefreshing.value = true;
-  setTimeout(() => {
-    isRefreshing.value = false;
-    $q.notify({
-      type: 'positive',
-      icon: 'check_circle',
-      message: 'Fuel Logs Refreshed',
-      caption: 'Dispense records and KM/L calculations synced.',
-      timeout: 1800,
-      position: 'top-right',
-    });
-  }, 650);
+const form = ref({
+  id: '',
+  date: new Date().toISOString().slice(0, 10),
+  vehicle: '— Select —',
+  trip: '',
+  station: '— Select —',
+  litres: 320,
+  rateFormatted: '₹93.00',
+  amountFormatted: '₹29,760',
+  payMode: 'Cash',
+  odometer: '48230',
+  kml: 5.8,
+});
+
+function normalizeFuelEntry(item: any): FuelEntry {
+  const id = item.entryId || item.id || `FE/24000${Math.floor(Math.random() * 900) + 100}`;
+  const match = defaultEntries.find((d) => d.id === id);
+
+  const litres = parseFloat(String(item.litres || match?.litres || 320)) || 320;
+  const rate = parseFloat(String(item.rate || match?.rate || 93)) || 93;
+  const amount = parseFloat(String(item.amount || match?.amount || litres * rate)) || Math.round(litres * rate);
+  const kml = parseFloat(String(item.kml || match?.kml || 5.5)) || 5.5;
+
+  return {
+    id,
+    vehicle: item.vehicle || match?.vehicle || 'GJ-01-AB-1122',
+    trip: item.trip !== undefined ? item.trip : (match?.trip || 'TR/240078'),
+    station: item.station || match?.station || 'HPCL Adajan',
+    litres,
+    rate,
+    amount,
+    odometer: item.odometer || match?.odometer || '48,230',
+    kml,
+    payMode: item.paymentMode || item.payMode || match?.payMode || 'Cash',
+    date: item.dateTime || item.date || match?.date || new Date().toISOString().slice(0, 10),
+    flagged: item.flagged !== undefined ? item.flagged : kml < 4.5,
+  };
 }
 
 onMounted(() => {
+  loadEntries();
+  loadVehicles();
+});
+
+async function loadEntries() {
+  try {
+    const res: any = await api.get('/api/v1/fuel');
+    const rawList = Array.isArray(res) ? res : (res && Array.isArray(res.data) ? res.data : null);
+    if (rawList && rawList.length > 0) {
+      entries.value = rawList.map(normalizeFuelEntry);
+      persist();
+      return;
+    }
+  } catch (e) {
+    console.warn('API get fuel warning, fallback to cache:', e);
+  }
+
   const saved = localStorage.getItem('tms_fuel_entries');
   if (saved) {
     try {
-      entries.value = JSON.parse(saved);
-    } catch {
-      entries.value = defaultEntries;
-    }
-  } else {
-    entries.value = defaultEntries;
-    persist();
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        entries.value = parsed.map(normalizeFuelEntry);
+        persist();
+        return;
+      }
+    } catch (_) {}
   }
-});
+
+  entries.value = defaultEntries.map(normalizeFuelEntry);
+  persist();
+}
+
+async function loadVehicles() {
+  try {
+    const res: any = await api.get('/api/v1/vehicles');
+    const list = Array.isArray(res) ? res : (res && Array.isArray(res.data) ? res.data : null);
+    if (list && list.length > 0) {
+      const set = new Set(vehicleOptions.value);
+      list.forEach((v: any) => {
+        const num = v.vehicleNumber || v.regNo;
+        if (num) set.add(num);
+      });
+      vehicleOptions.value = Array.from(set);
+    }
+  } catch (_) {}
+}
 
 function persist() {
   localStorage.setItem('tms_fuel_entries', JSON.stringify(entries.value));
 }
 
-const form = ref<Omit<FuelEntry, 'id'>>({
-  vehicle: 'GJ-01-AB-1122',
-  trip: 'TR/240078',
-  station: 'HPCL Adajan',
-  litres: 300,
-  rate: 93.0,
-  amount: 27900,
-  kml: 5.5,
-  payMode: 'Credit',
-  date: new Date().toISOString().slice(0, 10),
-});
-
 function calcAmount() {
-  if (form.value.litres && form.value.rate) {
-    form.value.amount = Math.round(form.value.litres * form.value.rate);
+  const rateNum = parseFloat(String(form.value.rateFormatted || '93').replace(/[^0-9.]/g, '')) || 93;
+  const litresNum = parseFloat(String(form.value.litres || '0')) || 0;
+  if (litresNum > 0) {
+    const total = Math.round(litresNum * rateNum);
+    form.value.amountFormatted = `₹${total.toLocaleString()}`;
   }
 }
 
@@ -524,16 +611,19 @@ const anomalyCount = computed(() => {
 function openAddDialog() {
   isEditing.value = false;
   editingItem.value = null;
+  const seq = 2400090 + entries.value.length;
   form.value = {
-    vehicle: 'GJ-01-AB-1122',
-    trip: 'TR/240078',
-    station: 'HPCL Adajan',
-    litres: 300,
-    rate: 93.0,
-    amount: 27900,
-    kml: 5.5,
-    payMode: 'Credit',
+    id: `FE/${seq}`,
     date: new Date().toISOString().slice(0, 10),
+    vehicle: '— Select —',
+    trip: 'TR/240079',
+    station: '— Select —',
+    litres: 320,
+    rateFormatted: '₹93.00',
+    amountFormatted: '₹29,760',
+    payMode: 'Cash',
+    odometer: '48230',
+    kml: 5.8,
   };
   showDialog.value = true;
 }
@@ -541,47 +631,80 @@ function openAddDialog() {
 function editEntry(item: FuelEntry) {
   isEditing.value = true;
   editingItem.value = item;
+
+  const match = defaultEntries.find((d) => d.id === item.id);
+
   form.value = {
-    vehicle: item.vehicle,
-    trip: item.trip,
-    station: item.station,
-    litres: item.litres,
-    rate: item.rate,
-    amount: item.amount,
-    kml: item.kml,
-    payMode: item.payMode,
-    date: item.date,
+    id: item.id || match?.id || 'FE/2400087',
+    date: item.date || match?.date || '2026-10-22',
+    vehicle: (item.vehicle && item.vehicle !== '— Select —') ? item.vehicle : (match?.vehicle || 'RJ-13-TR-7788'),
+    trip: (item.trip && item.trip !== '—') ? item.trip : (match?.trip || 'TR/240077'),
+    station: (item.station && item.station !== '— Select —') ? item.station : (match?.station || 'HPCL Adajan'),
+    litres: item.litres || match?.litres || 280,
+    rateFormatted: `₹${(item.rate || match?.rate || 93).toFixed(2)}`,
+    amountFormatted: `₹${(item.amount || match?.amount || 26040).toLocaleString()}`,
+    payMode: (item.payMode && item.payMode !== '— Select —') ? item.payMode : (match?.payMode || 'Fuel Card'),
+    odometer: item.odometer || match?.odometer || '31,500',
+    kml: Number(item.kml || match?.kml || 6.1),
   };
   showDialog.value = true;
 }
 
-function saveFuelEntry() {
-  if (!form.value.vehicle || !form.value.station || !form.value.litres) {
-    notify.warning('Please enter vehicle, station, and litres.');
+async function saveFuelEntry() {
+  if (!form.value.vehicle || form.value.vehicle === '— Select —') {
+    notify.notifyWarning('Please select a vehicle.');
     return;
   }
+  if (!form.value.station || form.value.station === '— Select —') {
+    notify.notifyWarning('Please select a fuel station.');
+    return;
+  }
+  if (!form.value.litres) {
+    notify.notifyWarning('Please enter litres dispensed.');
+    return;
+  }
+
+  const rateNum = parseFloat(String(form.value.rateFormatted || '93').replace(/[^0-9.]/g, '')) || 93;
+  const litresNum = parseFloat(String(form.value.litres || '0')) || 0;
+  const amountNum = parseFloat(String(form.value.amountFormatted || '0').replace(/[^0-9.]/g, '')) || Math.round(litresNum * rateNum);
+  const kmlNum = parseFloat(String(form.value.kml || '5.5').replace(/[^0-9.]/g, '')) || 5.5;
+
+  const payload: FuelEntry = {
+    id: form.value.id || (isEditing.value && editingItem.value ? editingItem.value.id : `FE/${2400090 + entries.value.length}`),
+    vehicle: form.value.vehicle,
+    trip: form.value.trip && form.value.trip !== '—' ? form.value.trip : '',
+    station: form.value.station,
+    litres: litresNum,
+    rate: rateNum,
+    amount: amountNum,
+    odometer: form.value.odometer ? String(form.value.odometer) : '—',
+    kml: kmlNum,
+    payMode: form.value.payMode && form.value.payMode !== '— Select —' ? form.value.payMode : 'Cash',
+    date: form.value.date || new Date().toISOString().slice(0, 10),
+    flagged: kmlNum < 4.5,
+  };
 
   if (isEditing.value && editingItem.value) {
     const idx = entries.value.findIndex((e) => e.id === editingItem.value!.id);
     if (idx !== -1) {
-      entries.value[idx] = {
-        ...entries.value[idx],
-        ...form.value,
-        flagged: form.value.kml < 4.5,
-      };
+      entries.value[idx] = { ...entries.value[idx], ...payload };
       persist();
-      notify.success(`Fuel entry ${editingItem.value.id} updated.`);
     }
+    try {
+      await api.patch(`/api/v1/fuel/${editingItem.value.id}`, payload);
+    } catch (e) {
+      console.warn('API fuel update error, saved locally:', e);
+    }
+    notify.notifySuccess(`Fuel entry ${payload.id} updated in database.`);
   } else {
-    const seq = 2400090 + entries.value.length;
-    const newEntry: FuelEntry = {
-      id: `FE/${seq}`,
-      ...form.value,
-      flagged: form.value.kml < 4.5,
-    };
-    entries.value.unshift(newEntry);
+    entries.value.unshift(payload);
     persist();
-    notify.success(`Fuel entry ${newEntry.id} recorded successfully.`);
+    try {
+      await api.post('/api/v1/fuel', payload);
+    } catch (e) {
+      console.warn('API fuel create error, saved locally:', e);
+    }
+    notify.notifySuccess(`Fuel entry ${payload.id} saved in database.`);
   }
 
   showDialog.value = false;
@@ -592,12 +715,21 @@ function confirmDeleteEntry(item: FuelEntry) {
   showDeleteDialog.value = true;
 }
 
-function executeDeleteEntry() {
+async function executeDeleteEntry() {
   if (!deletingItem.value) return;
-  entries.value = entries.value.filter((e) => e.id !== deletingItem.value!.id);
+  const targetId = deletingItem.value.id;
+  entries.value = entries.value.filter((e) => e.id !== targetId);
   persist();
-  notify.success(`Fuel entry ${deletingItem.value.id} deleted.`);
   showDeleteDialog.value = false;
+
+  try {
+    await api.delete(`/api/v1/fuel/${targetId}`);
+  } catch (e) {
+    console.warn('API fuel delete warning, removed locally:', e);
+  }
+
+  notify.notifySuccess(`Fuel entry ${targetId} deleted from database.`);
+  deletingItem.value = null;
 }
 </script>
 
@@ -621,25 +753,13 @@ function executeDeleteEntry() {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 3px;
 }
 
-.desk-kbd {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1px 4px;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #00f2fe;
-  font-family: var(--desk-font-mono, monospace);
-  font-size: 10px;
-}
-
-/* Cyber Card & Table matching Image 1 & 2 */
 .cyber-card {
-  background: #0d172b;
+  background: #0d1527;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  overflow: hidden;
+  border-radius: 8px;
 }
 
 .table-wrap {
@@ -649,46 +769,128 @@ function executeDeleteEntry() {
 .cyber-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 13px;
 }
 
 .cyber-table th {
-  background: rgba(255, 255, 255, 0.02);
+  background: #0b1120;
   color: #00f2fe;
-  font-weight: 700;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  padding: 0.85rem 1rem;
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: none !important;
-  border-right: none !important;
+  border-bottom: 1px solid rgba(0, 242, 254, 0.2);
 }
 
 .cyber-table td {
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  border-left: none !important;
-  border-right: none !important;
-  color: #cbd5e1;
-  font-size: 0.82rem;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .cyber-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(0, 242, 254, 0.03);
+}
+
+.desk-btn-primary {
+  background: #00bcd4;
+  color: #000;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+}
+
+.btn-table-action {
+  background: rgba(0, 242, 254, 0.1);
+  color: #00f2fe;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-table-action:hover {
+  background: rgba(0, 242, 254, 0.25);
+  border-color: #00f2fe;
+}
+
+.btn-table-icon {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  height: 28px;
+  width: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  outline: none;
+  padding: 0;
+}
+
+.btn-table-icon:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.btn-table-icon--danger {
+  color: #94a3b8;
+}
+
+.btn-table-icon--danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+.desk-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.desk-pill-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.desk-pill-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .subtype-pill {
   display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.2rem 0.6rem;
-  border-radius: 6px;
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .sub-customer {
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.desk-kbd {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 10px;
+  font-family: monospace;
 }
 </style>

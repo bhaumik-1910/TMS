@@ -6,21 +6,6 @@
     >
       <template #actions>
         <q-btn
-          flat
-          round
-          dense
-          icon="refresh"
-          color="cyan"
-          class="q-mr-xs"
-          @click="refreshLRs"
-          :loading="loading"
-        >
-          <template #loading>
-            <q-spinner color="cyan" size="18px" />
-          </template>
-          <q-tooltip>Refresh LR Consignments</q-tooltip>
-        </q-btn>
-        <q-btn
           outline
           color="slate-700"
           no-caps
@@ -148,10 +133,7 @@
 
         <!-- Custom Loading Overlay -->
         <template #loading>
-          <q-inner-loading showing color="cyan" style="background: rgba(10, 15, 29, 0.8); z-index: 10;">
-            <q-spinner-dots size="48px" color="cyan" />
-            <div class="text-caption text-cyan-300 q-mt-sm font-mono tracking-wider">Syncing LR records...</div>
-          </q-inner-loading>
+          <AppLoadingOverlay showing title="Syncing LR Records..." subtitle="Loading bilty registry" />
         </template>
         <template #body-cell-lrNumber="props">
           <q-td :props="props">
@@ -230,17 +212,11 @@
     </q-card>
 
       <!-- Inner Loading Overlay on LR Refresh -->
-      <q-inner-loading :showing="loading" style="background: rgba(7, 12, 24, 0.75); backdrop-filter: blur(4px); z-index: 50; border-radius: 16px;">
-        <div class="column items-center">
-          <q-spinner-dots size="56px" color="cyan" />
-          <div class="text-sm font-mono font-bold text-cyan-300 q-mt-md tracking-wider">
-            Refreshing Lorry Receipts & Consignments...
-          </div>
-          <div class="text-xs font-mono text-slate-400 q-mt-xs">
-            Syncing bilty records, GST E-Way bill validity & transit legs
-          </div>
-        </div>
-      </q-inner-loading>
+      <AppLoadingOverlay
+        :showing="loading"
+        title="Refreshing Lorry Receipts & Consignments..."
+        subtitle="Syncing bilty records, GST E-Way bill validity & transit legs"
+      />
     </div>
 
     <!-- Create / Edit LR Desk Dialog matching Unified Design -->

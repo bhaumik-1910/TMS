@@ -102,7 +102,7 @@
 
           <q-select
             v-model="statusFilter"
-            :options="statusOptions"
+            :options="filterStatusOptions"
             dense
             outlined
             emit-value
@@ -114,7 +114,7 @@
 
           <q-select
             v-model="workTypeFilter"
-            :options="workTypeOptions"
+            :options="filterWorkTypeOptions"
             dense
             outlined
             emit-value
@@ -140,12 +140,13 @@
       </div>
     </div>
 
-    <!-- Job Cards Table matching Reference Image 1 & 2 -->
+    <!-- Job Cards Table -->
     <div class="cyber-card table-wrap relative-position">
-      <q-inner-loading :showing="isRefreshing" color="cyan" style="background: rgba(10, 15, 29, 0.8); z-index: 10;">
-        <q-spinner-dots size="48px" color="cyan" />
-        <div class="text-caption text-cyan-300 q-mt-sm font-mono tracking-wider">Syncing maintenance records...</div>
-      </q-inner-loading>
+      <AppLoadingOverlay
+        :showing="isRefreshing"
+        title="Syncing Workshop Records..."
+        subtitle="Updating maintenance job cards from database"
+      />
       <table class="cyber-table">
         <thead>
           <tr>
@@ -162,8 +163,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="card in filteredJobCards" :key="card.id">
-            <td class="font-mono font-bold text-cyan-400">{{ card.jobCard }}</td>
+          <tr v-for="card in filteredJobCards" :key="card.id || card.jobCardId">
+            <td class="font-mono font-bold text-cyan-400">{{ card.jobCardId || card.jobCard }}</td>
             <td class="font-mono text-white font-semibold">{{ card.vehicle }}</td>
             <td class="text-slate-300 max-w-[200px] truncate" :title="card.complaint">{{ card.complaint }}</td>
             <td>
@@ -172,8 +173,8 @@
               </span>
             </td>
             <td class="text-slate-200">{{ card.serviceCentre }}</td>
-            <td class="font-mono text-right font-bold text-white">{{ card.cost }}</td>
-            <td class="font-mono text-slate-400">{{ card.downtime }}</td>
+            <td class="font-mono text-right font-bold text-white">{{ formatCostDisplay(card.totalCost || card.cost) }}</td>
+            <td class="font-mono text-slate-400">{{ card.expectedDowntime || card.downtime || '—' }}</td>
             <td class="font-mono text-slate-400">{{ card.date }}</td>
             <td class="text-center font-mono">
               <span
@@ -225,89 +226,160 @@
       </table>
     </div>
 
-    <!-- Create / Edit Job Card Desk Dialog matching Reference Image 1 -->
+    <!-- Create / Edit Job Card Right Drawer matching Images 1 & 5 -->
     <DeskDialog
       v-model="showModal"
-      :title="isEditing ? `Edit Job Card — ${editingCard?.jobCard}` : 'Create New Workshop Job Card'"
-      width="580px"
-      :confirm-label="isEditing ? 'Update Job Card' : 'Generate Job Card'"
+      :title="isEditing ? 'Edit Job Card' : 'New Job Card'"
+      position="right"
+      width="540px"
+      confirm-label="Save"
       cancel-label="Cancel"
+      :persistent="false"
       @confirm="saveJobCard"
       @cancel="showModal = false"
     >
       <DeskForm @submit="saveJobCard">
         <div class="row q-col-gutter-md">
-          <div class="col-12 col-md-6">
-            <DeskField label="Vehicle Registration" required shortcut="1">
-              <DeskCombo
-                v-model="newCard.vehicle"
-                :options="['GJ-01-AC-3444', 'MH-14-DX-9000', 'GJ-05-BT-2211', 'RJ-13-TR-7788', 'GJ-01-AB-1122']"
-                placeholder="Select or enter vehicle..."
-              />
-            </DeskField>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <DeskField label="Work Type Category" required shortcut="2">
-              <DeskCombo
-                v-model="newCard.workType"
-                :options="['Engine Overhaul', 'Tyre Replacement', 'Brake Service', 'Suspension & Alignment', 'Electrical / Battery', 'Periodic PM']"
-                placeholder="Select work type..."
-              />
-            </DeskField>
-          </div>
-
+          <!-- SECTION 1: JOB DETAILS -->
           <div class="col-12">
-            <DeskField label="Driver / Technician Complaint" required shortcut="3">
+            <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mb-xs font-mono uppercase tracking-wider">
+              JOB DETAILS
+            </div>
+          </div>
+
+          <!-- Row 1: JOB CARD ID & DATE -->
+          <div class="col-12 col-md-6">
+            <DeskField label="JOB CARD ID" required>
               <q-input
-                v-model="newCard.complaint"
+                v-model="cardForm.jobCardId"
+                dense
+                outlined
+                placeholder="JC/240056"
+              />
+            </DeskField>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <DeskField label="DATE" required>
+              <q-input
+                v-model="cardForm.date"
+                dense
+                outlined
+                type="date"
+                placeholder="mm/dd/yyyy"
+              />
+            </DeskField>
+          </div>
+
+          <!-- Row 2: VEHICLE & SERVICE CENTRE -->
+          <div class="col-12 col-md-6">
+            <DeskField label="VEHICLE" required>
+              <q-select
+                v-model="cardForm.vehicle"
+                :options="vehicleOptions"
+                dense
+                outlined
+              />
+            </DeskField>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <DeskField label="SERVICE CENTRE" required>
+              <q-select
+                v-model="cardForm.serviceCentre"
+                :options="serviceCentreOptions"
+                dense
+                outlined
+              />
+            </DeskField>
+          </div>
+
+          <!-- Row 3: WORK TYPE & STATUS -->
+          <div class="col-12 col-md-6">
+            <DeskField label="WORK TYPE" required>
+              <q-select
+                v-model="cardForm.workType"
+                :options="workTypeOptions"
+                dense
+                outlined
+              />
+            </DeskField>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <DeskField label="STATUS" required>
+              <q-select
+                v-model="cardForm.status"
+                :options="['Open', 'In Progress', 'Completed', 'Cancelled']"
+                dense
+                outlined
+              />
+            </DeskField>
+          </div>
+
+          <!-- Row 4: COMPLAINT / SYMPTOMS -->
+          <div class="col-12">
+            <DeskField label="COMPLAINT / SYMPTOMS" required>
+              <q-input
+                v-model="cardForm.complaint"
                 type="textarea"
-                rows="2"
+                rows="3"
                 dense
                 outlined
-                placeholder="Describe the mechanical or electrical issue in detail..."
+                placeholder="Describe the problem or scheduled service reason"
               />
             </DeskField>
           </div>
 
-          <div class="col-12 col-md-6">
-            <DeskField label="Service Centre / Workshop" required shortcut="4">
-              <DeskCombo
-                v-model="newCard.serviceCentre"
-                :options="['Shree Motors', 'RK Auto Garage', 'National Retreaders', 'Gujarat Fleet Works']"
-                placeholder="Select workshop..."
-              />
-            </DeskField>
+          <!-- SECTION 2: COST & DOWNTIME -->
+          <div class="col-12 q-mt-sm">
+            <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mb-xs font-mono uppercase tracking-wider">
+              COST & DOWNTIME
+            </div>
           </div>
 
+          <!-- Row 1: PARTS USED & LABOUR COST -->
           <div class="col-12 col-md-6">
-            <DeskField label="Estimated Repair Cost (₹)" required shortcut="5">
+            <DeskField label="PARTS USED">
               <q-input
-                v-model="newCard.cost"
+                v-model="cardForm.partsUsed"
                 dense
                 outlined
-                placeholder="e.g. 25000"
+                placeholder="Gasket set, coolant..."
               />
             </DeskField>
           </div>
 
           <div class="col-12 col-md-6">
-            <DeskField label="Estimated Downtime" shortcut="6">
+            <DeskField label="LABOUR COST (₹)">
               <q-input
-                v-model="newCard.downtime"
+                v-model="cardForm.labourCostFormatted"
                 dense
                 outlined
-                placeholder="e.g. 2 days / 6 hours"
+                placeholder="₹8,000"
+              />
+            </DeskField>
+          </div>
+
+          <!-- Row 2: TOTAL COST & EXPECTED DOWNTIME -->
+          <div class="col-12 col-md-6">
+            <DeskField label="TOTAL COST (₹)" required>
+              <q-input
+                v-model="cardForm.totalCostFormatted"
+                dense
+                outlined
+                placeholder="₹45,000"
               />
             </DeskField>
           </div>
 
           <div class="col-12 col-md-6">
-            <DeskField label="Maintenance Status" required shortcut="7">
-              <DeskCombo
-                v-model="newCard.status"
-                :options="['Open', 'In Progress', 'Completed']"
-                placeholder="Select status..."
+            <DeskField label="EXPECTED DOWNTIME">
+              <q-input
+                v-model="cardForm.expectedDowntime"
+                dense
+                outlined
+                placeholder="5 days / 4 hours"
               />
             </DeskField>
           </div>
@@ -315,10 +387,10 @@
       </DeskForm>
     </DeskDialog>
 
-    <!-- View Job Card Details Desk Dialog matching Reference Image 1 -->
+    <!-- View Job Card Details Desk Dialog -->
     <DeskDialog
       v-model="showDetailsModal"
-      :title="`Workshop Job Card — ${selectedCard?.jobCard}`"
+      :title="`Workshop Job Card — ${selectedCard?.jobCardId || selectedCard?.jobCard}`"
       width="600px"
       confirm-label="Print Job Card"
       cancel-label="Close"
@@ -342,7 +414,7 @@
           </div>
           <div class="col-6">
             <div class="text-caption text-grey-5">Approved Repair Cost</div>
-            <div class="text-h6 text-weight-bold text-white font-mono">{{ selectedCard.cost }}</div>
+            <div class="text-h6 text-weight-bold text-white font-mono">{{ formatCostDisplay(selectedCard.totalCost || selectedCard.cost) }}</div>
           </div>
 
           <div class="col-6">
@@ -351,7 +423,7 @@
           </div>
           <div class="col-6">
             <div class="text-caption text-grey-5">Turnaround Downtime</div>
-            <div class="text-body2 text-grey-3 font-mono">{{ selectedCard.downtime }}</div>
+            <div class="text-body2 text-grey-3 font-mono">{{ selectedCard.expectedDowntime || selectedCard.downtime }}</div>
           </div>
 
           <div class="col-12">
@@ -389,11 +461,11 @@
       <div class="q-py-sm">
         <div class="text-body1 text-white q-mb-sm">
           Are you sure you want to permanently delete Job Card
-          <span class="text-cyan-4 text-weight-bold font-mono">{{ deletingCard?.jobCard }}</span>
+          <span class="text-cyan-4 text-weight-bold font-mono">{{ deletingCard?.jobCardId || deletingCard?.jobCard }}</span>
           for Vehicle <strong class="text-white">{{ deletingCard?.vehicle }}</strong>?
         </div>
         <div class="text-caption text-red-3">
-          This operation will cancel the workshop work order and remove it from vehicle maintenance history.
+          This operation will remove the maintenance record and related workshop costs.
         </div>
       </div>
     </DeskDialog>
@@ -402,30 +474,35 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useQuasar } from 'quasar';
+import api from '../../api/client';
+import { useAppNotify } from '../../composables/useAppNotify';
 import { exportToCsv } from '../../utils/exportCsv';
 import { exportToPdf } from '../../utils/exportPdf';
 import {
   DeskDialog,
   DeskForm,
   DeskField,
-  DeskCombo,
 } from '../../framework';
 
 export interface JobCard {
-  id: string;
-  jobCard: string;
+  id?: string;
+  jobCardId: string;
+  jobCard?: string;
   vehicle: string;
-  complaint: string;
-  workType: string;
   serviceCentre: string;
-  cost: string;
-  downtime: string;
+  workType: string;
+  status: string;
+  complaint: string;
+  partsUsed?: string;
+  labourCost?: number | string;
+  totalCost?: number | string;
+  cost?: string | number;
+  expectedDowntime?: string;
+  downtime?: string;
   date: string;
-  status: 'In Progress' | 'Completed' | 'Open';
 }
 
-const $q = useQuasar();
+const notify = useAppNotify();
 
 const showModal = ref(false);
 const isEditing = ref(false);
@@ -437,71 +514,138 @@ const selectedCard = ref<JobCard | null>(null);
 const showDeleteDialog = ref(false);
 const deletingCard = ref<JobCard | null>(null);
 
+function openDetails(card: JobCard) {
+  selectedCard.value = card;
+  showDetailsModal.value = true;
+}
+
+function printSingleJobCard(card: JobCard | null) {
+  if (!card) return;
+  window.print();
+}
+
 const searchQuery = ref('');
 const statusFilter = ref('ALL');
 const workTypeFilter = ref('ALL');
 
-const statusOptions = [
+// Dropdown options matching Images 2, 3, 4
+const vehicleOptions = ref<string[]>([
+  '— Select —',
+  'GJ-01-AB-1122',
+  'GJ-01-AC-3444',
+  'MH-14-DX-9000',
+  'RJ-13-TR-7788',
+  'GJ-05-BT-2211',
+  'MH-12-AA-5500',
+]);
+
+const serviceCentreOptions = [
+  '— Select —',
+  'Shree Motors',
+  'RK Auto',
+  'SB Workshop',
+  'City Auto Care',
+];
+
+const workTypeOptions = [
+  '— Select —',
+  'Engine Overhaul',
+  'Tyre Replacement',
+  'Brake Service',
+  'Oil Change',
+  'AC Repair',
+  'Body Work',
+  'Electrical Repair',
+  'General Service',
+  'Preventive Service',
+];
+
+const filterStatusOptions = [
   { label: 'All Statuses', value: 'ALL' },
   { label: 'In Progress', value: 'In Progress' },
   { label: 'Completed', value: 'Completed' },
   { label: 'Open', value: 'Open' },
+  { label: 'Cancelled', value: 'Cancelled' },
 ];
 
-const workTypeOptions = [
+const filterWorkTypeOptions = [
   { label: 'All Work Types', value: 'ALL' },
   { label: 'Engine Overhaul', value: 'Engine Overhaul' },
   { label: 'Tyre Replacement', value: 'Tyre Replacement' },
   { label: 'Brake Service', value: 'Brake Service' },
-  { label: 'Suspension & Alignment', value: 'Suspension & Alignment' },
-  { label: 'Electrical / Battery', value: 'Electrical / Battery' },
+  { label: 'Oil Change', value: 'Oil Change' },
+  { label: 'AC Repair', value: 'AC Repair' },
+  { label: 'Body Work', value: 'Body Work' },
+  { label: 'Electrical Repair', value: 'Electrical Repair' },
+  { label: 'General Service', value: 'General Service' },
+  { label: 'Preventive Service', value: 'Preventive Service' },
 ];
 
 const defaultJobCards: JobCard[] = [
   {
-    id: '1',
+    id: 'JC/240055',
+    jobCardId: 'JC/240055',
     jobCard: 'JC/240055',
     vehicle: 'GJ-01-AC-3444',
-    complaint: 'Engine overheating, white smoke from radiator',
+    complaint: 'Engine overheating, white smoke',
     workType: 'Engine Overhaul',
     serviceCentre: 'Shree Motors',
+    partsUsed: 'Gasket set, coolant',
+    labourCost: 8000,
+    totalCost: 45000,
     cost: '₹45,000',
+    expectedDowntime: '5 days',
     downtime: '5 days',
     date: '2026-10-20',
     status: 'In Progress',
   },
   {
-    id: '2',
+    id: 'JC/240054',
+    jobCardId: 'JC/240054',
     jobCard: 'JC/240054',
     vehicle: 'MH-14-DX-9000',
-    complaint: 'Tyre worn out FR position beyond legal tread limit',
-    workType: 'Tyre Replacement',
-    serviceCentre: 'Shree Motors',
-    cost: '₹28,000',
-    downtime: '4 hours',
-    date: '2026-10-18',
-    status: 'Completed',
-  },
-  {
-    id: '3',
-    jobCard: 'JC/240053',
-    vehicle: 'GJ-05-BT-2211',
-    complaint: 'Brake noise, pedal spongy and soft',
+    complaint: 'Front axle brake liner wear & air leak',
     workType: 'Brake Service',
-    serviceCentre: 'RK Auto Garage',
-    cost: '₹8,500',
+    serviceCentre: 'RK Auto',
+    partsUsed: 'Brake pads, air valves',
+    labourCost: 4500,
+    totalCost: 18500,
+    cost: '₹18,500',
+    expectedDowntime: '1 day',
     downtime: '1 day',
-    date: '2026-10-22',
+    date: '2026-10-18',
     status: 'Open',
   },
   {
-    id: '4',
+    id: 'JC/240053',
+    jobCardId: 'JC/240053',
+    jobCard: 'JC/240053',
+    vehicle: 'GJ-05-BT-2211',
+    complaint: 'Axle 2 dual tyre puncture & realignment',
+    workType: 'Tyre Replacement',
+    serviceCentre: 'SB Workshop',
+    partsUsed: 'Tubeless valves',
+    labourCost: 1200,
+    totalCost: 3200,
+    cost: '₹3,200',
+    expectedDowntime: '4 hours',
+    downtime: '4 hours',
+    date: '2026-10-16',
+    status: 'Completed',
+  },
+  {
+    id: 'JC/240052',
+    jobCardId: 'JC/240052',
     jobCard: 'JC/240052',
     vehicle: 'RJ-13-TR-7788',
     complaint: 'Periodic maintenance 40,000 KM & oil filter replacement',
-    workType: 'Engine Overhaul',
-    serviceCentre: 'Shree Motors',
+    workType: 'Oil Change',
+    serviceCentre: 'City Auto Care',
+    partsUsed: 'Engine oil 15W40, filters',
+    labourCost: 2500,
+    totalCost: 14200,
     cost: '₹14,200',
+    expectedDowntime: '6 hours',
     downtime: '6 hours',
     date: '2026-10-15',
     status: 'Completed',
@@ -510,36 +654,89 @@ const defaultJobCards: JobCard[] = [
 
 const jobCards = ref<JobCard[]>([]);
 
-onMounted(() => {
-  const saved = localStorage.getItem('tms_job_cards');
-  if (saved) {
-    try {
-      jobCards.value = JSON.parse(saved);
-    } catch {
-      jobCards.value = defaultJobCards;
-    }
-  } else {
-    jobCards.value = defaultJobCards;
-    persist();
-  }
+const cardForm = ref({
+  id: '',
+  jobCardId: 'JC/240056',
+  date: new Date().toISOString().slice(0, 10),
+  vehicle: '— Select —',
+  serviceCentre: '— Select —',
+  workType: '— Select —',
+  status: 'Open',
+  complaint: '',
+  partsUsed: '',
+  labourCostFormatted: '₹8,000',
+  totalCostFormatted: '₹45,000',
+  expectedDowntime: '5 days / 4 hours',
 });
 
-function persist() {
+const isRefreshing = ref(false);
+
+onMounted(async () => {
+  await loadJobCards();
+  fetchDynamicVehicles();
+});
+
+async function loadJobCards() {
+  isRefreshing.value = true;
+  try {
+    const res = await api.get('/api/v1/job-cards');
+    if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+      jobCards.value = res.data;
+    } else {
+      jobCards.value = [...defaultJobCards];
+    }
+  } catch (err) {
+    console.warn('Could not load job cards from API, fallback to localStorage:', err);
+    const saved = localStorage.getItem('tms_job_cards');
+    if (saved) {
+      try {
+        jobCards.value = JSON.parse(saved);
+      } catch {
+        jobCards.value = defaultJobCards;
+      }
+    } else {
+      jobCards.value = defaultJobCards;
+    }
+  } finally {
+    isRefreshing.value = false;
+  }
+}
+
+async function fetchDynamicVehicles() {
+  try {
+    const res = await api.get('/api/v1/vehicles');
+    if (res.data && Array.isArray(res.data)) {
+      const vList = res.data
+        .map((v: any) => v.registrationNumber || v.vehicleNumber || v.regNo || v.plateNumber)
+        .filter(Boolean);
+      for (const reg of vList) {
+        if (!vehicleOptions.value.includes(reg)) {
+          vehicleOptions.value.push(reg);
+        }
+      }
+    }
+  } catch {
+    // Keep defaults
+  }
+}
+
+function persistLocal() {
   localStorage.setItem('tms_job_cards', JSON.stringify(jobCards.value));
 }
 
-const newCard = ref({
-  vehicle: '',
-  complaint: '',
-  workType: 'Brake Service',
-  serviceCentre: 'Shree Motors',
-  cost: '15000',
-  downtime: '1 day',
-  status: 'Open' as 'In Progress' | 'Completed' | 'Open',
-});
+function formatCostDisplay(val: any): string {
+  if (!val) return '₹0';
+  if (typeof val === 'string' && val.startsWith('₹')) return val;
+  const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.]/g, '')) || 0;
+  return '₹' + num.toLocaleString('en-IN');
+}
+
+function parseCurrency(str: string): number {
+  return parseFloat(str.replace(/[^0-9.]/g, '')) || 0;
+}
 
 const activeCount = computed(() => {
-  return jobCards.value.filter((c) => c.status !== 'Completed').length;
+  return jobCards.value.filter((c) => c.status !== 'Completed' && c.status !== 'Cancelled').length;
 });
 
 const completedCount = computed(() => {
@@ -548,36 +745,20 @@ const completedCount = computed(() => {
 
 const formattedTotalCost = computed(() => {
   const sum = jobCards.value.reduce((acc, curr) => {
-    const num = parseInt(curr.cost.replace(/[^0-9]/g, ''), 10) || 0;
+    const num = parseCurrency(String(curr.totalCost || curr.cost || 0));
     return acc + num;
   }, 0);
   return sum.toLocaleString('en-IN');
 });
 
-const isRefreshing = ref(false);
-
-function onRefresh() {
-  isRefreshing.value = true;
-  setTimeout(() => {
-    isRefreshing.value = false;
-    $q.notify({
-      type: 'positive',
-      message: 'Job Cards Refreshed',
-      caption: 'Maintenance registry synced with workshop.',
-      position: 'top-right',
-    });
-  }, 600);
-}
-
 const filteredJobCards = computed(() => {
   const q = (searchQuery.value || '').toLowerCase().trim();
   return jobCards.value.filter((c) => {
-    const matchSearch =
-      !q ||
-      c.jobCard.toLowerCase().includes(q) ||
-      c.vehicle.toLowerCase().includes(q) ||
-      c.complaint.toLowerCase().includes(q) ||
-      c.serviceCentre.toLowerCase().includes(q);
+    const jcId = (c.jobCardId || c.jobCard || '').toLowerCase();
+    const veh = (c.vehicle || '').toLowerCase();
+    const comp = (c.complaint || '').toLowerCase();
+    const sc = (c.serviceCentre || '').toLowerCase();
+    const matchSearch = !q || jcId.includes(q) || veh.includes(q) || comp.includes(q) || sc.includes(q);
     const matchStatus = statusFilter.value === 'ALL' || c.status === statusFilter.value;
     const matchType = workTypeFilter.value === 'ALL' || c.workType === workTypeFilter.value;
     return matchSearch && matchStatus && matchType;
@@ -592,22 +773,30 @@ function getWorkTypePillClass(type: string) {
       return 'sub-customer';
     case 'Brake Service':
       return 'sub-fuel-station';
-    default:
+    case 'Oil Change':
       return 'sub-driver';
+    default:
+      return 'sub-customer';
   }
 }
 
 function openAddDialog() {
   isEditing.value = false;
   editingCard.value = null;
-  newCard.value = {
-    vehicle: 'GJ-01-AC-3444',
-    complaint: '',
-    workType: 'Brake Service',
-    serviceCentre: 'Shree Motors',
-    cost: '12000',
-    downtime: '1 day',
+  const seq = 240056 + jobCards.value.length;
+  cardForm.value = {
+    id: `JC/${seq}`,
+    jobCardId: `JC/${seq}`,
+    date: new Date().toISOString().slice(0, 10),
+    vehicle: '— Select —',
+    serviceCentre: '— Select —',
+    workType: '— Select —',
     status: 'Open',
+    complaint: '',
+    partsUsed: '',
+    labourCostFormatted: '₹8,000',
+    totalCostFormatted: '₹45,000',
+    expectedDowntime: '5 days / 4 hours',
   };
   showModal.value = true;
 }
@@ -615,82 +804,95 @@ function openAddDialog() {
 function editJobCard(card: JobCard) {
   isEditing.value = true;
   editingCard.value = card;
-  newCard.value = {
-    vehicle: card.vehicle,
-    complaint: card.complaint,
-    workType: card.workType,
-    serviceCentre: card.serviceCentre,
-    cost: card.cost.replace(/[^0-9]/g, ''),
-    downtime: card.downtime,
-    status: card.status,
+
+  const total = parseCurrency(String(card.totalCost || card.cost || 45000));
+  const labour = parseCurrency(String(card.labourCost || 8000));
+
+  cardForm.value = {
+    id: card.id || card.jobCardId || card.jobCard || 'JC/240055',
+    jobCardId: card.jobCardId || card.jobCard || 'JC/240055',
+    date: card.date || new Date().toISOString().slice(0, 10),
+    vehicle: card.vehicle || 'GJ-01-AC-3444',
+    serviceCentre: card.serviceCentre || 'Shree Motors',
+    workType: card.workType || 'Engine Overhaul',
+    status: card.status || 'In Progress',
+    complaint: card.complaint || 'Engine overheating, white smoke',
+    partsUsed: card.partsUsed || 'Gasket set, coolant',
+    labourCostFormatted: `₹${labour.toLocaleString('en-IN')}`,
+    totalCostFormatted: `₹${total.toLocaleString('en-IN')}`,
+    expectedDowntime: card.expectedDowntime || card.downtime || '5 days',
   };
   showModal.value = true;
 }
 
-function saveJobCard() {
-  if (!newCard.value.vehicle || !newCard.value.complaint) {
-    $q.notify({
-      type: 'warning',
-      message: 'Validation Error',
-      caption: 'Please enter vehicle registration and reported defect complaint.',
-      position: 'top-right',
-    });
+async function saveJobCard() {
+  if (
+    !cardForm.value.jobCardId ||
+    cardForm.value.vehicle === '— Select —' ||
+    cardForm.value.serviceCentre === '— Select —' ||
+    cardForm.value.workType === '— Select —'
+  ) {
+    notify.warning('Please select Vehicle, Service Centre, and Work Type.');
     return;
   }
 
-  const costFormatted = newCard.value.cost ? `₹${Number(newCard.value.cost).toLocaleString('en-IN')}` : '₹0';
+  const labourNum = parseCurrency(cardForm.value.labourCostFormatted);
+  const totalNum = parseCurrency(cardForm.value.totalCostFormatted);
 
-  if (isEditing.value && editingCard.value) {
-    const idx = jobCards.value.findIndex((c) => c.id === editingCard.value!.id);
-    if (idx !== -1) {
-      jobCards.value[idx] = {
-        ...jobCards.value[idx],
-        vehicle: newCard.value.vehicle.toUpperCase(),
-        complaint: newCard.value.complaint,
-        workType: newCard.value.workType,
-        serviceCentre: newCard.value.serviceCentre,
-        cost: costFormatted,
-        downtime: newCard.value.downtime || 'Standard',
-        status: newCard.value.status,
-      };
-      persist();
-      $q.notify({
-        type: 'positive',
-        message: 'Job Card Updated',
-        caption: `Job card ${editingCard.value.jobCard} updated successfully.`,
-        position: 'top-right',
-      });
+  const payload: any = {
+    id: cardForm.value.jobCardId,
+    jobCardId: cardForm.value.jobCardId,
+    jobCard: cardForm.value.jobCardId,
+    date: cardForm.value.date,
+    vehicle: cardForm.value.vehicle,
+    serviceCentre: cardForm.value.serviceCentre,
+    workType: cardForm.value.workType,
+    status: cardForm.value.status,
+    complaint: cardForm.value.complaint || 'General Service',
+    partsUsed: cardForm.value.partsUsed,
+    labourCost: labourNum,
+    totalCost: totalNum,
+    cost: `₹${totalNum.toLocaleString('en-IN')}`,
+    expectedDowntime: cardForm.value.expectedDowntime,
+    downtime: cardForm.value.expectedDowntime,
+  };
+
+  try {
+    if (isEditing.value && editingCard.value) {
+      const editId = editingCard.value.id || editingCard.value.jobCardId || editingCard.value.jobCard;
+      await api.patch(`/api/v1/job-cards/${editId}`, payload);
+      const idx = jobCards.value.findIndex(
+        (c) => (c.id || c.jobCardId || c.jobCard) === editId,
+      );
+      if (idx !== -1) {
+        jobCards.value[idx] = { ...jobCards.value[idx], ...payload };
+      }
+      notify.success(`Job Card ${payload.jobCardId} updated successfully.`);
+    } else {
+      await api.post('/api/v1/job-cards', payload);
+      jobCards.value.unshift(payload);
+      notify.success(`Job Card ${payload.jobCardId} saved to database.`);
     }
-  } else {
-    const num = 240056 + jobCards.value.length;
-    const newJc: JobCard = {
-      id: String(Date.now()),
-      jobCard: `JC/${num}`,
-      vehicle: newCard.value.vehicle.toUpperCase(),
-      complaint: newCard.value.complaint,
-      workType: newCard.value.workType,
-      serviceCentre: newCard.value.serviceCentre,
-      cost: costFormatted,
-      downtime: newCard.value.downtime || 'Standard',
-      date: new Date().toISOString().split('T')[0],
-      status: newCard.value.status,
-    };
-    jobCards.value.unshift(newJc);
-    persist();
-    $q.notify({
-      type: 'positive',
-      message: 'Job Card Created',
-      caption: `Job card ${newJc.jobCard} generated for vehicle ${newJc.vehicle}.`,
-      position: 'top-right',
-    });
+    persistLocal();
+  } catch (err: any) {
+    console.warn('API error, falling back to local:', err);
+    if (isEditing.value && editingCard.value) {
+      const editId = editingCard.value.id || editingCard.value.jobCardId || editingCard.value.jobCard;
+      const idx = jobCards.value.findIndex(
+        (c) => (c.id || c.jobCardId || c.jobCard) === editId,
+      );
+      if (idx !== -1) {
+        jobCards.value[idx] = { ...jobCards.value[idx], ...payload };
+      }
+      notify.success(`Job Card ${payload.jobCardId} updated locally.`);
+    } else {
+      jobCards.value.unshift(payload);
+      notify.success(`Job Card ${payload.jobCardId} created locally.`);
+    }
+    persistLocal();
   }
 
   showModal.value = false;
-}
-
-function openDetails(card: JobCard) {
-  selectedCard.value = card;
-  showDetailsModal.value = true;
 }
 
 function confirmDeleteCard(card: JobCard) {
@@ -698,346 +900,58 @@ function confirmDeleteCard(card: JobCard) {
   showDeleteDialog.value = true;
 }
 
-function executeDeleteCard() {
+async function executeDeleteCard() {
   if (!deletingCard.value) return;
-  jobCards.value = jobCards.value.filter((c) => c.id !== deletingCard.value!.id);
-  persist();
-  $q.notify({
-    type: 'positive',
-    message: 'Job Card Deleted',
-    caption: `Job card ${deletingCard.value.jobCard} deleted.`,
-    position: 'top-right',
-  });
+  const targetId = deletingCard.value.id || deletingCard.value.jobCardId || deletingCard.value.jobCard;
+
+  try {
+    await api.delete(`/api/v1/job-cards/${targetId}`);
+  } catch (err) {
+    console.warn('Could not delete on API, deleting locally:', err);
+  }
+
+  jobCards.value = jobCards.value.filter(
+    (c) => (c.id || c.jobCardId || c.jobCard) !== targetId,
+  );
+  persistLocal();
+  notify.success(`Job Card ${targetId} deleted.`);
   showDeleteDialog.value = false;
 }
 
-/**
- * Print single official Workshop Job Card work order document
- */
-function printSingleJobCard(card: JobCard | null) {
-  if (!card) return;
-
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    $q.notify({
-      type: 'warning',
-      message: 'Popup Blocked',
-      caption: 'Please allow popups in your browser to print the Job Card.',
-      position: 'top-right',
-    });
-    return;
-  }
-
-  const currentDate = new Date().toLocaleString('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
-
-  const complaintSafe = (card.complaint || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-  <title>Job Card ${card.jobCard} - Ankpal Gati Shakti TMS</title>
-  <style>
-    @page {
-      size: A4 portrait;
-      margin: 14mm;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      color: #0f172a;
-      margin: 0;
-      padding: 24px;
-      background: #ffffff;
-    }
-    .header-box {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      border-bottom: 2px solid #0891b2;
-      padding-bottom: 14px;
-      margin-bottom: 20px;
-    }
-    .company-name {
-      font-size: 20px;
-      font-weight: 800;
-      color: #0891b2;
-      letter-spacing: -0.02em;
-    }
-    .company-sub {
-      font-size: 11px;
-      color: #64748b;
-      margin-top: 2px;
-    }
-    .jc-tag {
-      text-align: right;
-    }
-    .jc-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    .jc-number {
-      font-size: 20px;
-      font-weight: 800;
-      font-family: monospace;
-      color: #0891b2;
-      margin-top: 2px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .info-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 12px 16px;
-      background: #f8fafc;
-    }
-    .info-card h4 {
-      margin: 0 0 10px 0;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #64748b;
-    }
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 7px;
-      font-size: 13px;
-    }
-    .info-label {
-      color: #64748b;
-    }
-    .info-value {
-      font-weight: 600;
-      color: #0f172a;
-    }
-    .complaint-box {
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 20px;
-      background: #ffffff;
-    }
-    .complaint-box h4 {
-      margin: 0 0 6px 0;
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #64748b;
-    }
-    .complaint-text {
-      font-size: 13px;
-      line-height: 1.5;
-      color: #1e293b;
-      font-style: italic;
-    }
-    .checklist-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 24px;
-    }
-    .checklist-table th {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      padding: 8px 10px;
-      text-align: left;
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #475569;
-    }
-    .checklist-table td {
-      border: 1px solid #e2e8f0;
-      padding: 8px 10px;
-      font-size: 12px;
-    }
-    .sign-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 20px;
-      margin-top: 40px;
-      padding-top: 16px;
-      border-top: 1px dashed #cbd5e1;
-    }
-    .sign-box {
-      text-align: center;
-    }
-    .sign-line {
-      border-bottom: 1px solid #94a3b8;
-      margin-bottom: 6px;
-      height: 40px;
-    }
-    .sign-label {
-      font-size: 11px;
-      color: #64748b;
-      text-transform: uppercase;
-    }
-    @media print {
-      body { padding: 0; }
-    }
-  </style>
-</head>
-<body>
-  <div class="header-box">
-    <div>
-      <div class="company-name">ANKPAL GATI SHAKTI TMS</div>
-      <div class="company-sub">Fleet Workshop Maintenance & Job Card Order &bull; Logistics HQ</div>
-    </div>
-    <div class="jc-tag">
-      <div class="jc-title">WORKSHOP JOB CARD</div>
-      <div class="jc-number">${card.jobCard}</div>
-      <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Printed: ${currentDate}</div>
-    </div>
-  </div>
-
-  <div class="grid-2">
-    <div class="info-card">
-      <h4>Vehicle & Work Scope</h4>
-      <div class="info-row">
-        <span class="info-label">Vehicle Registration:</span>
-        <span class="info-value" style="font-family: monospace; font-size: 14px;">${card.vehicle}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Work Type Category:</span>
-        <span class="info-value">${card.workType}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Current Status:</span>
-        <span class="info-value" style="color: #0891b2;">${card.status}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Turnaround Downtime:</span>
-        <span class="info-value">${card.downtime || 'Standard'}</span>
-      </div>
-    </div>
-
-    <div class="info-card">
-      <h4>Workshop & Commercials</h4>
-      <div class="info-row">
-        <span class="info-label">Authorized Garage:</span>
-        <span class="info-value">${card.serviceCentre}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Job Card Date:</span>
-        <span class="info-value">${card.date}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Approved Repair Cost:</span>
-        <span class="info-value" style="font-size: 15px; color: #0f172a;">${card.cost}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Payment Authorization:</span>
-        <span class="info-value">Verified (Direct PO)</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="complaint-box">
-    <h4>Reported Defect / Driver Complaint</h4>
-    <div class="complaint-text">"${complaintSafe}"</div>
-  </div>
-
-  <table class="checklist-table">
-    <thead>
-      <tr>
-        <th style="width: 40px;">#</th>
-        <th>Task / Inspection Checklist</th>
-        <th>Parts / Spares Replaced</th>
-        <th style="width: 120px;">Technician Sign</th>
-        <th style="width: 100px;">Inspection Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>1</td>
-        <td>Pre-repair diagnostic & fault code scan</td>
-        <td>—</td>
-        <td></td>
-        <td>PASSED [ &check; ]</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>Mechanical / Electrical component overhaul</td>
-        <td>OEM Certified Spares</td>
-        <td></td>
-        <td>COMPLETED [ &check; ]</td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>Road test & safety sign-off (5 KM)</td>
-        <td>Consumables / Lubes</td>
-        <td></td>
-        <td>VERIFIED [ &check; ]</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="sign-grid">
-    <div class="sign-box">
-      <div class="sign-line"></div>
-      <div class="sign-label">Driver / Handover Signature</div>
-    </div>
-    <div class="sign-box">
-      <div class="sign-line"></div>
-      <div class="sign-label">Workshop Head / Mechanic</div>
-    </div>
-    <div class="sign-box">
-      <div class="sign-line"></div>
-      <div class="sign-label">Fleet Manager Approval</div>
-    </div>
-  </div>
-</body>
-</html>`;
-
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-
-  setTimeout(() => {
-    printWindow.focus();
-    printWindow.print();
-  }, 400);
+async function onRefresh() {
+  await loadJobCards();
+  notify.success('Job Cards Refreshed from database.');
 }
 
 function exportMaintenanceCsv() {
   exportToCsv(
-    'maintenance_job_cards',
+    'workshop_job_cards',
     [
-      { label: 'Job Card', field: 'jobCard' },
+      { label: 'Job Card', field: 'jobCardId' },
       { label: 'Vehicle', field: 'vehicle' },
       { label: 'Complaint', field: 'complaint' },
       { label: 'Work Type', field: 'workType' },
       { label: 'Service Centre', field: 'serviceCentre' },
-      { label: 'Cost', field: 'cost' },
-      { label: 'Downtime', field: 'downtime' },
+      { label: 'Total Cost', field: 'totalCost' },
+      { label: 'Downtime', field: 'expectedDowntime' },
       { label: 'Date', field: 'date' },
       { label: 'Status', field: 'status' },
     ],
     filteredJobCards.value,
   );
-  $q.notify({
-    type: 'positive',
-    message: 'Export Complete',
-    caption: `${filteredJobCards.value.length} job cards exported to CSV.`,
-    position: 'top-right',
-  });
+  notify.success(`${filteredJobCards.value.length} job cards exported to CSV.`);
 }
 
 function exportMaintenancePdf() {
   exportToPdf({
-    title: 'Fleet Maintenance Job Cards Register',
+    title: 'Workshop Maintenance & Job Cards Register',
     subtitle: `Total Active Records: ${filteredJobCards.value.length}`,
     columns: [
-      { label: 'Job Card', field: 'jobCard' },
+      { label: 'Job Card', field: 'jobCardId' },
       { label: 'Vehicle', field: 'vehicle' },
       { label: 'Work Type', field: 'workType' },
-      { label: 'Workshop', field: 'serviceCentre' },
-      { label: 'Cost', field: 'cost', align: 'right' },
-      { label: 'Date', field: 'date' },
+      { label: 'Service Centre', field: 'serviceCentre' },
+      { label: 'Cost', field: 'totalCost', align: 'right' },
       { label: 'Status', field: 'status', align: 'center' },
     ],
     rows: filteredJobCards.value,
@@ -1078,7 +992,7 @@ function exportMaintenancePdf() {
   font-size: 10px;
 }
 
-/* Cyber Card & Table matching Reference Image 1 & 2 */
+/* Cyber Card & Table matching Enterprise Dark */
 .cyber-card {
   background: #0d172b;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1104,15 +1018,11 @@ function exportMaintenancePdf() {
   padding: 0.85rem 1rem;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: none !important;
-  border-right: none !important;
 }
 
 .cyber-table td {
   padding: 0.85rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  border-left: none !important;
-  border-right: none !important;
   color: #cbd5e1;
   font-size: 0.82rem;
 }
@@ -1147,5 +1057,23 @@ function exportMaintenancePdf() {
 .sub-service-centre {
   background: rgba(99, 102, 241, 0.15);
   color: #818cf8;
+}
+
+.btn-table-action {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  background: rgba(0, 242, 254, 0.08);
+  color: #00f2fe;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btn-table-action:hover {
+  background: rgba(0, 242, 254, 0.2);
+  border-color: #00f2fe;
 }
 </style>

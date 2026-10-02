@@ -77,6 +77,51 @@ export class VehicleModel extends Model<VehicleModel> {
   @Column({ type: DataType.DOUBLE, defaultValue: 0.0 })
   currentOdometerKm: number;
 
+  @Column({ type: DataType.STRING, allowNull: true, defaultValue: 'HCV' })
+  vehicleTypeStr?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true, defaultValue: 'Owned' })
+  owner?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true, defaultValue: '16 MT' })
+  capacity?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  targetKmpl?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  chassisNo?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  engineNo?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  gpsId?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  fastagId?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  mfgYear?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  rcExpiry?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  fitness?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  insurance?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  puc?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  permitExpiry?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  roadTaxExpiry?: string;
+
   @HasMany(() => VehicleMaintenanceModel, { onDelete: 'CASCADE' })
   maintenances: VehicleMaintenanceModel[];
 
@@ -311,3 +356,54 @@ export class DriverAssignmentModel extends Model<DriverAssignmentModel> {
   @UpdatedAt
   updatedAt: Date;
 }
+
+@Table({ tableName: 'fuel_entries', timestamps: true })
+export class FuelEntryModel extends Model<FuelEntryModel> {
+  @PrimaryKey
+  @Default(DataType.UUIDV4)
+  @Column(DataType.STRING)
+  id: string;
+
+  @Column({ type: DataType.STRING, unique: true, allowNull: false })
+  entryId: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  dateTime: string;
+
+  @Column({ type: DataType.STRING, allowNull: false })
+  vehicle: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  trip: string;
+
+  @Column({ type: DataType.STRING, allowNull: false })
+  station: string;
+
+  @Column({ type: DataType.DOUBLE, defaultValue: 0.0 })
+  litres: number;
+
+  @Column({ type: DataType.DOUBLE, defaultValue: 0.0 })
+  rate: number;
+
+  @Column({ type: DataType.DOUBLE, defaultValue: 0.0 })
+  amount: number;
+
+  @Column({ type: DataType.STRING, defaultValue: 'Cash' })
+  paymentMode: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  odometer: string;
+
+  @Column({ type: DataType.DOUBLE, defaultValue: 0.0 })
+  kml: number;
+
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  flagged: boolean;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
+}
+

@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { DispatchService } from './dispatch.service';
 import { DispatchController } from './dispatch.controller';
+import { DriverAdvancesService } from './driver-advances.service';
+import { DriverAdvancesController } from './driver-advances.controller';
 import {
   DispatchModel,
   ShipmentModel,
@@ -13,6 +15,7 @@ import {
   CustomerModel,
   TripExpenseModel,
   AuditLogModel,
+  DriverAdvanceModel,
 } from '../database/models';
 
 @Module({
@@ -28,10 +31,11 @@ import {
       CustomerModel,
       TripExpenseModel,
       AuditLogModel,
+      DriverAdvanceModel,
     ]),
   ],
-  controllers: [DispatchController],
-  providers: [DispatchService],
-  exports: [DispatchService],
+  controllers: [DispatchController, DriverAdvancesController],
+  providers: [DispatchService, DriverAdvancesService],
+  exports: [DispatchService, DriverAdvancesService],
 })
 export class DispatchModule {}

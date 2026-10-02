@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -30,7 +30,19 @@ export class OrdersController {
   @Post()
   @ApiOperation({ summary: 'Create new transport order with items' })
   async create(@CurrentUser() user: any, @Body() body: any) {
-    return this.ordersService.create(user.organizationId, user.userId, body);
+    return this.ordersService.create(user?.organizationId, user?.userId, body);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update transport order / booking' })
+  async update(@Param('id') id: string, @Body() body: any) {
+    return this.ordersService.updateOrder(id, body);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete transport order / booking' })
+  async remove(@Param('id') id: string) {
+    return this.ordersService.deleteOrder(id);
   }
 
   @Patch(':id/status')

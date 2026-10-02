@@ -409,22 +409,16 @@
       </div>
 
       <!-- Inner Loading Overlay on Telematics Refresh -->
-      <q-inner-loading :showing="loading" style="background: rgba(7, 12, 24, 0.75); backdrop-filter: blur(4px); z-index: 50; border-radius: 16px;">
-        <div class="column items-center">
-          <q-spinner-dots size="56px" color="cyan" />
-          <div class="text-sm font-mono font-bold text-cyan-300 q-mt-md tracking-wider">
-            Syncing Live Dispatch Telematics...
-          </div>
-          <div class="text-xs font-mono text-slate-400 q-mt-xs">
-            Updating driver HOS status, terminal staging bays & active corridor linehauls
-          </div>
-        </div>
-      </q-inner-loading>
+      <AppLoadingOverlay
+        :showing="loading"
+        title="Syncing Live Dispatch Telematics..."
+        subtitle="Updating driver HOS status, terminal staging bays & active corridor linehauls"
+      />
     </div>
 
     <!-- Quick Dispatch Allocation Dialog -->
-    <q-dialog v-model="showDispatchDialog" persistent>
-      <div class="cyber-modal bg-slate-900 border border-slate-700 text-white rounded-xl p-5 max-w-[600px] w-full">
+    <q-dialog v-model="showDispatchDialog" position="right" full-height>
+      <div class="cyber-modal bg-slate-900 border-l border-cyan-500/30 text-white rounded-l-2xl p-5 max-w-[620px] w-full h-full flex flex-col justify-between">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
           <div class="flex items-center gap-2">
             <q-icon name="send" color="cyan" size="20px" />

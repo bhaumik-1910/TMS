@@ -96,6 +96,7 @@ const menuSections = ref<DeskMenuSection[]>([
     items: [
       { id: 'dashboard', label: 'Dashboard', mnemonic: 'D', to: '/dashboard', icon: 'dashboard' },
       { id: 'admin', label: 'Admin Console', mnemonic: 'A', to: '/admin', icon: 'admin_panel_settings' },
+      { id: 'users', label: 'Access Management', mnemonic: 'U', to: '/admin/users', icon: 'manage_accounts' },
       { id: 'settings', label: 'Organization & Settings', mnemonic: 'O', to: '/settings', icon: 'settings_suggest' },
     ],
   },

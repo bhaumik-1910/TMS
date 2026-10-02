@@ -502,22 +502,16 @@
       </div>
 
       <!-- Inner Loading Overlay on Financial Reconciliation -->
-      <q-inner-loading :showing="loading" style="background: rgba(7, 12, 24, 0.75); backdrop-filter: blur(4px); z-index: 50; border-radius: 16px;">
-        <div class="column items-center">
-          <q-spinner-dots size="56px" color="cyan" />
-          <div class="text-sm font-mono font-bold text-cyan-300 q-mt-md tracking-wider">
-            Reconciling Freight Ledgers & Audit Tolerances...
-          </div>
-          <div class="text-xs font-mono text-slate-400 q-mt-xs">
-            Querying SAP General Ledger, GSTN E-Invoicing & carrier rate variances
-          </div>
-        </div>
-      </q-inner-loading>
+      <AppLoadingOverlay
+        :showing="loading"
+        title="Reconciling Freight Ledgers & Audit Tolerances..."
+        subtitle="Querying SAP General Ledger, GSTN E-Invoicing & carrier rate variances"
+      />
     </div>
 
     <!-- Quick Freight Invoice Modal Dialog -->
-    <q-dialog v-model="showNewInvoiceModal" persistent>
-      <div class="cyber-modal bg-slate-900 border border-slate-700 text-white rounded-xl p-5 max-w-[620px] w-full">
+    <q-dialog v-model="showNewInvoiceModal" position="right" full-height>
+      <div class="cyber-modal bg-slate-900 border-l border-cyan-500/30 text-white rounded-l-2xl p-5 max-w-[620px] w-full h-full flex flex-col justify-between">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
           <div class="flex items-center gap-2">
             <q-icon name="receipt_long" color="cyan" size="20px" />
@@ -607,8 +601,8 @@
     </q-dialog>
 
     <!-- 3-Way Rate & Telematics Audit Modal Dialog -->
-    <q-dialog v-model="showAuditModal" persistent>
-      <div class="cyber-modal bg-slate-900 border border-slate-700 text-white rounded-xl p-5 max-w-[640px] w-full" v-if="selectedDiscrepancy">
+    <q-dialog v-model="showAuditModal" position="right" full-height>
+      <div class="cyber-modal bg-slate-900 border-l border-cyan-500/30 text-white rounded-l-2xl p-5 max-w-[640px] w-full h-full flex flex-col justify-between" v-if="selectedDiscrepancy">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
           <div class="flex items-center gap-2">
             <q-icon name="fact_check" color="cyan" size="20px" />

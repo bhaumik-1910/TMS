@@ -122,10 +122,11 @@
     <!-- Roles Cyber Table Card -->
     <div class="cyber-card relative-position overflow-hidden">
       <!-- Loading Overlay -->
-      <q-inner-loading :showing="loading" color="cyan" style="background: rgba(10, 15, 29, 0.85); z-index: 10;">
-        <q-spinner-dots size="48px" color="cyan" />
-        <div class="text-caption text-cyan-300 q-mt-sm font-mono tracking-wider">Syncing roles & RBAC matrix...</div>
-      </q-inner-loading>
+      <AppLoadingOverlay
+        :showing="loading"
+        title="Syncing Roles & RBAC Matrix..."
+        subtitle="Loading granular system permissions & tenant access levels"
+      />
 
       <q-table
         :rows="filteredRoles"

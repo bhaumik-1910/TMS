@@ -220,6 +220,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true, permission: PERMISSIONS.USER_VIEW },
       },
       {
+        path: 'access-management',
+        name: 'access-management',
+        component: () => import('../pages/admin/UsersManagementPage.vue'),
+        meta: { requiresAuth: true, permission: PERMISSIONS.USER_VIEW },
+      },
+      {
         path: 'admin/system',
         name: 'admin-system',
         component: () => import('../pages/admin/SystemConsolePage.vue'),
@@ -248,7 +254,9 @@ export const routes: RouteRecordRaw[] = [
       },
       {
         path: 'reports',
-        redirect: '/analytics',
+        name: 'reports',
+        component: () => import('../pages/analytics/AnalyticsPage.vue'),
+        meta: { requiresAuth: true, permission: PERMISSIONS.ANALYTICS_VIEW },
       },
       {
         path: 'appointments',
@@ -265,3 +273,6 @@ export const routes: RouteRecordRaw[] = [
     redirect: '/dashboard',
   },
 ];
+
+export default routes;
+

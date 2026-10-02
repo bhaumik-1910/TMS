@@ -1,38 +1,39 @@
 <template>
-  <div class="login-wrapper min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+  <div class="login-wrapper window-height row items-center justify-center q-pa-md relative-position overflow-hidden">
     <!-- Ambient Cyber Glows in Background -->
     <div class="ambient-glow ambient-glow-top"></div>
     <div class="ambient-glow ambient-glow-bottom"></div>
 
     <!-- Centered Glassmorphic Login Container -->
-    <div class="login-card w-full max-w-3xl rounded-2xl relative z-10 p-6 sm:p-8 backdrop-blur-xl border border-slate-800 shadow-2xl">
+    <div class="login-card full-width q-pa-md q-pa-sm-lg relative-position" style="max-width: 880px; z-index: 10;">
       
       <!-- Top Branding Header -->
-      <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center p-3 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/10 border border-cyan-500/30 mb-3 shadow-[0_0_20px_rgba(0,242,254,0.25)]">
-          <q-icon name="local_shipping" size="32px" class="text-cyan-400" />
+      <div class="text-center q-mb-md">
+        <div class="brand-badge inline-block q-pa-sm q-mb-sm">
+          <q-icon name="local_shipping" size="32px" color="cyan" />
         </div>
-        <h1 class="text-2xl sm:text-3xl font-black tracking-wide text-white flex items-center justify-center gap-2">
+        <h1 class="text-h5 text-sm-h4 text-weight-bolder text-white row items-center justify-center q-gutter-x-xs no-margin">
           <span>APEX</span>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 font-mono">TMS</span>
+          <span class="text-cyan font-mono">TMS</span>
         </h1>
-        <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-md mx-auto">
+        <p class="text-caption text-grey-5 q-mt-xs q-mb-none">
           Next-Generation Enterprise Transportation & Logistics Cloud
         </p>
       </div>
 
       <!-- Standard Credentials Form -->
-      <div class="p-4 sm:p-5 rounded-xl border border-slate-800/80 bg-slate-950/50 mb-6">
-        <div class="text-xs font-mono font-bold text-cyan-400 mb-3 flex items-center justify-between">
-          <span class="flex items-center gap-1.5">
-            <q-icon name="lock" size="14px" /> CORPORATE SIGN IN
-          </span>
-          <span class="text-[11px] text-slate-500 font-normal">Encrypted TLS 1.3</span>
+      <q-card flat bordered class="auth-form-card q-pa-md q-mb-md">
+        <div class="row items-center justify-between text-caption font-mono text-cyan text-weight-bold q-mb-sm">
+          <div class="row items-center q-gutter-x-xs">
+            <q-icon name="lock" size="14px" />
+            <span>CORPORATE SIGN IN</span>
+          </div>
+          <span class="text-grey-6 text-weight-regular" style="font-size: 11px;">Encrypted TLS 1.3</span>
         </div>
 
         <q-form @submit.prevent="handleLogin" class="row q-col-gutter-md items-end">
           <div class="col-12 col-sm-5">
-            <div class="text-[11px] font-semibold text-slate-300 mb-1">Corporate Email</div>
+            <div class="text-caption text-weight-medium text-grey-4 q-mb-xs" style="font-size: 11px;">Corporate Email</div>
             <q-input
               v-model="email"
               outlined
@@ -41,7 +42,7 @@
               type="email"
               :rules="[val => !!val || 'Email is required']"
               hide-bottom-space
-              class="font-mono text-sm"
+              class="font-mono text-body2"
               input-class="text-white font-mono"
             >
               <template #prepend>
@@ -51,7 +52,7 @@
           </div>
 
           <div class="col-12 col-sm-4">
-            <div class="text-[11px] font-semibold text-slate-300 mb-1">Password</div>
+            <div class="text-caption text-weight-medium text-grey-4 q-mb-xs" style="font-size: 11px;">Password</div>
             <q-input
               v-model="password"
               outlined
@@ -60,7 +61,7 @@
               placeholder="••••••••"
               :rules="[val => !!val || 'Password is required']"
               hide-bottom-space
-              class="font-mono text-sm"
+              class="font-mono text-body2"
               input-class="text-white font-mono"
             >
               <template #prepend>
@@ -83,24 +84,26 @@
           <div class="col-12 col-sm-3">
             <q-btn
               type="submit"
-              class="desk-btn-primary full-width font-bold"
+              class="full-width text-weight-bold"
+              color="cyan"
+              text-color="black"
               no-caps
               label="Sign In"
               :loading="authStore.isLoading"
-              style="height: 40px !important; min-height: 40px !important;"
+              style="height: 40px !important; min-height: 40px !important; border-radius: 8px;"
             />
           </div>
         </q-form>
-      </div>
+      </q-card>
 
       <!-- Quick 1-Click Role Login Section -->
       <div class="quick-login-box">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+        <div class="row items-center justify-between q-mb-sm">
+          <div class="row items-center q-gutter-x-xs text-caption text-weight-bold text-grey-3">
             <q-icon name="verified_user" color="cyan" size="16px" />
             <span>1-Click Instant Persona Sign In</span>
           </div>
-          <span class="text-[11px] font-mono text-cyan-300/80 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-500/20">
+          <span class="persona-pass-badge text-caption font-mono text-cyan q-px-sm q-py-xs">
             Pass: Tms@123456
           </span>
         </div>
@@ -110,9 +113,9 @@
           v-model="activeCategory"
           dense
           no-caps
-          class="text-slate-400 mb-3 bg-slate-950/60 rounded-lg p-0.5 border border-slate-800"
+          class="auth-tabs text-grey-5 q-mb-sm"
           active-color="cyan"
-          active-bg-color="cyan-950/40"
+          active-bg-color="transparent"
           indicator-color="cyan"
           align="justify"
         >
@@ -123,57 +126,61 @@
           <q-tab name="commercial" label="Finance" icon="account_balance" />
         </q-tabs>
 
-        <!-- Persona Quick Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-[300px] overflow-y-auto pr-1 custom-scroll">
+        <!-- Persona Quick Cards Grid (Native Quasar Row & Col Grid) -->
+        <div class="row q-col-gutter-sm custom-scroll" style="max-height: 290px; overflow-y: auto;">
           <div
             v-for="persona in filteredPersonas"
             :key="persona.role"
-            class="persona-card p-2.5 rounded-lg border border-slate-800/80 bg-slate-900/60 hover:bg-slate-800/60 hover:border-cyan-500/40 transition-all cursor-pointer flex items-center justify-between group"
-            :class="{ 'border-cyan-400/60 bg-cyan-950/30': email === persona.email }"
-            @click="quickLogin(persona)"
+            class="col-12 col-sm-6 col-md-4"
           >
-            <div class="flex items-center gap-2.5 min-w-0">
-              <div
-                class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
-                :style="`background-color: ${persona.bg}; color: ${persona.color};`"
-              >
-                <q-icon :name="persona.icon" size="16px" />
-              </div>
-              <div class="min-w-0">
-                <div class="text-xs font-bold text-white truncate group-hover:text-cyan-300 transition-colors">
-                  {{ persona.name }}
+            <div
+              class="persona-card q-pa-sm cursor-pointer row items-center justify-between no-wrap transition-all"
+              :class="{ 'active-persona': email === persona.email, 'default-persona': email !== persona.email }"
+              @click="quickLogin(persona)"
+            >
+              <div class="row items-center no-wrap q-gutter-x-sm ellipsis col">
+                <div
+                  class="persona-icon-box row items-center justify-center shrink-0"
+                  :style="{ backgroundColor: persona.bg, color: persona.color }"
+                >
+                  <q-icon :name="persona.icon" size="16px" />
                 </div>
-                <div class="text-[10px] text-slate-400 truncate font-mono">
-                  {{ persona.scope }}
+                <div class="ellipsis col">
+                  <div class="text-caption text-weight-bold text-white ellipsis persona-name">
+                    {{ persona.name }}
+                  </div>
+                  <div class="text-caption text-grey-5 font-mono ellipsis" style="font-size: 10px;">
+                    {{ persona.scope }}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <q-btn
-              round
-              flat
-              dense
-              icon="arrow_forward"
-              size="xs"
-              color="cyan"
-              :loading="authStore.isLoading && email === persona.email"
-              class="shrink-0 ml-1 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all"
-            />
+              <q-btn
+                round
+                flat
+                dense
+                icon="arrow_forward"
+                size="xs"
+                color="cyan"
+                :loading="authStore.isLoading && email === persona.email"
+                class="shrink-0 q-ml-xs persona-arrow"
+              />
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Footer Info -->
-      <div class="mt-6 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between text-[11px] text-slate-500 gap-2">
-        <div class="flex items-center gap-3">
+      <div class="q-mt-md q-pt-sm row items-center justify-between text-caption text-grey-6" style="border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px;">
+        <div class="row items-center q-gutter-x-sm">
           <span>Enterprise Edition</span>
           <span>&bull;</span>
           <span>Multi-Tenant</span>
           <span>&bull;</span>
           <span>ISO 27001 Compliant</span>
         </div>
-        <div class="font-mono text-slate-400">
-          v2.6 Cloud &bull; <a href="mailto:support@tms.com" class="text-cyan-400 hover:underline">support@tms.com</a>
+        <div class="font-mono text-grey-5">
+          v2.6 Cloud &bull; <a href="mailto:support@tms.com" class="text-cyan text-decoration-none">support@tms.com</a>
         </div>
       </div>
 
@@ -249,8 +256,8 @@ const allPersonas: Persona[] = [
     scope: 'Routing & Consolidation',
     category: 'operations',
     icon: 'alt_route',
-    color: '#a78bfa',
-    bg: 'rgba(167, 139, 250, 0.15)',
+    color: '#818cf8',
+    bg: 'rgba(129, 140, 248, 0.15)',
     redirect: '/dashboard',
   },
   {
@@ -259,9 +266,9 @@ const allPersonas: Persona[] = [
     role: 'DISPATCHER',
     scope: 'Trip Release & Assign',
     category: 'operations',
-    icon: 'view_kanban',
-    color: '#f59e0b',
-    bg: 'rgba(245, 158, 11, 0.15)',
+    icon: 'local_shipping',
+    color: '#fbbf24',
+    bg: 'rgba(251, 191, 36, 0.15)',
     redirect: '/dashboard',
   },
   {
@@ -381,6 +388,7 @@ async function quickLogin(persona: Persona) {
 <style scoped>
 .login-wrapper {
   background: radial-gradient(circle at 50% 20%, #0d172b 0%, #070c18 100%);
+  min-height: 100vh;
 }
 
 .ambient-glow {
@@ -405,13 +413,82 @@ async function quickLogin(persona: Persona) {
   background: rgba(37, 99, 235, 0.08);
 }
 
+.brand-badge {
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(37, 99, 235, 0.1));
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+}
+
 .login-card {
-  background: rgba(13, 23, 43, 0.85);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 242, 254, 0.06);
+  background: rgba(13, 23, 43, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 242, 254, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.auth-form-card {
+  background: rgba(7, 12, 24, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.auth-tabs {
+  background: rgba(7, 12, 24, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
+.persona-pass-badge {
+  background: rgba(0, 242, 254, 0.1);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: 6px;
 }
 
 .persona-card {
-  transition: all 0.18s ease;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  min-height: 48px;
+}
+
+.default-persona {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.default-persona:hover {
+  background: rgba(26, 38, 64, 0.85);
+  border-color: rgba(0, 242, 254, 0.45);
+  transform: translateY(-1px);
+}
+
+.active-persona {
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid rgba(0, 242, 254, 0.6);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+}
+
+.persona-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.persona-arrow {
+  opacity: 0.7;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.persona-card:hover .persona-arrow {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.persona-card:hover .persona-name {
+  color: #00f2fe !important;
 }
 
 .custom-scroll::-webkit-scrollbar {

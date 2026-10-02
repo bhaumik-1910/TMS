@@ -54,31 +54,31 @@
     </div>
 
     <!-- Create Carrier Dialog -->
-    <q-dialog v-model="createDialog">
-      <q-card style="width: 480px; max-width: 90vw;" class="tms-card">
-        <div class="row items-center justify-between q-pa-md" style="border-bottom: 1px solid var(--surface-border);">
-          <div class="text-subtitle1 text-weight-bold text-slate-900">Add 3PL Carrier Partner</div>
-          <q-btn icon="close" flat round dense v-close-popup />
+    <q-dialog v-model="createDialog" position="right" full-height>
+      <div style="width: 480px; max-width: 95vw; height: 100vh; background: #091024; border-left: 1px solid rgba(0, 242, 254, 0.28); border-radius: 16px 0 0 16px;" class="column text-white">
+        <div class="row items-center justify-between q-pa-md" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: #070c18;">
+          <div class="text-subtitle1 text-weight-bold text-white">Add 3PL Carrier Partner</div>
+          <q-btn icon="close" flat round dense v-close-popup text-color="grey-5" />
         </div>
 
-        <q-card-section class="q-pa-md">
+        <div class="col scroll q-pa-md">
           <q-form @submit.prevent="submitCarrier" class="q-gutter-y-md">
             <q-input v-model="newCarrier.companyName" dense outlined label="Company Name *" :rules="[val => !!val || 'Required']" />
             <q-input v-model="newCarrier.carrierCode" dense outlined label="Carrier Code (e.g. CARR-90)" />
             <q-input v-model="newCarrier.email" dense outlined label="Dispatch Email *" type="email" />
             <q-input v-model="newCarrier.phone" dense outlined label="Phone Number" />
-            <div class="row justify-end q-gutter-sm">
+            <div class="row justify-end q-gutter-sm q-mt-lg">
               <q-btn flat no-caps label="Cancel" v-close-popup />
               <q-btn color="primary" no-caps label="Save Carrier" type="submit" />
             </div>
           </q-form>
-        </q-card-section>
-      </q-card>
+        </div>
+      </div>
     </q-dialog>
 
     <!-- Add Rate Dialog -->
-    <q-dialog v-model="rateDialog">
-      <q-card style="width: 450px; max-width: 90vw;" class="tms-card" v-if="selectedCarrier">
+    <q-dialog v-model="rateDialog" position="right" full-height>
+      <div style="width: 450px; max-width: 95vw; height: 100vh; background: #091024; border-left: 1px solid rgba(0, 242, 254, 0.28); border-radius: 16px 0 0 16px;" class="column text-white" v-if="selectedCarrier">
         <div class="row items-center justify-between q-pa-md" style="border-bottom: 1px solid var(--surface-border);">
           <div class="text-subtitle1 text-weight-bold text-slate-900">Add Lane Contract Rate</div>
           <q-btn icon="close" flat round dense v-close-popup />
@@ -108,9 +108,9 @@
             label="Destination Location"
           />
           <DeskNumberInput v-model="rateForm.baseRate" placeholder="e.g. 12.50" :step="0.05" :min="0" />
-          <q-btn color="primary" class="full-width text-weight-bold" no-caps label="Save Contract Rate" @click="submitRate" />
-        </q-card-section>
-      </q-card>
+          <q-btn color="primary" class="full-width text-weight-bold q-mt-md" no-caps label="Save Contract Rate" @click="submitRate" />
+        </div>
+      </div>
     </q-dialog>
   </q-page>
 </template>

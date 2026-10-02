@@ -1,38 +1,53 @@
 {
   "name": "enterprise-tms-frontend",
   "version": "1.0.0",
+  "description": "APEX Enterprise Transportation Management System (TMS)",
+  "productName": "Ankpal — Gati Shakti TMS",
+  "author": "bhaumik <bhaumikkothiya1@gmail.com>",
+  "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "dev": "quasar dev",
+    "build": "quasar build",
+    "typecheck": "vue-tsc --noEmit",
+    "postinstall": "quasar prepare --silent"
   },
   "dependencies": {
-    "@quasar/extras": "^1.16.9",
-    "axios": "^1.6.7",
+    "@quasar/extras": "^2.1.0",
+    "axios": "^1.20.0",
     "clsx": "^2.1.1",
-    "echarts": "^5.5.0",
+    "echarts": "^6.1.0",
     "leaflet": "^1.9.4",
     "lucide-vue-next": "^1.0.0",
-    "pinia": "^2.1.7",
-    "quasar": "^2.14.2",
-    "socket.io-client": "^4.7.4",
+    "pinia": "^4.0.2",
+    "quasar": "^2.34.0",
+    "socket.io-client": "^4.8.4",
     "tailwind-merge": "^3.7.0",
-    "vue": "^3.4.15",
-    "vue-echarts": "^6.6.8",
-    "vue-router": "^4.2.5"
+    "vue": "^3.5.22",
+    "vue-echarts": "^8.3.1",
+    "vue-router": "^5.0.6"
   },
   "devDependencies": {
-    "@quasar/vite-plugin": "^1.6.0",
-    "@types/leaflet": "^1.9.8",
-    "@types/node": "^20.11.16",
-    "@vitejs/plugin-vue": "^5.0.3",
-    "autoprefixer": "^10.6.1",
-    "postcss": "^8.5.28",
-    "sass": "^1.70.0",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.12",
-    "vue-tsc": "^1.8.27"
+    "@quasar/app-vite": "^3.10.1",
+    "@types/leaflet": "^1.9.22",
+    "@types/node": "^22.19.11",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "sass": "^1.105.1",
+    "tailwindcss": "3.4.17",
+    "typescript": "^6.0.0",
+    "vue-tsc": "^3.3.3"
+  },
+  "keywords": [
+    "quasar",
+    "quasar-app",
+    "quasar-cli",
+    "quasar-app-vite",
+    "vite",
+    "vue",
+    "vuejs"
+  ],
+  "engines": {
+    "node": ">= 26 || ^24 || ^22.12"
   }
 }

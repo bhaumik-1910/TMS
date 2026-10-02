@@ -13,6 +13,7 @@ import {
   CustomerModel,
   TransportOrderModel,
   LocationModel,
+  PodRecordModel,
 } from '../database/models';
 
 @Module({
@@ -28,6 +29,7 @@ import {
       CustomerModel,
       TransportOrderModel,
       LocationModel,
+      PodRecordModel,
     ]),
   ],
   controllers: [PodController],

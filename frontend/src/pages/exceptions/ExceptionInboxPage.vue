@@ -1,68 +1,134 @@
 <template>
-  <div class="exception-page">
-    <!-- Header -->
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Exception Inbox</h1>
-        <div class="accent-line"></div>
+  <div class="exception-page min-h-screen text-slate-100 p-6">
+    <!-- Header with cyan underline bar matching user screenshot -->
+    <div class="page-title-wrap mb-6">
+      <h1 class="text-2xl font-bold tracking-tight text-white mb-1">Exception Inbox</h1>
+      <div class="page-underline"></div>
+    </div>
+
+    <!-- 3 KPI Box Cards matching Row 1 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- 1. OPEN EXCEPTIONS -->
+      <div class="kpi-box">
+        <span class="kpi-title">OPEN EXCEPTIONS</span>
+        <div class="kpi-amount text-amber-400">{{ openCount }}</div>
+        <span class="kpi-subtext">Requires action</span>
       </div>
-      <div class="header-stats">
-        <span class="unresolved-badge">
-          <span class="material-icons-outlined text-sm">error_outline</span>
-          {{ activeExceptions.length }} Action Required
-        </span>
+
+      <!-- 2. HIGH SEVERITY -->
+      <div class="kpi-box">
+        <span class="kpi-title">HIGH SEVERITY</span>
+        <div class="kpi-amount text-amber-400">{{ highSeverityCount }}</div>
+        <span class="kpi-subtext">Fuel, compliance, overdue</span>
+      </div>
+
+      <!-- 3. RESOLVED TODAY -->
+      <div class="kpi-box">
+        <span class="kpi-title">RESOLVED TODAY</span>
+        <div class="kpi-amount text-white">{{ resolvedTodayCount }}</div>
+        <span class="kpi-subtext">Cleared exceptions</span>
       </div>
     </div>
 
-    <!-- Filter Category Chips -->
-    <div class="filter-pills-row">
-      <button
-        v-for="cat in categories"
-        :key="cat"
-        class="filter-pill"
-        :class="{ active: selectedCategory === cat }"
-        @click="selectedCategory = cat"
-      >
-        {{ cat }}
-      </button>
+    <!-- Filter Pills matching user screenshot -->
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <!-- Status Filters: All, Open, Resolved -->
+      <div class="flex items-center gap-1.5">
+        <button
+          v-for="st in statusFilters"
+          :key="st"
+          class="tab-pill"
+          :class="{ 'tab-pill--active': selectedStatus === st }"
+          @click="selectedStatus = st"
+        >
+          {{ st }}
+        </button>
+      </div>
+
+      <!-- Category / Type Filters: All Types, Fuel Anomaly, Compliance, etc. -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button
+          v-for="tp in typeFilters"
+          :key="tp"
+          class="tab-pill"
+          :class="{ 'tab-pill--cyan-active': selectedType === tp }"
+          @click="selectedType = tp"
+        >
+          {{ tp }}
+        </button>
+      </div>
     </div>
 
-    <!-- Exceptions Feed -->
-    <div class="exceptions-list">
+    <!-- Exceptions Feed List matching user screenshot -->
+    <div class="flex flex-col gap-3.5">
       <div
         v-for="item in filteredExceptions"
         :key="item.id"
-        class="exception-card"
-        :class="{ 'resolved-card': item.resolved }"
+        class="exception-row-card"
+        :class="{ 'exception-row-card--resolved': item.resolved }"
       >
-        <div class="card-left-icon">
-          <span class="material-icons-outlined alert-icon" :class="item.severity.toLowerCase()">
-            {{ item.resolved ? 'check_circle' : 'notifications_active' }}
-          </span>
+        <!-- Left Column: Siren / Alarm Icon Box -->
+        <div class="siren-box flex-shrink-0">
+          <svg class="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="currentColor">
+            <!-- Siren / Alarm beacon SVG matching user screenshot -->
+            <path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4zm-2 5V6a2 2 0 1 1 4 0v1h-4zm-4 7v1a5 5 0 0 0 5 5h2a5 5 0 0 0 5-5v-1H6zm6 7a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2z" />
+          </svg>
         </div>
 
-        <div class="card-main-content">
-          <div class="meta-row">
-            <span class="badge-type">{{ item.category }}</span>
-            <span class="badge-severity" :class="'badge-' + item.severity.toLowerCase()">
+        <!-- Middle Column: Content & Metadata -->
+        <div class="flex-1 min-w-0 pr-4">
+          <!-- Top Metadata Row -->
+          <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+            <!-- Category Badge -->
+            <span
+              class="badge-category"
+              :class="getCategoryBadgeClass(item.category)"
+            >
+              {{ item.category }}
+            </span>
+
+            <!-- Severity Badge -->
+            <span
+              class="badge-severity"
+              :class="item.severity === 'HIGH' ? 'badge-severity--high' : 'badge-severity--medium'"
+            >
               {{ item.severity }}
             </span>
-            <span class="date-stamp">{{ item.date }}</span>
-            <span v-if="item.resolved" class="badge-resolved">Resolved</span>
+
+            <!-- Date -->
+            <span class="font-mono text-xs text-slate-400">
+              {{ item.date }}
+            </span>
+
+            <span v-if="item.resolved" class="badge-resolved-pill">
+              Resolved ✓
+            </span>
           </div>
 
-          <h3 class="exception-title">{{ item.title }}</h3>
-          <p class="exception-desc">{{ item.description }}</p>
-          <div class="reference-link">
-            Ref: <span class="cyan">{{ item.ref }}</span>
+          <!-- Exception Title -->
+          <h3 class="text-sm font-bold text-white mb-1 tracking-tight">
+            {{ item.title }}
+          </h3>
+
+          <!-- Exception Description -->
+          <p class="text-xs text-slate-400 mb-1.5 leading-relaxed">
+            {{ item.description }}
+          </p>
+
+          <!-- Reference Link -->
+          <div class="text-[11px] font-mono text-slate-500">
+            {{ item.ref }}
           </div>
         </div>
 
-        <div class="card-actions">
-          <button class="btn-review" @click="reviewException(item)">Review</button>
+        <!-- Right Column: Action Buttons matching user screenshot -->
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="btn-action-review" @click="reviewException(item)">
+            Review
+          </button>
           <button
-            class="btn-resolve"
-            :class="{ resolved: item.resolved }"
+            class="btn-action-resolve"
+            :class="{ 'btn-action-resolve--done': item.resolved }"
             @click="toggleResolve(item)"
           >
             {{ item.resolved ? 'Reopen' : 'Resolve ✓' }}
@@ -70,66 +136,68 @@
         </div>
       </div>
 
-      <div v-if="filteredExceptions.length === 0" class="no-records">
-        <span class="material-icons-outlined text-4xl text-slate-500 mb-2">task_alt</span>
-        <p class="text-slate-400">All exceptions in this category have been addressed.</p>
+      <!-- Empty State -->
+      <div v-if="filteredExceptions.length === 0" class="py-12 text-center text-slate-400 bg-[#091224] rounded-xl border border-slate-800">
+        <svg class="w-12 h-12 mx-auto mb-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="text-sm">No exceptions matching the selected criteria.</p>
       </div>
     </div>
 
-    <!-- Exception Review Dialog -->
-    <q-dialog v-model="showReviewModal">
-      <q-card class="bg-dark text-white rounded-borders q-pa-md" style="min-width: 500px; max-width: 600px; border: 1px solid rgba(239, 68, 68, 0.4);">
-        <q-card-section class="row items-center justify-between q-pb-sm">
-          <div class="row items-center q-gutter-x-sm">
-            <q-icon name="warning" color="negative" size="24px" />
-            <div>
-              <div class="text-subtitle1 text-weight-bold text-white">{{ selectedItem?.title }}</div>
-              <div class="text-caption text-grey-5">Reference: {{ selectedItem?.ref }} • Category: {{ selectedItem?.category }}</div>
-            </div>
+    <!-- Review Dialog -->
+    <DeskDialog
+      v-model="showReviewModal"
+      title="Exception Incident Audit"
+      width="560px"
+      :confirm-label="selectedItem?.resolved ? 'Reopen Exception' : 'Resolve Incident'"
+      cancel-label="Close"
+      @confirm="resolveFromModal"
+      @cancel="showReviewModal = false"
+    >
+      <div v-if="selectedItem" class="flex flex-col gap-4 text-sm font-sans">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div>
+            <div class="font-bold text-white text-base">{{ selectedItem.title }}</div>
+            <div class="text-xs text-slate-400 font-mono mt-0.5">{{ selectedItem.ref }} • Reported {{ selectedItem.date }}</div>
           </div>
-          <q-btn flat round dense icon="close" color="white" v-close-popup />
-        </q-card-section>
+          <span
+            class="badge-severity"
+            :class="selectedItem.severity === 'HIGH' ? 'badge-severity--high' : 'badge-severity--medium'"
+          >
+            {{ selectedItem.severity }}
+          </span>
+        </div>
 
-        <q-separator dark />
+        <div class="p-3.5 rounded-lg bg-[#060c18] border border-slate-800/80 text-slate-300 text-xs leading-relaxed font-mono">
+          {{ selectedItem.description }}
+        </div>
 
-        <q-card-section class="q-py-md">
-          <div class="q-pa-sm rounded-borders bg-black text-body2 text-grey-3" style="border: 1px solid rgba(255, 255, 255, 0.1);">
-            {{ selectedItem?.description }}
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div class="p-2.5 rounded bg-slate-900/60 border border-slate-800">
+            <span class="text-slate-400 block mb-1">INCIDENT CATEGORY</span>
+            <span class="font-bold text-white">{{ selectedItem.category }}</span>
           </div>
-          <div class="row items-center justify-between q-mt-md">
-            <span class="text-caption text-grey-5">Reported On: {{ selectedItem?.date }}</span>
-            <q-badge :color="selectedItem?.severity === 'HIGH' ? 'negative' : 'warning'" text-color="white" class="text-weight-bold">
-              {{ selectedItem?.severity }} SEVERITY
-            </q-badge>
+          <div class="p-2.5 rounded bg-slate-900/60 border border-slate-800">
+            <span class="text-slate-400 block mb-1">AUDIT STATUS</span>
+            <span :class="selectedItem.resolved ? 'text-emerald-400' : 'text-amber-400'" class="font-bold">
+              {{ selectedItem.resolved ? 'Resolved' : 'Requires Investigation' }}
+            </span>
           </div>
-        </q-card-section>
-
-        <q-card-actions align="right" class="q-pt-sm q-gutter-x-sm">
-          <q-btn flat no-caps label="Close" color="grey-5" v-close-popup />
-          <q-btn
-            unelevated
-            no-caps
-            :label="selectedItem?.resolved ? 'Reopen Exception' : 'Resolve Exception'"
-            :color="selectedItem?.resolved ? 'warning' : 'positive'"
-            @click="resolveFromModal"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+        </div>
+      </div>
+    </DeskDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useQuasar } from 'quasar';
-
-const $q = useQuasar();
-const showReviewModal = ref(false);
-const selectedItem = ref<ExceptionItem | null>(null);
+import { useAppNotify } from '../../composables/useAppNotify';
+import { DeskDialog } from '../../framework';
 
 interface ExceptionItem {
   id: string;
-  category: 'Fuel Anomaly' | 'Compliance' | 'Credit Limit' | 'Route Deviation';
+  category: 'Fuel Anomaly' | 'Compliance' | 'Credit Limit' | 'Overdue Invoice' | 'Advance Limit' | 'POD';
   severity: 'HIGH' | 'MEDIUM';
   date: string;
   title: string;
@@ -138,9 +206,26 @@ interface ExceptionItem {
   resolved: boolean;
 }
 
-const categories = ['All', 'Fuel Anomaly', 'Compliance', 'Credit Limit', 'Route Deviation'];
-const selectedCategory = ref('All');
+const notify = useAppNotify();
 
+const statusFilters = ['All', 'Open', 'Resolved'];
+const selectedStatus = ref('Open');
+
+const typeFilters = [
+  'All Types',
+  'Fuel Anomaly',
+  'Compliance',
+  'Credit Limit',
+  'Overdue Invoice',
+  'Advance Limit',
+  'POD',
+];
+const selectedType = ref('All Types');
+
+const showReviewModal = ref(false);
+const selectedItem = ref<ExceptionItem | null>(null);
+
+// Initial exception records matching user screenshot
 const exceptions = ref<ExceptionItem[]>([
   {
     id: '1',
@@ -148,8 +233,8 @@ const exceptions = ref<ExceptionItem[]>([
     severity: 'HIGH',
     date: '2026-10-21',
     title: 'Fuel variance 24% on GJ-05-BT-2211',
-    description: 'FE/240086: 4.2 km/L vs target 5.5. Possible odometer mismatch or over-fill at BPCL Naroda on 21 Oct.',
-    ref: 'FE/240086',
+    description: 'FE/2400086: 4.2 km/L vs target 5.5. Possible odometer mismatch or over-fill at BPCL Naroda on 21 Oct.',
+    ref: 'Ref: FE/2400086',
     resolved: false,
   },
   {
@@ -158,8 +243,8 @@ const exceptions = ref<ExceptionItem[]>([
     severity: 'HIGH',
     date: '2026-10-22',
     title: 'Duplicate fill within 3h — GJ-01-AB-1122',
-    description: 'FE/240082 and FE/240083 both at HPCL Adajan on 22 Oct within 2h 40m. Total 580 L — exceeds tank capacity.',
-    ref: 'FE/240082',
+    description: 'FE/2400082 and FE/2400083 both at HPCL Adajan on 22 Oct within 2h 40m. Total 580 L — exceeds tank capacity.',
+    ref: 'Ref: FE/2400082',
     resolved: false,
   },
   {
@@ -169,7 +254,7 @@ const exceptions = ref<ExceptionItem[]>([
     date: '2026-10-24',
     title: 'Fitness certificate expired — GJ-01-AC-3444',
     description: 'Fitness expired 2023-11-02 (overdue by 700+ days). Vehicle blocked for trip allocation until renewed.',
-    ref: 'VEH/GJ-01-AC-3444',
+    ref: 'Ref: VEH/GJ-01-AC-3444',
     resolved: false,
   },
   {
@@ -179,7 +264,7 @@ const exceptions = ref<ExceptionItem[]>([
     date: '2026-10-24',
     title: 'Insurance expired — GJ-01-AB-1122',
     description: 'Insurance expired 2025-01-10. Vehicle is currently In Transit on TR/240078. Renewal required immediately.',
-    ref: 'VEH/GJ-01-AB-1122',
+    ref: 'Ref: VEH/GJ-01-AB-1122',
     resolved: false,
   },
   {
@@ -189,39 +274,87 @@ const exceptions = ref<ExceptionItem[]>([
     date: '2026-10-23',
     title: 'Credit limit 94% utilised — Pidilite Industries',
     description: 'Outstanding ₹4,70,000 against ₹5,00,000 sanctioned limit. New LR dispatch holds enabled until clearance.',
-    ref: 'CUST/PIDILITE',
+    ref: 'Ref: CUST/PIDILITE',
     resolved: false,
   },
   {
     id: '6',
-    category: 'Route Deviation',
+    category: 'Overdue Invoice',
     severity: 'MEDIUM',
-    date: '2026-10-25',
-    title: 'Geofence Exit: TR/240076 (MH-14-DX-9000)',
-    description: 'Driver deviated +42 KM from approved NH-48 toll corridor towards Panvel bypass. Delay alert triggered.',
-    ref: 'TR/240076',
+    date: '2026-10-22',
+    title: 'Invoice overdue by 45 days — Marico Ltd',
+    description: 'INV/24/1045 for ₹62,000 pending payment since due date 08 Sep 2026. Follow-up reminder dispatched.',
+    ref: 'Ref: INV/24/1045',
     resolved: false,
+  },
+  {
+    id: '7',
+    category: 'Advance Limit',
+    severity: 'MEDIUM',
+    date: '2026-10-21',
+    title: 'Driver cash advance exceeded limit — TR/240075',
+    description: 'Total advance requested ₹18,000 exceeds maximum route advance policy ₹15,000 for driver Ramesh Alumar.',
+    ref: 'Ref: ADV/240092',
+    resolved: false,
+  },
+  {
+    id: '8',
+    category: 'POD',
+    severity: 'MEDIUM',
+    date: '2026-10-20',
+    title: 'POD delivery document missing — LR/240040',
+    description: 'Trip completed 4 days ago. Consignee signed physical or digital proof of delivery not uploaded.',
+    ref: 'Ref: LR/240040',
+    resolved: false,
+  },
+  {
+    id: '9',
+    category: 'Compliance',
+    severity: 'HIGH',
+    date: '2026-10-24',
+    title: 'Speed telemetry violation on NH-48 toll corridor',
+    description: 'Speed recorded 88 km/h in 60 km/h speed zone near Bharuch. Driver acknowledged warning.',
+    ref: 'Ref: TEL/99482',
+    resolved: true,
   },
 ]);
 
-const activeExceptions = computed(() => {
-  return exceptions.value.filter(e => !e.resolved);
+// KPI Computations matching Image 1
+const openCount = computed(() => {
+  return exceptions.value.filter((e) => !e.resolved).length;
 });
 
+const highSeverityCount = computed(() => {
+  return exceptions.value.filter((e) => !e.resolved && e.severity === 'HIGH').length;
+});
+
+const resolvedTodayCount = computed(() => {
+  return exceptions.value.filter((e) => e.resolved).length;
+});
+
+// Filtered exceptions by status and type
 const filteredExceptions = computed(() => {
-  return exceptions.value.filter(e => {
-    if (selectedCategory.value === 'All') return true;
-    return e.category === selectedCategory.value;
+  return exceptions.value.filter((e) => {
+    // Status Filter
+    if (selectedStatus.value === 'Open' && e.resolved) return false;
+    if (selectedStatus.value === 'Resolved' && !e.resolved) return false;
+
+    // Type Filter
+    if (selectedType.value !== 'All Types' && e.category !== selectedType.value) {
+      return false;
+    }
+
+    return true;
   });
 });
 
 function toggleResolve(item: ExceptionItem) {
   item.resolved = !item.resolved;
-  $q.notify({
-    type: item.resolved ? 'positive' : 'warning',
-    message: item.resolved ? `Exception [${item.ref}] marked as resolved.` : `Exception [${item.ref}] reopened.`,
-    position: 'top-right',
-  });
+  if (item.resolved) {
+    notify.notifySuccess(`Exception [${item.ref}] marked as resolved.`);
+  } else {
+    notify.notifyInfo(`Exception [${item.ref}] reopened.`);
+  }
 }
 
 function reviewException(item: ExceptionItem) {
@@ -235,252 +368,252 @@ function resolveFromModal() {
     showReviewModal.value = false;
   }
 }
+
+function getCategoryBadgeClass(category: string) {
+  switch (category) {
+    case 'Fuel Anomaly':
+      return 'badge-category--fuel';
+    case 'Compliance':
+      return 'badge-category--compliance';
+    case 'Credit Limit':
+      return 'badge-category--credit';
+    case 'Overdue Invoice':
+      return 'badge-category--overdue';
+    case 'Advance Limit':
+      return 'badge-category--advance';
+    case 'POD':
+      return 'badge-category--pod';
+    default:
+      return 'badge-category--fuel';
+  }
+}
 </script>
 
 <style scoped>
 .exception-page {
-  padding: 1.5rem;
-  background-color: #070c18;
-  min-height: calc(100vh - 64px);
-  color: #e2e8f0;
+  background-color: #050b18;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.page-header {
+/* Header with cyan underline bar */
+.page-title-wrap {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.25rem;
+  flex-direction: column;
 }
 
-.page-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.accent-line {
-  width: 44px;
+.page-underline {
   height: 3px;
-  background: #00f2fe;
+  width: 38px;
+  background-color: #00e5ff;
   border-radius: 2px;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
-.unresolved-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
-  padding: 0.4rem 0.85rem;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.filter-pills-row {
+/* KPI Box Cards */
+.kpi-box {
+  background: #091224;
+  border: 1px solid #162540;
+  border-radius: 10px;
+  padding: 16px 20px;
   display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.5rem;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 110px;
 }
 
-.filter-pill {
-  background: #0d172b;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
-  padding: 0.45rem 1rem;
+.kpi-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.kpi-amount {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: monospace, -apple-system;
+  line-height: 1.2;
+  margin: 6px 0 2px 0;
+}
+
+.kpi-subtext {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Filter Tab Pills */
+.tab-pill {
+  padding: 6px 16px;
   border-radius: 9999px;
-  font-size: 0.8rem;
+  font-size: 13px;
   font-weight: 600;
+  background-color: #0b1728;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.filter-pill.active {
-  background: #00f2fe;
-  color: #070c18;
-  border-color: #00f2fe;
-  font-weight: 700;
+.tab-pill:hover {
+  color: #ffffff;
+  background-color: #12223a;
 }
 
-.exceptions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
+.tab-pill--active {
+  background-color: #00e5ff !important;
+  color: #050b18 !important;
+  border-color: #00e5ff !important;
 }
 
-.exception-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 1.25rem;
-  background: #0d172b;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 1.25rem;
-  transition: border-color 0.2s ease;
+.tab-pill--cyan-active {
+  background-color: rgba(0, 229, 255, 0.12) !important;
+  color: #00e5ff !important;
+  border-color: #00e5ff !important;
 }
 
-.exception-card:hover {
-  border-color: rgba(0, 242, 254, 0.3);
-}
-
-.resolved-card {
-  opacity: 0.5;
-  background: #090f1d;
-}
-
-.card-left-icon {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 0.75rem;
+/* Exception Row Card */
+.exception-row-card {
+  background: #091224;
+  border: 1px solid #162540;
   border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.exception-row-card:hover {
+  border-color: #1e3a66;
+}
+
+.exception-row-card--resolved {
+  opacity: 0.65;
+  background: #070e1c;
+}
+
+/* Siren Alarm Icon Box */
+.siren-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 16px;
 }
 
-.alert-icon.high {
-  color: #ef4444;
-}
-
-.alert-icon.medium {
-  color: #fbbf24;
-}
-
-.card-main-content {
-  flex: 1;
-}
-
-.meta-row {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  margin-bottom: 0.4rem;
-}
-
-.badge-type {
-  background: rgba(56, 189, 248, 0.1);
-  color: #38bdf8;
-  padding: 0.15rem 0.5rem;
+/* Badges */
+.badge-category {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
   border-radius: 4px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge-category--fuel {
+  background-color: #381a1f;
+  color: #f87171;
+}
+
+.badge-category--compliance {
+  background-color: #372813;
+  color: #f59e0b;
+}
+
+.badge-category--credit {
+  background-color: #241c38;
+  color: #a78bfa;
+}
+
+.badge-category--overdue {
+  background-color: #361d2a;
+  color: #f472b6;
+}
+
+.badge-category--advance {
+  background-color: #162a38;
+  color: #38bdf8;
+}
+
+.badge-category--pod {
+  background-color: #1a2e28;
+  color: #34d399;
 }
 
 .badge-severity {
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.15rem 0.5rem;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
   border-radius: 4px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+  font-family: monospace, sans-serif;
 }
 
-.badge-high {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+.badge-severity--high {
+  background-color: #ef4444;
+  color: #ffffff;
 }
 
-.badge-medium {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.3);
+.badge-severity--medium {
+  background-color: #f59e0b;
+  color: #ffffff;
 }
 
-.badge-resolved {
-  background: rgba(16, 185, 129, 0.15);
+.badge-resolved-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(16, 185, 129, 0.15);
   color: #10b981;
   border: 1px solid rgba(16, 185, 129, 0.3);
-  font-size: 0.7rem;
+}
+
+/* Right Action Buttons matching user screenshot */
+.btn-action-review {
+  background-color: transparent;
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  font-size: 12px;
   font-weight: 600;
-  padding: 0.15rem 0.5rem;
+  padding: 6px 14px;
   border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  outline: none;
 }
 
-.date-stamp {
-  font-size: 0.72rem;
-  color: #64748b;
+.btn-action-review:hover {
+  background-color: rgba(0, 229, 255, 0.15);
+  border-color: #00e5ff;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
 }
 
-.exception-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0 0 0.35rem 0;
-}
-
-.exception-desc {
-  font-size: 0.82rem;
-  color: #94a3b8;
-  line-height: 1.45;
-  margin: 0 0 0.45rem 0;
-}
-
-.reference-link {
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-.cyan {
-  color: #00f2fe;
-  font-weight: 600;
-}
-
-.card-actions {
-  display: flex;
-  gap: 0.5rem;
-  align-self: center;
-}
-
-.btn-review {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.btn-action-resolve {
+  background-color: transparent;
   color: #cbd5e1;
-  padding: 0.45rem 0.95rem;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 4px;
   transition: all 0.2s ease;
-}
-
-.btn-review:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-}
-
-.btn-resolve {
-  background: rgba(0, 242, 254, 0.1);
-  border: 1px solid rgba(0, 242, 254, 0.3);
-  color: #00f2fe;
-  padding: 0.45rem 0.95rem;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  outline: none;
 }
 
-.btn-resolve:hover {
-  background: #00f2fe;
-  color: #070c18;
+.btn-action-resolve:hover {
+  border-color: #10b981;
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
 }
 
-.btn-resolve.resolved {
-  background: rgba(100, 116, 139, 0.15);
-  border-color: rgba(100, 116, 139, 0.3);
-  color: #94a3b8;
-}
-
-.no-records {
-  text-align: center;
-  padding: 3rem;
-  background: #0d172b;
-  border-radius: 12px;
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+.btn-action-resolve--done {
+  border-color: #f59e0b;
+  color: #f59e0b;
 }
 </style>
