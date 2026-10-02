@@ -34,7 +34,7 @@ jobs:
                 if   .key == 0 then .value.message
                 elif .key == 1 then (.value.message | split("\n") | .[0:3] | join("\n"))
                 elif .key == 2 then (.value.message | split("\n") | .[0:2] | join("\n"))
-                else                 ((.value.message | split("\n")[0]) + " ...")
+                               else                 ((.value.message | split("\n")[0]) + " ...")
                 end
               )
             ] | join("\n")
