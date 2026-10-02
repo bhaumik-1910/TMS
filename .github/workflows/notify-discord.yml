@@ -25,7 +25,7 @@ jobs:
           DAY=$(TZ='Asia/Kolkata' date +"%A")
           COMMIT_URL_PREFIX="https://github.com/${REPO_NAME}/commit"
 
-          COMMITS_LIST=(printf'%s'"COMMITS_JSON" | jq -rj \
+          COMMITS_LIST=$(printf '%s' "$COMMITS_JSON" | jq -rj \
             --arg url "$COMMIT_URL_PREFIX" \
             '
               [(. // []) | reverse | to_entries[] |
@@ -42,8 +42,8 @@ jobs:
 
           if [ -z "$COMMITS_LIST" ]; then
             SHORT_HASH="${COMMIT_HASH:0:7}"
-            COMMIT_URL="COMMITURLPREFIX/{COMMIT_HASH}"
-            COMMITS_LIST="- [SHORTHASH]({COMMIT_URL}) ${COMMIT_MSG}"
+            COMMIT_URL="${COMMIT_URL_PREFIX}/${COMMIT_HASH}"
+            COMMITS_LIST="- [${SHORT_HASH}](${COMMIT_URL}) ${COMMIT_MSG}"
           fi
 
           jq -n \
