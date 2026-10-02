@@ -71,6 +71,46 @@ __decorate([
     __metadata("design:type", String)
 ], CustomerModel.prototype, "status", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], CustomerModel.prototype, "subType", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], CustomerModel.prototype, "branch", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], CustomerModel.prototype, "gstin", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], CustomerModel.prototype, "pan", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], CustomerModel.prototype, "tdsSection", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], CustomerModel.prototype, "creditDays", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], CustomerModel.prototype, "bankName", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], CustomerModel.prototype, "accountNo", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], CustomerModel.prototype, "ifscCode", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], CustomerModel.prototype, "creditLimitStr", void 0);
+__decorate([
     sequelize_typescript_1.CreatedAt,
     __metadata("design:type", Date)
 ], CustomerModel.prototype, "createdAt", void 0);

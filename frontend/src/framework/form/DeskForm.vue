@@ -28,29 +28,45 @@ const emit = defineEmits<{
 }>();
 
 const formRef = ref<HTMLFormElement | null>(null);
-const { focusNext, focusFirstInvalid } = useDeskFocus();
+const { focusNextInput, focusPreviousInput, focusFirstInvalid } = useDeskFocus();
 
 function handleKeyDown(event: KeyboardEvent) {
-  // Enter key advances focus unless it's a textarea or button
-  if (event.key === 'Enter' && props.enterAdvances) {
-    const active = document.activeElement as HTMLElement | null;
-    if (active && active.tagName.toLowerCase() !== 'textarea' && active.getAttribute('type') !== 'submit') {
-      const advanced = focusNext(formRef.value || document.body);
-      if (advanced) {
-        event.preventDefault();
-      }
-    }
-  }
-
-  // Ctrl+S saves the form
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+  // Ctrl+A, Alt+S or Ctrl+S saves the form immediately
+  if (
+    ((event.ctrlKey || event.metaKey) && (event.key.toLowerCase() === 's' || event.key.toLowerCase() === 'a')) ||
+    (event.altKey && event.key.toLowerCase() === 's')
+  ) {
     event.preventDefault();
     handleSubmit();
+    return;
   }
 
   // Escape cancels/closes
   if (event.key === 'Escape') {
     emit('cancel');
+    return;
+  }
+
+  // Shift+Enter or Up Arrow (when not in multi-line) moves focus back
+  if (event.key === 'Enter' && event.shiftKey) {
+    event.preventDefault();
+    focusPreviousInput(formRef.value || document.body);
+    return;
+  }
+
+  // Enter key advances focus
+  if (event.key === 'Enter' && props.enterAdvances) {
+    const active = document.activeElement as HTMLElement | null;
+    if (active && active.tagName.toLowerCase() !== 'textarea' && active.getAttribute('type') !== 'submit') {
+      const advanced = focusNextInput(formRef.value || document.body);
+      if (advanced) {
+        event.preventDefault();
+      } else {
+        // At the last field -> Submit form!
+        event.preventDefault();
+        handleSubmit();
+      }
+    }
   }
 }
 

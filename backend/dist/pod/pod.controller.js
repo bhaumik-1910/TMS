@@ -21,8 +21,25 @@ let PodController = class PodController {
     constructor(podService) {
         this.podService = podService;
     }
-    async getPOD(shipmentId) {
-        return this.podService.getPOD(shipmentId);
+    async findAll(query) {
+        return this.podService.findAllRecords(query);
+    }
+    async create(body) {
+        return this.podService.createRecord(body);
+    }
+    async findOne(id) {
+        try {
+            return await this.podService.findOneRecord(id);
+        }
+        catch {
+            return this.podService.getPOD(id);
+        }
+    }
+    async update(id, body) {
+        return this.podService.updateRecord(id, body);
+    }
+    async remove(id) {
+        return this.podService.removeRecord(id);
     }
     async submitPOD(body) {
         return this.podService.submitPOD(body);
@@ -30,13 +47,46 @@ let PodController = class PodController {
 };
 exports.PodController = PodController;
 __decorate([
-    (0, common_1.Get)(':shipmentId'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get Proof of Delivery for shipment' }),
-    __param(0, (0, common_1.Param)('shipmentId')),
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'List all POD records' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PodController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Create new POD record' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PodController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get single POD record or by shipmentId' }),
+    __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], PodController.prototype, "getPOD", null);
+], PodController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update POD record' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], PodController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete POD record' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], PodController.prototype, "remove", null);
 __decorate([
     (0, common_1.Post)('submit'),
     (0, swagger_1.ApiOperation)({ summary: 'Submit POD with digital signature, receiver name, photo and OTP' }),

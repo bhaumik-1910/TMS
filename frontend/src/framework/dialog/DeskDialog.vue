@@ -176,6 +176,54 @@ function handleKeyDown(event: KeyboardEvent) {
     cancel();
     return;
   }
+
+  const activeEl = document.activeElement as HTMLElement | null;
+
+  // If focus is specifically on the cancel or close button, Enter MUST cancel!
+  if (
+    activeEl &&
+    (activeEl.classList.contains('modal-btn-cancel') ||
+      activeEl.classList.contains('btn-dialog-close'))
+  ) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      cancel();
+      return;
+    }
+  }
+
+  // If focus is on the confirm button, Enter confirms!
+  if (activeEl && activeEl.classList.contains('modal-btn-confirm')) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
+      confirm();
+      return;
+    }
+  }
+
+  const isInsideTextInput =
+    activeEl &&
+    (activeEl.tagName === 'INPUT' ||
+      activeEl.tagName === 'TEXTAREA' ||
+      activeEl.isContentEditable);
+
+  if (!isInsideTextInput) {
+    // Explicit Y / N hotkeys
+    if (event.key.toLowerCase() === 'y') {
+      event.preventDefault();
+      event.stopPropagation();
+      confirm();
+      return;
+    }
+    if (event.key.toLowerCase() === 'n') {
+      event.preventDefault();
+      event.stopPropagation();
+      cancel();
+      return;
+    }
+  }
 }
 
 function onShow() {
@@ -193,7 +241,12 @@ function onShow() {
 
   nextTick(() => {
     if (dialogCardRef.value) {
-      trapController = trapFocus(dialogCardRef.value);
+      const cancelBtn = isDeleteAction.value
+        ? (dialogCardRef.value.querySelector('.modal-btn-cancel') as HTMLElement | null)
+        : null;
+      trapController = trapFocus(dialogCardRef.value, {
+        initialFocus: cancelBtn,
+      });
     }
   });
 }

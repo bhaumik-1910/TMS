@@ -15,9 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BillingService = void 0;
 const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
+const sequelize_2 = require("sequelize");
 const models_1 = require("../database/models");
 let BillingService = class BillingService {
-    constructor(invoiceModel, invoiceItemModel, paymentModel, shipmentModel, carrierRateModel, claimModel, claimItemModel) {
+    constructor(invoiceModel, invoiceItemModel, paymentModel, shipmentModel, carrierRateModel, claimModel, claimItemModel, billingInvoiceModel, purchaseBillModel, settlementModel) {
         this.invoiceModel = invoiceModel;
         this.invoiceItemModel = invoiceItemModel;
         this.paymentModel = paymentModel;
@@ -25,6 +26,446 @@ let BillingService = class BillingService {
         this.carrierRateModel = carrierRateModel;
         this.claimModel = claimModel;
         this.claimItemModel = claimItemModel;
+        this.billingInvoiceModel = billingInvoiceModel;
+        this.purchaseBillModel = purchaseBillModel;
+        this.settlementModel = settlementModel;
+    }
+    async onModuleInit() {
+        try {
+            const sequelize = this.billingInvoiceModel.sequelize;
+            if (!sequelize)
+                return;
+            await sequelize.query(`
+        CREATE TABLE IF NOT EXISTS billing_invoices (
+          id VARCHAR(255) PRIMARY KEY,
+          "invoiceNo" VARCHAR(100) UNIQUE NOT NULL,
+          "lrRef" VARCHAR(100) NOT NULL,
+          "customer" VARCHAR(255) NOT NULL,
+          "baseAmt" VARCHAR(100) DEFAULT '₹0',
+          "gst" VARCHAR(100) DEFAULT '₹0 (RCM)',
+          "total" VARCHAR(100) DEFAULT '₹0',
+          "gstType" VARCHAR(100) DEFAULT 'RCM 5%',
+          "irn" VARCHAR(255) DEFAULT '—',
+          "dueDate" VARCHAR(100),
+          "status" VARCHAR(100) DEFAULT 'Draft',
+          "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `);
+            const [rows] = await sequelize.query(`SELECT count(*) as cnt FROM billing_invoices;`);
+            if (rows && rows[0] && parseInt(rows[0].cnt, 10) === 0) {
+                const seed = [
+                    {
+                        id: 'INV/24/1089',
+                        invoiceNo: 'INV/24/1089',
+                        lrRef: 'LR/240044',
+                        customer: 'HPCL',
+                        baseAmt: '₹48,500',
+                        gst: '₹0 (RCM)',
+                        total: '₹48,500',
+                        gstType: 'RCM 5%',
+                        irn: 'IRN-2024-ABC7729',
+                        dueDate: '2026-11-05',
+                        status: 'Paid',
+                    },
+                    {
+                        id: 'INV/24/1088',
+                        invoiceNo: 'INV/24/1088',
+                        lrRef: 'LR/240042',
+                        customer: 'Marico',
+                        baseAmt: '₹62,000',
+                        gst: '₹7,440',
+                        total: '₹69,440',
+                        gstType: 'Forward 12%',
+                        irn: '—',
+                        dueDate: '2026-11-10',
+                        status: 'Pending',
+                    },
+                    {
+                        id: 'INV/24/1087',
+                        invoiceNo: 'INV/24/1087',
+                        lrRef: 'LR/240040',
+                        customer: 'Pidilite',
+                        baseAmt: '₹35,000',
+                        gst: '₹4,200',
+                        total: '₹39,200',
+                        gstType: 'RCM 5%',
+                        irn: '—',
+                        dueDate: '2026-10-20',
+                        status: 'Overdue',
+                    },
+                    {
+                        id: 'INV/24/1086',
+                        invoiceNo: 'INV/24/1086',
+                        lrRef: 'LR/240038',
+                        customer: 'Reliance',
+                        baseAmt: '₹1,20,000',
+                        gst: '₹0 (RCM)',
+                        total: '₹1,20,000',
+                        gstType: 'RCM 5%',
+                        irn: 'IRN-2024-DEF9943',
+                        dueDate: '2026-10-23',
+                        status: 'Overdue',
+                    },
+                ];
+                for (const s of seed) {
+                    await this.billingInvoiceModel.create(s);
+                }
+            }
+            await sequelize.query(`
+        CREATE TABLE IF NOT EXISTS purchase_bills (
+          id VARCHAR(255) PRIMARY KEY,
+          "supplier" VARCHAR(255) NOT NULL,
+          "type" VARCHAR(100) DEFAULT 'Fuel Station',
+          "billNo" VARCHAR(100) NOT NULL,
+          "date" VARCHAR(100),
+          "baseAmt" VARCHAR(100) DEFAULT '₹0',
+          "gst" VARCHAR(100) DEFAULT '₹0',
+          "total" VARCHAR(100) DEFAULT '₹0',
+          "tds" VARCHAR(100) DEFAULT '—',
+          "tdsSection" VARCHAR(100) DEFAULT '194C',
+          "linkedRef" VARCHAR(255) DEFAULT '—',
+          "status" VARCHAR(100) DEFAULT 'Pending',
+          "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `);
+            const [pbRows] = await sequelize.query(`SELECT count(*) as cnt FROM purchase_bills;`);
+            if (pbRows && pbRows[0] && parseInt(pbRows[0].cnt, 10) === 0) {
+                const pbSeed = [
+                    {
+                        id: 'PB/240055',
+                        supplier: 'HPCL Adajan',
+                        type: 'Fuel Station',
+                        billNo: 'HPCL/OCT/1234',
+                        date: '2026-10-24',
+                        baseAmt: '₹1,25,000',
+                        gst: '₹0',
+                        total: '₹1,25,000',
+                        tds: '—',
+                        tdsSection: '—',
+                        linkedRef: 'FE/240086-089',
+                        status: 'Approved',
+                    },
+                    {
+                        id: 'PB/240054',
+                        supplier: 'Shree Motors',
+                        type: 'Service Centre',
+                        billNo: 'SM/OCT/0089',
+                        date: '2026-10-20',
+                        baseAmt: '₹45,000',
+                        gst: '₹8,100',
+                        total: '₹53,100',
+                        tds: '₹900',
+                        tdsSection: '194C',
+                        linkedRef: 'JC/240055',
+                        status: 'Pending',
+                    },
+                    {
+                        id: 'PB/240053',
+                        supplier: 'Tata Rubber Ltd',
+                        type: 'Tyre Supplier',
+                        billNo: 'TRL/OCT/0456',
+                        date: '2026-10-18',
+                        baseAmt: '₹28,000',
+                        gst: '₹3,360',
+                        total: '₹31,360',
+                        tds: '₹560',
+                        tdsSection: '194C',
+                        linkedRef: 'TYR-GJ01-001',
+                        status: 'Paid',
+                    },
+                    {
+                        id: 'PB/240052',
+                        supplier: 'BPCL Naroda',
+                        type: 'Fuel Station',
+                        billNo: 'BPCL/OCT/0789',
+                        date: '2026-10-21',
+                        baseAmt: '₹33,480',
+                        gst: '₹0',
+                        total: '₹33,480',
+                        tds: '—',
+                        tdsSection: '—',
+                        linkedRef: 'FE/240086',
+                        status: 'Approved',
+                    },
+                ];
+                for (const pb of pbSeed) {
+                    await this.purchaseBillModel.create(pb);
+                }
+            }
+            await sequelize.query(`
+        CREATE TABLE IF NOT EXISTS settlements (
+          id VARCHAR(255) PRIMARY KEY,
+          "settlementType" VARCHAR(100) DEFAULT 'Owner',
+          "party" VARCHAR(255) NOT NULL,
+          "tripRef" VARCHAR(100) NOT NULL,
+          "grossAmt" VARCHAR(100) DEFAULT '₹0',
+          "advance" VARCHAR(100) DEFAULT '₹0',
+          "tds" VARCHAR(100) DEFAULT '₹0',
+          "shortage" VARCHAR(100) DEFAULT '₹0',
+          "netPayable" VARCHAR(100) DEFAULT '₹0',
+          "date" VARCHAR(100),
+          "status" VARCHAR(100) DEFAULT 'Draft',
+          "remarks" TEXT,
+          "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `);
+            const [stRows] = await sequelize.query(`SELECT count(*) as cnt FROM settlements;`);
+            if (stRows && stRows[0] && parseInt(stRows[0].cnt, 10) === 0) {
+                const stSeed = [
+                    {
+                        id: 'STL/240088',
+                        settlementType: 'Owner',
+                        party: 'Kishore Transport',
+                        tripRef: 'TR/240078',
+                        grossAmt: '₹38,000',
+                        advance: '₹12,000',
+                        tds: '₹760',
+                        shortage: '₹0',
+                        netPayable: '₹25,240',
+                        date: '2026-10-23',
+                        status: 'Paid',
+                        remarks: 'Cleared via NEFT',
+                    },
+                    {
+                        id: 'STL/240086',
+                        settlementType: 'Owner',
+                        party: 'Suresh Logistics',
+                        tripRef: 'TR/240076',
+                        grossAmt: '₹55,000',
+                        advance: '₹20,000',
+                        tds: '₹1,100',
+                        shortage: '₹2,500',
+                        netPayable: '₹31,400',
+                        date: '2026-10-22',
+                        status: 'Paid',
+                        remarks: 'Shortage deducted for seal damage',
+                    },
+                    {
+                        id: 'STL/240087',
+                        settlementType: 'Driver',
+                        party: 'Ramesh Alumar',
+                        tripRef: 'TR/240079',
+                        grossAmt: '₹6,200',
+                        advance: '₹5,500',
+                        tds: '₹0',
+                        shortage: '₹0',
+                        netPayable: '₹700',
+                        date: '2026-10-24',
+                        status: 'Pending',
+                        remarks: 'Driver trip log audit pending',
+                    },
+                    {
+                        id: 'STL/240085',
+                        settlementType: 'Customer',
+                        party: 'Pidilite Industries',
+                        tripRef: 'TR/240072',
+                        grossAmt: '₹39,200',
+                        advance: '₹0',
+                        tds: '₹0',
+                        shortage: '₹0',
+                        netPayable: '₹39,200',
+                        date: '2026-10-20',
+                        status: 'Pending',
+                        remarks: 'Customer billing reconciliation pending',
+                    },
+                ];
+                for (const st of stSeed) {
+                    await this.settlementModel.create(st);
+                }
+            }
+        }
+        catch (err) {
+            console.error('Failed to initialize billing tables/seeds:', err);
+        }
+    }
+    async findAllSettlements(query) {
+        const where = {};
+        if (query?.status && query.status !== 'ALL') {
+            where.status = query.status;
+        }
+        if (query?.settlementType && query.settlementType !== 'ALL') {
+            where.settlementType = query.settlementType;
+        }
+        if (query?.search) {
+            const q = `%${query.search.trim()}%`;
+            where[sequelize_2.Op.or] = [
+                { id: { [sequelize_2.Op.iLike]: q } },
+                { party: { [sequelize_2.Op.iLike]: q } },
+                { tripRef: { [sequelize_2.Op.iLike]: q } },
+                { settlementType: { [sequelize_2.Op.iLike]: q } },
+                { status: { [sequelize_2.Op.iLike]: q } },
+            ];
+        }
+        return this.settlementModel.findAll({
+            where,
+            order: [['createdAt', 'DESC']],
+        });
+    }
+    async createSettlement(data) {
+        const id = data.id || `STL/${Math.floor(240089 + Math.random() * 500)}`;
+        return this.settlementModel.create({
+            id,
+            settlementType: data.settlementType || 'Owner',
+            party: data.party || '',
+            tripRef: data.tripRef || '',
+            grossAmt: data.grossAmt || '₹0',
+            advance: data.advance || '₹0',
+            tds: data.tds || '₹0',
+            shortage: data.shortage || '₹0',
+            netPayable: data.netPayable || '₹0',
+            date: data.date || '',
+            status: data.status || 'Draft',
+            remarks: data.remarks || '',
+        });
+    }
+    async updateSettlement(id, data) {
+        const record = await this.settlementModel.findOne({
+            where: {
+                [sequelize_2.Op.or]: [{ id }, { tripRef: id }],
+            },
+        });
+        if (!record) {
+            throw new common_1.NotFoundException(`Settlement ${id} not found`);
+        }
+        await record.update(data);
+        return record;
+    }
+    async deleteSettlement(id) {
+        const record = await this.settlementModel.findOne({
+            where: {
+                [sequelize_2.Op.or]: [{ id }, { tripRef: id }],
+            },
+        });
+        if (!record) {
+            throw new common_1.NotFoundException(`Settlement ${id} not found`);
+        }
+        await record.destroy();
+        return { success: true, message: `Settlement ${id} deleted successfully` };
+    }
+    async findAllPurchaseBills(query) {
+        const where = {};
+        if (query?.status && query.status !== 'ALL') {
+            where.status = query.status;
+        }
+        if (query?.type && query.type !== 'ALL') {
+            where.type = query.type;
+        }
+        if (query?.search) {
+            const q = `%${query.search.trim()}%`;
+            where[sequelize_2.Op.or] = [
+                { id: { [sequelize_2.Op.iLike]: q } },
+                { supplier: { [sequelize_2.Op.iLike]: q } },
+                { billNo: { [sequelize_2.Op.iLike]: q } },
+                { linkedRef: { [sequelize_2.Op.iLike]: q } },
+            ];
+        }
+        return this.purchaseBillModel.findAll({
+            where,
+            order: [['createdAt', 'DESC']],
+        });
+    }
+    async createPurchaseBill(data) {
+        const id = data.id || `PB/${Math.floor(240050 + Math.random() * 500)}`;
+        return this.purchaseBillModel.create({
+            id,
+            supplier: data.supplier || '',
+            type: data.type || 'Fuel Station',
+            billNo: data.billNo || '',
+            date: data.date || '',
+            baseAmt: data.baseAmt || '₹0',
+            gst: data.gst || '₹0',
+            total: data.total || '₹0',
+            tds: data.tds || '—',
+            tdsSection: data.tdsSection || '194C',
+            linkedRef: data.linkedRef || '—',
+            status: data.status || 'Pending',
+        });
+    }
+    async updatePurchaseBill(id, data) {
+        const record = await this.purchaseBillModel.findOne({
+            where: {
+                [sequelize_2.Op.or]: [{ id }, { billNo: id }],
+            },
+        });
+        if (!record) {
+            throw new common_1.NotFoundException(`Purchase Bill ${id} not found`);
+        }
+        await record.update(data);
+        return record;
+    }
+    async deletePurchaseBill(id) {
+        const record = await this.purchaseBillModel.findOne({
+            where: {
+                [sequelize_2.Op.or]: [{ id }, { billNo: id }],
+            },
+        });
+        if (!record) {
+            throw new common_1.NotFoundException(`Purchase Bill ${id} not found`);
+        }
+        await record.destroy();
+        return { success: true, message: `Purchase Bill ${id} deleted successfully` };
+    }
+    async findAllBillingInvoices(query) {
+        const where = {};
+        if (query?.status && query.status !== 'ALL') {
+            where.status = query.status;
+        }
+        if (query?.search) {
+            const q = `%${query.search.trim()}%`;
+            where[sequelize_2.Op.or] = [
+                { invoiceNo: { [sequelize_2.Op.iLike]: q } },
+                { customer: { [sequelize_2.Op.iLike]: q } },
+                { lrRef: { [sequelize_2.Op.iLike]: q } },
+            ];
+        }
+        return this.billingInvoiceModel.findAll({
+            where,
+            order: [['createdAt', 'DESC']],
+        });
+    }
+    async createBillingInvoice(data) {
+        const invoiceNo = data.invoiceNo || `INV/24/${Math.floor(1000 + Math.random() * 9000)}`;
+        const id = data.id || invoiceNo;
+        return this.billingInvoiceModel.create({
+            id,
+            invoiceNo,
+            lrRef: data.lrRef || '',
+            customer: data.customer || '',
+            baseAmt: data.baseAmt || '₹0',
+            gst: data.gst || '₹0 (RCM)',
+            total: data.total || '₹0',
+            gstType: data.gstType || 'RCM 5%',
+            irn: data.irn || '—',
+            dueDate: data.dueDate || '',
+            status: data.status || 'Draft',
+        });
+    }
+    async updateBillingInvoice(id, data) {
+        const record = await this.billingInvoiceModel.findOne({
+            where: {
+                [sequelize_2.Op.or]: [{ id }, { invoiceNo: id }],
+            },
+        });
+        if (!record) {
+            throw new common_1.NotFoundException(`Invoice ${id} not found`);
+        }
+        await record.update(data);
+        return record;
+    }
+    async deleteBillingInvoice(id) {
+        const record = await this.billingInvoiceModel.findOne({
+            where: {
+                [sequelize_2.Op.or]: [{ id }, { invoiceNo: id }],
+            },
+        });
+        if (!record) {
+            throw new common_1.NotFoundException(`Invoice ${id} not found`);
+        }
+        await record.destroy();
+        return { success: true, message: `Invoice ${id} deleted successfully` };
     }
     async findAllInvoices(organizationId, status) {
         const where = {};
@@ -215,6 +656,9 @@ exports.BillingService = BillingService = __decorate([
     __param(4, (0, sequelize_1.InjectModel)(models_1.CarrierRateModel)),
     __param(5, (0, sequelize_1.InjectModel)(models_1.ClaimModel)),
     __param(6, (0, sequelize_1.InjectModel)(models_1.ClaimItemModel)),
-    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object, Object])
+    __param(7, (0, sequelize_1.InjectModel)(models_1.BillingInvoiceModel)),
+    __param(8, (0, sequelize_1.InjectModel)(models_1.PurchaseBillModel)),
+    __param(9, (0, sequelize_1.InjectModel)(models_1.SettlementModel)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object])
 ], BillingService);
 //# sourceMappingURL=billing.service.js.map

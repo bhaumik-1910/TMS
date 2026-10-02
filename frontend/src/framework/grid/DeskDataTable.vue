@@ -21,6 +21,7 @@
           outlined
           placeholder="Filter... (Alt+F)"
           class="desk-grid-search"
+          @keydown="onSearchKeyDown"
         >
           <template #prepend>
             <q-icon name="search" size="16px" color="cyan" />
@@ -122,6 +123,7 @@
       <template #loading>
         <AppLoadingOverlay showing title="Loading Records..." subtitle="Fetching and indexing data" />
       </template>
+
       <!-- Header Row with column shortcuts if needed -->
       <template #header="props">
         <q-tr :props="props">
@@ -145,6 +147,7 @@
           :props="props"
           :class="{
             'desk-row-selected': props.selected,
+            'desk-row-active': props.pageIndex === activeRow,
           }"
           @click="onRowClick(props.pageIndex, props.row)"
           @dblclick="$emit('row-dblclick', props.row)"
@@ -171,7 +174,7 @@
       </template>
     </q-table>
 
-    <!-- Optional Grid Keyboard Bar (hidden by default matching Image 1) -->
+    <!-- Optional Grid Keyboard Bar -->
     <div v-if="showFooterBar" class="desk-grid-footer row items-center justify-between no-wrap">
       <div class="row items-center q-gutter-x-md">
         <span>
@@ -195,7 +198,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, toRef, nextTick } from 'vue';
+import { ref, computed, toRef } from 'vue';
 import { exportFile } from 'quasar';
 import { useGridKeyboard } from './useGridKeyboard';
 import { GridColumn } from './types';
@@ -280,7 +283,7 @@ const {
   rowCount,
   colCount,
   pageSize: pageSizeRef,
-  onEnter: (rIdx, cIdx) => {
+  onEnter: (rIdx) => {
     const row = props.rows[rIdx];
     if (row) {
       emit('row-dblclick', row);
@@ -314,11 +317,42 @@ const {
   },
 });
 
-function onKeyDown(event: KeyboardEvent) {
-  // Shortcut to focus search box: Alt+F or Ctrl+F
-  if ((event.altKey && event.key.toLowerCase() === 'f') || (event.ctrlKey && event.key.toLowerCase() === 'f')) {
+function focusSearch() {
+  const el = searchRef.value?.$el?.querySelector('input') || searchRef.value;
+  if (el) {
+    el.focus();
+    el.select?.();
+  }
+}
+
+function onSearchKeyDown(event: KeyboardEvent) {
+  if (event.key === 'ArrowDown' || event.key === 'Enter') {
     event.preventDefault();
-    searchRef.value?.focus();
+    gridRootRef.value?.focus();
+  } else if (event.key === 'Escape') {
+    event.preventDefault();
+    filterText.value = '';
+    gridRootRef.value?.focus();
+  }
+}
+
+function onKeyDown(event: KeyboardEvent) {
+  const activeEl = document.activeElement as HTMLElement | null;
+  const isInsideInput =
+    activeEl &&
+    (activeEl.tagName === 'INPUT' ||
+      activeEl.tagName === 'TEXTAREA' ||
+      activeEl.isContentEditable);
+
+  // Shortcut to focus search box: Alt+F, Ctrl+F, or F3
+  if (
+    (event.altKey && event.key.toLowerCase() === 'f') ||
+    (event.ctrlKey && event.key.toLowerCase() === 'f') ||
+    event.key === 'F3'
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+    focusSearch();
     return;
   }
 
@@ -327,6 +361,26 @@ function onKeyDown(event: KeyboardEvent) {
     event.preventDefault();
     emit('create');
     return;
+  }
+
+  // Table row quick action shortcuts when not inside an input
+  if (!isInsideInput) {
+    if (event.key.toLowerCase() === 'e') {
+      const row = props.rows[activeRow.value];
+      if (row) {
+        event.preventDefault();
+        emit('edit', row);
+        return;
+      }
+    }
+    if (event.key.toLowerCase() === 'd') {
+      const row = props.rows[activeRow.value];
+      if (row && props.allowDelete) {
+        event.preventDefault();
+        emit('delete', row);
+        return;
+      }
+    }
   }
 
   // Pass to grid keyboard handler
@@ -375,7 +429,7 @@ defineExpose({
   activeCol,
   selectedRows,
   focusGrid: () => gridRootRef.value?.focus(),
-  focusSearch: () => searchRef.value?.focus(),
+  focusSearch,
   exportCsv,
 });
 </script>

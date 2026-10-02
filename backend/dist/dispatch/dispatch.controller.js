@@ -29,7 +29,13 @@ let DispatchController = class DispatchController {
         return this.dispatchService.getDispatchBoard(orgId);
     }
     async create(user, body) {
-        return this.dispatchService.create(user.organizationId, body, user.userId);
+        return this.dispatchService.create(user?.organizationId, body, user?.userId);
+    }
+    async updateTrip(id, body) {
+        return this.dispatchService.updateTrip(id, body);
+    }
+    async deleteTrip(id) {
+        return this.dispatchService.deleteTrip(id);
     }
     async updateStatus(id, status, userId) {
         return this.dispatchService.updateStatus(id, status, userId);
@@ -71,6 +77,23 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], DispatchController.prototype, "create", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update trip allocation' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], DispatchController.prototype, "updateTrip", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete trip allocation' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], DispatchController.prototype, "deleteTrip", null);
 __decorate([
     (0, common_1.Patch)(':id/status'),
     (0, swagger_1.ApiOperation)({ summary: 'Update dispatch status (IN_TRANSIT, DELIVERY, COMPLETED)' }),

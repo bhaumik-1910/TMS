@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DriverAssignmentModel = exports.DriverDocumentModel = exports.DriverModel = exports.VehicleMaintenanceModel = exports.VehicleDocumentModel = exports.VehicleModel = void 0;
+exports.FuelEntryModel = exports.DriverAssignmentModel = exports.DriverDocumentModel = exports.DriverModel = exports.VehicleMaintenanceModel = exports.VehicleDocumentModel = exports.VehicleModel = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const organization_model_1 = require("../auth/organization.model");
 const user_model_1 = require("../auth/user.model");
@@ -111,6 +111,66 @@ __decorate([
     (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.DOUBLE, defaultValue: 0.0 }),
     __metadata("design:type", Number)
 ], VehicleModel.prototype, "currentOdometerKm", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true, defaultValue: 'HCV' }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "vehicleTypeStr", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true, defaultValue: 'Owned' }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "owner", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true, defaultValue: '16 MT' }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "capacity", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "targetKmpl", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "chassisNo", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "engineNo", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "gpsId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "fastagId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "mfgYear", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "rcExpiry", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "fitness", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "insurance", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "puc", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "permitExpiry", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], VehicleModel.prototype, "roadTaxExpiry", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => VehicleMaintenanceModel, { onDelete: 'CASCADE' }),
     __metadata("design:type", Array)
@@ -430,4 +490,72 @@ __decorate([
 exports.DriverAssignmentModel = DriverAssignmentModel = __decorate([
     (0, sequelize_typescript_1.Table)({ tableName: 'driver_assignments', timestamps: true })
 ], DriverAssignmentModel);
+let FuelEntryModel = class FuelEntryModel extends sequelize_typescript_1.Model {
+};
+exports.FuelEntryModel = FuelEntryModel;
+__decorate([
+    sequelize_typescript_1.PrimaryKey,
+    (0, sequelize_typescript_1.Default)(sequelize_typescript_1.DataType.UUIDV4),
+    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING),
+    __metadata("design:type", String)
+], FuelEntryModel.prototype, "id", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, unique: true, allowNull: false }),
+    __metadata("design:type", String)
+], FuelEntryModel.prototype, "entryId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], FuelEntryModel.prototype, "dateTime", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: false }),
+    __metadata("design:type", String)
+], FuelEntryModel.prototype, "vehicle", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], FuelEntryModel.prototype, "trip", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: false }),
+    __metadata("design:type", String)
+], FuelEntryModel.prototype, "station", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.DOUBLE, defaultValue: 0.0 }),
+    __metadata("design:type", Number)
+], FuelEntryModel.prototype, "litres", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.DOUBLE, defaultValue: 0.0 }),
+    __metadata("design:type", Number)
+], FuelEntryModel.prototype, "rate", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.DOUBLE, defaultValue: 0.0 }),
+    __metadata("design:type", Number)
+], FuelEntryModel.prototype, "amount", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, defaultValue: 'Cash' }),
+    __metadata("design:type", String)
+], FuelEntryModel.prototype, "paymentMode", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.STRING, allowNull: true }),
+    __metadata("design:type", String)
+], FuelEntryModel.prototype, "odometer", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.DOUBLE, defaultValue: 0.0 }),
+    __metadata("design:type", Number)
+], FuelEntryModel.prototype, "kml", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.BOOLEAN, defaultValue: false }),
+    __metadata("design:type", Boolean)
+], FuelEntryModel.prototype, "flagged", void 0);
+__decorate([
+    sequelize_typescript_1.CreatedAt,
+    __metadata("design:type", Date)
+], FuelEntryModel.prototype, "createdAt", void 0);
+__decorate([
+    sequelize_typescript_1.UpdatedAt,
+    __metadata("design:type", Date)
+], FuelEntryModel.prototype, "updatedAt", void 0);
+exports.FuelEntryModel = FuelEntryModel = __decorate([
+    (0, sequelize_typescript_1.Table)({ tableName: 'fuel_entries', timestamps: true })
+], FuelEntryModel);
 //# sourceMappingURL=fleet.model.js.map

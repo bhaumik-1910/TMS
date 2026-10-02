@@ -6,5 +6,6 @@ export declare class CustomersService extends BaseSequelizeService<CustomerModel
     findAll(organizationId?: string, search?: string): Promise<any>;
     findOne(id: any): Promise<any>;
     create(organizationIdOrData: any, body?: any): Promise<any>;
+    update(id: any, data: any): Promise<any>;
     remove(id: string): Promise<void>;
 }

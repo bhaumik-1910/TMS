@@ -225,25 +225,25 @@ export class DispatchService extends BaseSequelizeService<DispatchModel> impleme
     });
 
     return dispatches.map((d) => {
-      const plain = d.get({ plain: true });
+      const plain: any = d.get({ plain: true });
       const tripId = plain.tripId || `TR/${plain.dispatchNumber?.replace(/[^0-9]/g, '') || '240079'}`;
 
       let vehicle = 'GJ-01-AB-1122';
       if (typeof plain.vehicle === 'string' && plain.vehicle.trim() && !plain.vehicle.trim().startsWith('{')) {
         vehicle = plain.vehicle.trim();
       } else if (plain.vehicle && typeof plain.vehicle === 'object') {
-        vehicle = plain.vehicle.vehicleNumber || plain.vehicle.regNo || plain.vehicle.registrationNumber || 'GJ-01-AB-1122';
+        vehicle = plain.vehicle?.vehicleNumber || plain.vehicle?.regNo || plain.vehicle?.registrationNumber || 'GJ-01-AB-1122';
       } else if (plain.vehicleObj && typeof plain.vehicleObj === 'object') {
-        vehicle = plain.vehicleObj.vehicleNumber || plain.vehicleObj.regNo || 'GJ-01-AB-1122';
+        vehicle = plain.vehicleObj?.vehicleNumber || plain.vehicleObj?.regNo || 'GJ-01-AB-1122';
       }
 
       let driver = 'Ramesh Alumar';
       if (typeof plain.driver === 'string' && plain.driver.trim() && !plain.driver.trim().startsWith('{')) {
         driver = plain.driver.trim();
       } else if (plain.driver && typeof plain.driver === 'object') {
-        driver = `${plain.driver.firstName || ''} ${plain.driver.lastName || ''}`.trim() || plain.driver.name || plain.driver.driverName || 'Ramesh Alumar';
+        driver = `${plain.driver?.firstName || ''} ${plain.driver?.lastName || ''}`.trim() || plain.driver?.name || plain.driver?.driverName || 'Ramesh Alumar';
       } else if (plain.driverObj && typeof plain.driverObj === 'object') {
-        driver = `${plain.driverObj.firstName || ''} ${plain.driverObj.lastName || ''}`.trim() || plain.driverObj.name || 'Ramesh Alumar';
+        driver = `${plain.driverObj?.firstName || ''} ${plain.driverObj?.lastName || ''}`.trim() || plain.driverObj?.name || 'Ramesh Alumar';
       }
       const route = plain.route || 'AHD → MUM';
       const lrRef = plain.lrRef || 'LR/240047';

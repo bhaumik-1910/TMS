@@ -26,6 +26,21 @@ export declare class VehicleModel extends Model<VehicleModel> {
     lastLocationAt?: Date;
     fuelLevelPercent: number;
     currentOdometerKm: number;
+    vehicleTypeStr?: string;
+    owner?: string;
+    capacity?: string;
+    targetKmpl?: string;
+    chassisNo?: string;
+    engineNo?: string;
+    gpsId?: string;
+    fastagId?: string;
+    mfgYear?: string;
+    rcExpiry?: string;
+    fitness?: string;
+    insurance?: string;
+    puc?: string;
+    permitExpiry?: string;
+    roadTaxExpiry?: string;
     maintenances: VehicleMaintenanceModel[];
     documents: VehicleDocumentModel[];
     driverAssignments: DriverAssignmentModel[];
@@ -101,6 +116,23 @@ export declare class DriverAssignmentModel extends Model<DriverAssignmentModel> 
     endDate?: Date;
     releasedAt?: Date;
     status: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export declare class FuelEntryModel extends Model<FuelEntryModel> {
+    id: string;
+    entryId: string;
+    dateTime: string;
+    vehicle: string;
+    trip: string;
+    station: string;
+    litres: number;
+    rate: number;
+    amount: number;
+    paymentMode: string;
+    odometer: string;
+    kml: number;
+    flagged: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

@@ -73,43 +73,32 @@
         :allow-create="false"
         :allow-export="false"
         :allow-refresh="false"
-        :allow-delete="false"
+        :allow-delete="true"
         @edit="editVehicle"
+        @delete="confirmDeleteVehicle"
         @row-dblclick="editVehicle"
       >
         <!-- Top Filters in Table Toolbar matching Image 4 -->
         <template #top-filters>
-          <q-select
+          <DeskCombo
+            ref="typeComboRef"
             v-model="typeFilter"
             :options="typeFilterOptions"
-            dense
-            outlined
-            emit-value
-            map-options
             class="desk-filter-select"
-            popup-content-class="desk-select-menu"
             style="min-width: 130px;"
           />
-          <q-select
+          <DeskCombo
+            ref="ownerComboRef"
             v-model="ownerFilter"
             :options="ownerFilterOptions"
-            dense
-            outlined
-            emit-value
-            map-options
             class="desk-filter-select"
-            popup-content-class="desk-select-menu"
             style="min-width: 130px;"
           />
-          <q-select
+          <DeskCombo
+            ref="statusComboRef"
             v-model="statusFilter"
             :options="statusFilterOptions"
-            dense
-            outlined
-            emit-value
-            map-options
             class="desk-filter-select"
-            popup-content-class="desk-select-menu"
             style="min-width: 130px;"
           />
         </template>
@@ -235,10 +224,14 @@
           <div class="col-12 col-md-6">
             <DeskField label="REGISTRATION NO *" required>
               <q-input
+                ref="regNoInputRef"
                 v-model="newVeh.regNo"
                 dense
                 outlined
                 placeholder="GJ-01-XX-0000"
+                class="uppercase"
+                input-class="font-mono uppercase font-bold"
+                @update:model-value="newVeh.regNo = String($event || '').toUpperCase()"
               />
             </DeskField>
           </div>
@@ -325,6 +318,8 @@
                 dense
                 outlined
                 placeholder="MAT4451..."
+                input-class="font-mono uppercase"
+                @update:model-value="newVeh.chassisNo = String($event || '').toUpperCase()"
               />
             </DeskField>
           </div>
@@ -336,6 +331,8 @@
                 dense
                 outlined
                 placeholder="4928AB..."
+                input-class="font-mono uppercase"
+                @update:model-value="newVeh.engineNo = String($event || '').toUpperCase()"
               />
             </DeskField>
           </div>
@@ -445,7 +442,7 @@
       confirm-color="red-7"
       cancel-label="Cancel"
       @confirm="executeDeleteVehicle"
-      @cancel="showDeleteDialog = false"
+      @cancel="cancelDelete"
     >
       <div class="q-py-sm">
         <div class="text-body1 text-white q-mb-sm">
@@ -495,7 +492,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
 import api from '../../api/client';
 import {
@@ -548,6 +545,10 @@ export interface Vehicle {
 const typeFilter = ref('ALL');
 const ownerFilter = ref('ALL');
 const statusFilter = ref('ALL');
+
+const typeComboRef = ref<any>(null);
+const ownerComboRef = ref<any>(null);
+const statusComboRef = ref<any>(null);
 
 const typeFilterOptions = [
   { label: 'All Types', value: 'ALL' },
@@ -739,7 +740,7 @@ async function loadVehicles() {
       const normalized = rawList.map(normalizeVehicle);
       // Sort to match Image 4 order: GJ-01-AB-1122, GJ-01-AC-3444, MH-14-DX-9000, RJ-13-TR-7788
       const order = ['GJ-01-AB-1122', 'GJ-01-AC-3444', 'MH-14-DX-9000', 'RJ-13-TR-7788'];
-      normalized.sort((a, b) => {
+      normalized.sort((a: Vehicle, b: Vehicle) => {
         const ia = order.indexOf(a.regNo);
         const ib = order.indexOf(b.regNo);
         if (ia !== -1 && ib !== -1) return ia - ib;
@@ -789,29 +790,6 @@ const tableColumns: GridColumn[] = [
   { name: 'actions', label: '', field: 'actions', align: 'right' },
 ];
 
-const newVeh = ref<Omit<Vehicle, 'id'>>({
-  regNo: '',
-  makeModel: '',
-  make: '',
-  model: '',
-  mfgYear: '2022',
-  targetKmpl: '5.5',
-  chassisNo: '',
-  engineNo: '',
-  gpsId: '',
-  fastagId: '',
-  type: '— Select —',
-  owner: '— Select —',
-  capacity: '16 MT',
-  status: 'Active',
-  rcExpiry: '',
-  fitness: '',
-  insurance: '',
-  puc: '',
-  permitExpiry: '',
-  roadTaxExpiry: '',
-});
-
 const activeCount = computed(() => vehicles.value.filter((v) => v.status === 'Active').length);
 const idleCount = computed(() => vehicles.value.filter((v) => v.status === 'Idle').length);
 const complianceAlertCount = computed(() => {
@@ -846,6 +824,31 @@ const filteredVehicles = computed(() => {
 
 const isRefreshing = ref(false);
 
+const newVeh = ref<Omit<Vehicle, 'id'>>({
+  regNo: '',
+  makeModel: '',
+  make: '',
+  model: '',
+  mfgYear: '2022',
+  targetKmpl: '5.5',
+  chassisNo: '',
+  engineNo: '',
+  gpsId: '',
+  fastagId: '',
+  type: '— Select —',
+  owner: '— Select —',
+  capacity: '16 MT',
+  status: 'Active',
+  rcExpiry: '',
+  fitness: '',
+  insurance: '',
+  puc: '',
+  permitExpiry: '',
+  roadTaxExpiry: '',
+});
+
+const regNoInputRef = ref<any>(null);
+
 function openAddModal() {
   isEditing.value = false;
   editingItem.value = null;
@@ -872,6 +875,14 @@ function openAddModal() {
     roadTaxExpiry: '',
   };
   showAddModal.value = true;
+  // Wait for Quasar drawer slide-in animation (~200ms) then focus first input
+  setTimeout(() => {
+    const el = regNoInputRef.value?.$el?.querySelector('input') || regNoInputRef.value;
+    if (el && typeof el.focus === 'function') {
+      el.focus();
+      (el as HTMLInputElement).select?.();
+    }
+  }, 200);
 }
 
 function editVehicle(item: Vehicle) {
@@ -904,6 +915,14 @@ function editVehicle(item: Vehicle) {
     roadTaxExpiry: item.roadTaxExpiry || '2030-01-01',
   };
   showAddModal.value = true;
+  // Wait for Quasar drawer slide-in animation (~200ms) then focus first input
+  setTimeout(() => {
+    const el = regNoInputRef.value?.$el?.querySelector('input') || regNoInputRef.value;
+    if (el && typeof el.focus === 'function') {
+      el.focus();
+      (el as HTMLInputElement).select?.();
+    }
+  }, 200);
 }
 
 async function saveVehicle() {
@@ -993,9 +1012,75 @@ async function saveVehicle() {
   showAddModal.value = false;
 }
 
+function handleGlobalKeydown(e: KeyboardEvent) {
+  // If a modal or drawer is open, let modal handle its own keys
+  if (showAddModal.value || showImportModal.value || showDeleteDialog.value) {
+    return;
+  }
+
+  const key = e.key.toLowerCase();
+
+  // Alt+F, F3, or '/' (when outside input) to focus Search Filter
+  if (
+    (e.altKey && key === 'f') ||
+    e.key === 'F3' ||
+    (!e.altKey && !e.ctrlKey && e.key === '/' && (document.activeElement as HTMLElement)?.tagName !== 'INPUT')
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+    gridRef.value?.focusSearch?.();
+    return;
+  }
+
+  // Alt+C or Insert opens the Add Vehicle modal
+  if ((e.altKey && key === 'c') || e.key === 'Insert') {
+    e.preventDefault();
+    e.stopPropagation();
+    openAddModal();
+    return;
+  }
+
+  // Alt+1 or Ctrl+Shift+T -> Type Filter  (Alt+T is intercepted by Chrome/Edge on Windows)
+  if ((e.altKey && key === '1') || (e.ctrlKey && e.shiftKey && key === 't')) {
+    e.preventDefault();
+    e.stopPropagation();
+    typeComboRef.value?.focusAndOpen();
+    return;
+  }
+
+  // Alt+2 or Ctrl+Shift+O -> Owner Filter
+  if ((e.altKey && key === '2') || (e.ctrlKey && e.shiftKey && key === 'o')) {
+    e.preventDefault();
+    e.stopPropagation();
+    ownerComboRef.value?.focusAndOpen();
+    return;
+  }
+
+  // Alt+3 or Ctrl+Shift+S -> Status Filter  (Alt+S also risky on some Windows layouts)
+  if ((e.altKey && key === '3') || (e.ctrlKey && e.shiftKey && key === 's')) {
+    e.preventDefault();
+    e.stopPropagation();
+    statusComboRef.value?.focusAndOpen();
+    return;
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleGlobalKeydown, { capture: true });
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleGlobalKeydown, { capture: true });
+});
+
 function confirmDeleteVehicle(item: Vehicle) {
   deletingItem.value = item;
   showDeleteDialog.value = true;
+}
+
+function cancelDelete() {
+  showDeleteDialog.value = false;
+  deletingItem.value = null;
 }
 
 async function executeDeleteVehicle() {

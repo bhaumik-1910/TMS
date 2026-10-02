@@ -16,6 +16,7 @@ exports.NotificationsService = void 0;
 const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const sequelize_2 = require("sequelize");
+const crypto_1 = require("crypto");
 const models_1 = require("../database/models");
 let NotificationsService = class NotificationsService {
     constructor(notificationModel, organizationModel) {
@@ -30,77 +31,95 @@ let NotificationsService = class NotificationsService {
         if (userId) {
             where[sequelize_2.Op.or] = [{ userId }, { userId: null }];
         }
-        let list = await this.notificationModel.findAll({
-            where,
-            order: [['createdAt', 'DESC']],
-            limit: 50,
-        });
-        if (list.length === 0) {
-            let targetOrgId = organizationId && organizationId !== 'SYSTEM' ? organizationId : null;
-            if (!targetOrgId) {
-                const firstOrg = await this.organizationModel.findOne();
-                targetOrgId = firstOrg ? firstOrg.id : 'org-apex-001';
-            }
-            const sampleAlerts = [
-                {
-                    organizationId: targetOrgId,
-                    userId: null,
-                    title: 'Route Deviation Critical Alert',
-                    message: 'Vehicle TRK-101 drifted 4.2 km off designated I-55 freight corridor near Springfield.',
-                    type: 'CRITICAL',
-                    channel: 'IN_APP',
-                    isRead: false,
-                    createdAt: new Date(Date.now() - 4 * 60 * 1000),
-                },
-                {
-                    organizationId: targetOrgId,
-                    userId: null,
-                    title: 'Shipment SHP-2024-001 In Transit',
-                    message: 'Driver Marcus Vance departed Chicago Central Hub. Live GPS radar ping active.',
-                    type: 'OPERATIONS',
-                    channel: 'IN_APP',
-                    isRead: false,
-                    createdAt: new Date(Date.now() - 18 * 60 * 1000),
-                },
-                {
-                    organizationId: targetOrgId,
-                    userId: null,
-                    title: 'Digital ePOD Signature Received',
-                    message: 'Receiver verified and e-signed consignment proof of delivery for SHP-2024-003.',
-                    type: 'OPERATIONS',
-                    channel: 'IN_APP',
-                    isRead: false,
-                    createdAt: new Date(Date.now() - 45 * 60 * 1000),
-                },
-                {
-                    organizationId: targetOrgId,
-                    userId: null,
-                    title: 'SAP S/4HANA Ledger Sync Complete',
-                    message: 'Automated batch sync updated 14 freight billing invoices with zero reconciliation variances.',
-                    type: 'SYSTEM',
-                    channel: 'IN_APP',
-                    isRead: true,
-                    createdAt: new Date(Date.now() - 120 * 60 * 1000),
-                },
-                {
-                    organizationId: targetOrgId,
-                    userId: null,
-                    title: 'Dwell Time Limit Advisory',
-                    message: 'TRK-104 exceeded 45-minute staging dwell threshold at Detroit Logistics Depot.',
-                    type: 'WARNING',
-                    channel: 'IN_APP',
-                    isRead: true,
-                    createdAt: new Date(Date.now() - 240 * 60 * 1000),
-                },
-            ];
-            await this.notificationModel.bulkCreate(sampleAlerts);
-            list = await this.notificationModel.findAll({
+        try {
+            let list = await this.notificationModel.findAll({
                 where,
                 order: [['createdAt', 'DESC']],
                 limit: 50,
             });
+            if (list.length === 0) {
+                try {
+                    let targetOrgId = organizationId && organizationId !== 'SYSTEM' ? organizationId : null;
+                    if (!targetOrgId) {
+                        const firstOrg = await this.organizationModel.findOne();
+                        targetOrgId = firstOrg ? firstOrg.id : null;
+                    }
+                    if (targetOrgId) {
+                        const sampleAlerts = [
+                            {
+                                id: (0, crypto_1.randomUUID)(),
+                                organizationId: targetOrgId,
+                                userId: null,
+                                title: 'Route Deviation Critical Alert',
+                                message: 'Vehicle TRK-101 drifted 4.2 km off designated I-55 freight corridor near Springfield.',
+                                type: 'CRITICAL',
+                                channel: 'IN_APP',
+                                isRead: false,
+                                createdAt: new Date(Date.now() - 4 * 60 * 1000),
+                            },
+                            {
+                                id: (0, crypto_1.randomUUID)(),
+                                organizationId: targetOrgId,
+                                userId: null,
+                                title: 'Shipment SHP-2024-001 In Transit',
+                                message: 'Driver Marcus Vance departed Chicago Central Hub. Live GPS radar ping active.',
+                                type: 'OPERATIONS',
+                                channel: 'IN_APP',
+                                isRead: false,
+                                createdAt: new Date(Date.now() - 18 * 60 * 1000),
+                            },
+                            {
+                                id: (0, crypto_1.randomUUID)(),
+                                organizationId: targetOrgId,
+                                userId: null,
+                                title: 'Digital ePOD Signature Received',
+                                message: 'Receiver verified and e-signed consignment proof of delivery for SHP-2024-003.',
+                                type: 'OPERATIONS',
+                                channel: 'IN_APP',
+                                isRead: false,
+                                createdAt: new Date(Date.now() - 45 * 60 * 1000),
+                            },
+                            {
+                                id: (0, crypto_1.randomUUID)(),
+                                organizationId: targetOrgId,
+                                userId: null,
+                                title: 'SAP S/4HANA Ledger Sync Complete',
+                                message: 'Automated batch sync updated 14 freight billing invoices with zero reconciliation variances.',
+                                type: 'SYSTEM',
+                                channel: 'IN_APP',
+                                isRead: true,
+                                createdAt: new Date(Date.now() - 120 * 60 * 1000),
+                            },
+                            {
+                                id: (0, crypto_1.randomUUID)(),
+                                organizationId: targetOrgId,
+                                userId: null,
+                                title: 'Dwell Time Limit Advisory',
+                                message: 'TRK-104 exceeded 45-minute staging dwell threshold at Detroit Logistics Depot.',
+                                type: 'WARNING',
+                                channel: 'IN_APP',
+                                isRead: true,
+                                createdAt: new Date(Date.now() - 240 * 60 * 1000),
+                            },
+                        ];
+                        await this.notificationModel.bulkCreate(sampleAlerts);
+                        list = await this.notificationModel.findAll({
+                            where,
+                            order: [['createdAt', 'DESC']],
+                            limit: 50,
+                        });
+                    }
+                }
+                catch (err) {
+                    console.warn('[NotificationsService] Auto-seed skipped:', err?.message);
+                }
+            }
+            return list;
         }
-        return list;
+        catch (outerErr) {
+            console.warn('[NotificationsService] findAll query fallback:', outerErr?.message);
+            return [];
+        }
     }
     async create(data) {
         return this.notificationModel.create(data);

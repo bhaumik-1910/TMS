@@ -14,6 +14,16 @@ export declare class CustomerModel extends Model<CustomerModel> {
     paymentTerms: string;
     creditLimit: number;
     status: string;
+    subType?: string;
+    branch?: string;
+    gstin?: string;
+    pan?: string;
+    tdsSection?: string;
+    creditDays?: string;
+    bankName?: string;
+    accountNo?: string;
+    ifscCode?: string;
+    creditLimitStr?: string;
     createdAt: Date;
     updatedAt: Date;
 }

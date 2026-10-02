@@ -22,6 +22,42 @@ let BillingController = class BillingController {
     constructor(billingService) {
         this.billingService = billingService;
     }
+    async getBillingRecords(query) {
+        return this.billingService.findAllBillingInvoices(query);
+    }
+    async createBillingRecord(body) {
+        return this.billingService.createBillingInvoice(body);
+    }
+    async updateBillingRecord(id, body) {
+        return this.billingService.updateBillingInvoice(id, body);
+    }
+    async deleteBillingRecord(id) {
+        return this.billingService.deleteBillingInvoice(id);
+    }
+    async getPurchaseBills(query) {
+        return this.billingService.findAllPurchaseBills(query);
+    }
+    async createPurchaseBill(body) {
+        return this.billingService.createPurchaseBill(body);
+    }
+    async updatePurchaseBill(id, body) {
+        return this.billingService.updatePurchaseBill(id, body);
+    }
+    async deletePurchaseBill(id) {
+        return this.billingService.deletePurchaseBill(id);
+    }
+    async getSettlements(query) {
+        return this.billingService.findAllSettlements(query);
+    }
+    async createSettlement(body) {
+        return this.billingService.createSettlement(body);
+    }
+    async updateSettlement(id, body) {
+        return this.billingService.updateSettlement(id, body);
+    }
+    async deleteSettlement(id) {
+        return this.billingService.deleteSettlement(id);
+    }
     async findAllInvoices(orgId, status) {
         return this.billingService.findAllInvoices(orgId, status);
     }
@@ -45,6 +81,105 @@ let BillingController = class BillingController {
     }
 };
 exports.BillingController = BillingController;
+__decorate([
+    (0, common_1.Get)('records'),
+    (0, swagger_1.ApiOperation)({ summary: 'List all billing invoices from database' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "getBillingRecords", null);
+__decorate([
+    (0, common_1.Post)('records'),
+    (0, swagger_1.ApiOperation)({ summary: 'Create new billing invoice in database' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "createBillingRecord", null);
+__decorate([
+    (0, common_1.Patch)('records/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update billing invoice in database' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "updateBillingRecord", null);
+__decorate([
+    (0, common_1.Delete)('records/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete billing invoice from database' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "deleteBillingRecord", null);
+__decorate([
+    (0, common_1.Get)('purchase-bills'),
+    (0, swagger_1.ApiOperation)({ summary: 'List all purchase bills from database' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "getPurchaseBills", null);
+__decorate([
+    (0, common_1.Post)('purchase-bills'),
+    (0, swagger_1.ApiOperation)({ summary: 'Create new purchase bill in database' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "createPurchaseBill", null);
+__decorate([
+    (0, common_1.Patch)('purchase-bills/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update purchase bill in database' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "updatePurchaseBill", null);
+__decorate([
+    (0, common_1.Delete)('purchase-bills/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete purchase bill from database' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "deletePurchaseBill", null);
+__decorate([
+    (0, common_1.Get)('settlements'),
+    (0, swagger_1.ApiOperation)({ summary: 'List all trip settlements from database' }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "getSettlements", null);
+__decorate([
+    (0, common_1.Post)('settlements'),
+    (0, swagger_1.ApiOperation)({ summary: 'Create new trip settlement in database' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "createSettlement", null);
+__decorate([
+    (0, common_1.Patch)('settlements/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update trip settlement in database' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "updateSettlement", null);
+__decorate([
+    (0, common_1.Delete)('settlements/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete trip settlement from database' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], BillingController.prototype, "deleteSettlement", null);
 __decorate([
     (0, common_1.Get)('invoices'),
     (0, swagger_1.ApiOperation)({ summary: 'List customer freight invoices' }),

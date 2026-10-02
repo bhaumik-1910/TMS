@@ -11,6 +11,8 @@ const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const dispatch_service_1 = require("./dispatch.service");
 const dispatch_controller_1 = require("./dispatch.controller");
+const driver_advances_service_1 = require("./driver-advances.service");
+const driver_advances_controller_1 = require("./driver-advances.controller");
 const models_1 = require("../database/models");
 let DispatchModule = class DispatchModule {
 };
@@ -29,11 +31,12 @@ exports.DispatchModule = DispatchModule = __decorate([
                 models_1.CustomerModel,
                 models_1.TripExpenseModel,
                 models_1.AuditLogModel,
+                models_1.DriverAdvanceModel,
             ]),
         ],
-        controllers: [dispatch_controller_1.DispatchController],
-        providers: [dispatch_service_1.DispatchService],
-        exports: [dispatch_service_1.DispatchService],
+        controllers: [dispatch_controller_1.DispatchController, driver_advances_controller_1.DriverAdvancesController],
+        providers: [dispatch_service_1.DispatchService, driver_advances_service_1.DriverAdvancesService],
+        exports: [dispatch_service_1.DispatchService, driver_advances_service_1.DriverAdvancesService],
     })
 ], DispatchModule);
 //# sourceMappingURL=dispatch.module.js.map

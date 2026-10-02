@@ -1,0 +1,77 @@
+/**
+ * Focus Ring & Accessibility Styles for Desk Framework
+ * WCAG 2.2 AA compliant focus indicators
+ */
+
+/* High-visibility keyboard focus indicators for buttons, links, and non-input interactive controls */
+:focus-visible:not(input):not(textarea):not(select):not(.q-field__native):not(.q-field__input):not([contenteditable="true"]) {
+  outline: 2px solid var(--tms-primary, #00f2fe) !important;
+  outline-offset: 2px !important;
+}
+
+/* Universal suppression of sharp boxy rectangular outlines on form inputs */
+input,
+textarea,
+select,
+.q-field__native,
+.q-field__input,
+.q-field input,
+.q-field textarea,
+.q-field__control,
+.q-field {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible,
+.q-field__native:focus,
+.q-field__native:focus-visible,
+.q-field__input:focus,
+.q-field__input:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Form fields focus state enhancement: sleek rounded cyan glow on outer control */
+.q-field--outlined .q-field__control:before,
+.q-field--outlined .q-field__control:after {
+  display: none !important;
+  border: none !important;
+  content: none !important;
+}
+
+.q-field--focused .q-field__control,
+.q-field:focus-within .q-field__control,
+.desk-field-control .q-field--focused .q-field__control,
+.desk-field-control .q-field:focus-within .q-field__control,
+.desk-field-input:focus-within {
+  border: 1.5px solid #00f2fe !important;
+  border-color: #00f2fe !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25) !important;
+  outline: none !important;
+}
+
+/* Modal focus trap overlay indicator */
+.desk-focus-trap-active {
+  position: relative;
+}
+
+/* Screen reader announcement helper */
+.desk-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

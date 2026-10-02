@@ -29,6 +29,7 @@ exports.PodModule = PodModule = __decorate([
                 models_1.CustomerModel,
                 models_1.TransportOrderModel,
                 models_1.LocationModel,
+                models_1.PodRecordModel,
             ]),
         ],
         controllers: [pod_controller_1.PodController],

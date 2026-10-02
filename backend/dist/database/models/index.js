@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AnalyticsDataModel = exports.AuditLogModel = exports.NotificationModel = exports.AccountingSyncModel = exports.ClaimItemModel = exports.ClaimModel = exports.TripExpenseModel = exports.PaymentModel = exports.InvoiceItemModel = exports.InvoiceModel = exports.LorryReceiptModel = exports.ProofOfDeliveryModel = exports.GeofenceEventModel = exports.GeofenceModel = exports.TrackingEventModel = exports.TenderRequestModel = exports.DispatchModel = exports.LoadPlanItemModel = exports.LoadPlanModel = exports.RouteStopModel = exports.RouteModel = exports.ShipmentItemModel = exports.ShipmentModel = exports.OrderItemModel = exports.TransportOrderModel = exports.DriverAssignmentModel = exports.DriverDocumentModel = exports.DriverModel = exports.VehicleMaintenanceModel = exports.VehicleDocumentModel = exports.VehicleModel = exports.CarrierDocumentModel = exports.CarrierRateModel = exports.CarrierContractModel = exports.CarrierModel = exports.CustomerModel = exports.AppointmentModel = exports.DockModel = exports.FacilityModel = exports.PackageTypeModel = exports.CargoTypeModel = exports.VehicleTypeModel = exports.LocationModel = exports.LocationTypeModel = exports.UserRoleModel = exports.RolePermissionModel = exports.PermissionModel = exports.RoleModel = exports.UserModel = exports.OrganizationModel = void 0;
-exports.ALL_MODELS = exports.DemoRequestModel = exports.DocumentModel = exports.DocumentTypeModel = void 0;
+exports.InvoiceModel = exports.LorryReceiptModel = exports.ProofOfDeliveryModel = exports.GeofenceEventModel = exports.GeofenceModel = exports.TrackingEventModel = exports.SettlementModel = exports.PurchaseBillModel = exports.BillingInvoiceModel = exports.PodRecordModel = exports.JobCardModel = exports.TyreInventoryModel = exports.TyreEventModel = exports.DriverAdvanceModel = exports.TenderRequestModel = exports.DispatchModel = exports.LoadPlanItemModel = exports.LoadPlanModel = exports.RouteStopModel = exports.RouteModel = exports.ShipmentItemModel = exports.ShipmentModel = exports.OrderItemModel = exports.TransportOrderModel = exports.FuelEntryModel = exports.DriverAssignmentModel = exports.DriverDocumentModel = exports.DriverModel = exports.VehicleMaintenanceModel = exports.VehicleDocumentModel = exports.VehicleModel = exports.CarrierDocumentModel = exports.CarrierRateModel = exports.CarrierContractModel = exports.CarrierModel = exports.CustomerModel = exports.AppointmentModel = exports.DockModel = exports.FacilityModel = exports.PackageTypeModel = exports.CargoTypeModel = exports.VehicleTypeModel = exports.LocationModel = exports.LocationTypeModel = exports.UserRoleModel = exports.RolePermissionModel = exports.PermissionModel = exports.RoleModel = exports.UserModel = exports.OrganizationModel = void 0;
+exports.ALL_MODELS = exports.DemoRequestModel = exports.DocumentModel = exports.DocumentTypeModel = exports.AnalyticsDataModel = exports.AuditLogModel = exports.NotificationModel = exports.AccountingSyncModel = exports.ClaimItemModel = exports.ClaimModel = exports.TripExpenseModel = exports.PaymentModel = exports.InvoiceItemModel = void 0;
 const organization_model_1 = require("./auth/organization.model");
 Object.defineProperty(exports, "OrganizationModel", { enumerable: true, get: function () { return organization_model_1.OrganizationModel; } });
 const user_model_1 = require("./auth/user.model");
@@ -37,6 +37,7 @@ Object.defineProperty(exports, "VehicleMaintenanceModel", { enumerable: true, ge
 Object.defineProperty(exports, "DriverModel", { enumerable: true, get: function () { return fleet_model_1.DriverModel; } });
 Object.defineProperty(exports, "DriverDocumentModel", { enumerable: true, get: function () { return fleet_model_1.DriverDocumentModel; } });
 Object.defineProperty(exports, "DriverAssignmentModel", { enumerable: true, get: function () { return fleet_model_1.DriverAssignmentModel; } });
+Object.defineProperty(exports, "FuelEntryModel", { enumerable: true, get: function () { return fleet_model_1.FuelEntryModel; } });
 const operations_model_1 = require("./operations/operations.model");
 Object.defineProperty(exports, "TransportOrderModel", { enumerable: true, get: function () { return operations_model_1.TransportOrderModel; } });
 Object.defineProperty(exports, "OrderItemModel", { enumerable: true, get: function () { return operations_model_1.OrderItemModel; } });
@@ -48,6 +49,14 @@ Object.defineProperty(exports, "LoadPlanModel", { enumerable: true, get: functio
 Object.defineProperty(exports, "LoadPlanItemModel", { enumerable: true, get: function () { return operations_model_1.LoadPlanItemModel; } });
 Object.defineProperty(exports, "DispatchModel", { enumerable: true, get: function () { return operations_model_1.DispatchModel; } });
 Object.defineProperty(exports, "TenderRequestModel", { enumerable: true, get: function () { return operations_model_1.TenderRequestModel; } });
+Object.defineProperty(exports, "DriverAdvanceModel", { enumerable: true, get: function () { return operations_model_1.DriverAdvanceModel; } });
+Object.defineProperty(exports, "TyreEventModel", { enumerable: true, get: function () { return operations_model_1.TyreEventModel; } });
+Object.defineProperty(exports, "TyreInventoryModel", { enumerable: true, get: function () { return operations_model_1.TyreInventoryModel; } });
+Object.defineProperty(exports, "JobCardModel", { enumerable: true, get: function () { return operations_model_1.JobCardModel; } });
+Object.defineProperty(exports, "PodRecordModel", { enumerable: true, get: function () { return operations_model_1.PodRecordModel; } });
+Object.defineProperty(exports, "BillingInvoiceModel", { enumerable: true, get: function () { return operations_model_1.BillingInvoiceModel; } });
+Object.defineProperty(exports, "PurchaseBillModel", { enumerable: true, get: function () { return operations_model_1.PurchaseBillModel; } });
+Object.defineProperty(exports, "SettlementModel", { enumerable: true, get: function () { return operations_model_1.SettlementModel; } });
 const telematics_model_1 = require("./telematics/telematics.model");
 Object.defineProperty(exports, "TrackingEventModel", { enumerable: true, get: function () { return telematics_model_1.TrackingEventModel; } });
 Object.defineProperty(exports, "GeofenceModel", { enumerable: true, get: function () { return telematics_model_1.GeofenceModel; } });
@@ -95,6 +104,7 @@ exports.ALL_MODELS = [
     fleet_model_1.DriverModel,
     fleet_model_1.DriverDocumentModel,
     fleet_model_1.DriverAssignmentModel,
+    fleet_model_1.FuelEntryModel,
     operations_model_1.TransportOrderModel,
     operations_model_1.OrderItemModel,
     operations_model_1.ShipmentModel,
@@ -105,6 +115,14 @@ exports.ALL_MODELS = [
     operations_model_1.LoadPlanItemModel,
     operations_model_1.DispatchModel,
     operations_model_1.TenderRequestModel,
+    operations_model_1.DriverAdvanceModel,
+    operations_model_1.TyreEventModel,
+    operations_model_1.TyreInventoryModel,
+    operations_model_1.JobCardModel,
+    operations_model_1.PodRecordModel,
+    operations_model_1.BillingInvoiceModel,
+    operations_model_1.PurchaseBillModel,
+    operations_model_1.SettlementModel,
     telematics_model_1.TrackingEventModel,
     telematics_model_1.GeofenceModel,
     telematics_model_1.GeofenceEventModel,

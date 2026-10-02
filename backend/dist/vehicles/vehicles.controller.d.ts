@@ -5,7 +5,15 @@ export declare class VehiclesController {
     findAll(orgId: string, status?: string): Promise<any>;
     findOne(id: string): Promise<any>;
     create(orgId: string, body: any): Promise<any>;
-    update(id: string, body: any): Promise<import("../database/models").VehicleModel>;
+    update(id: string, body: any): Promise<any>;
     addMaintenance(id: string, body: any): Promise<import("../database/models").VehicleMaintenanceModel>;
-    remove(id: string): Promise<void>;
+    remove(id: string): Promise<{
+        success: boolean;
+        message: string;
+        warning?: undefined;
+    } | {
+        success: boolean;
+        message: string;
+        warning: any;
+    }>;
 }

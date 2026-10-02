@@ -1,6 +1,7 @@
+import { OnModuleInit } from '@nestjs/common';
 import { BaseSequelizeService } from '../common/base/base.service';
 import { DispatchModel, ShipmentModel, VehicleModel, DriverModel, TripExpenseModel, AuditLogModel } from '../database/models';
-export declare class DispatchService extends BaseSequelizeService<DispatchModel> {
+export declare class DispatchService extends BaseSequelizeService<DispatchModel> implements OnModuleInit {
     private readonly dispatchModel;
     private readonly shipmentModel;
     private readonly vehicleModel;
@@ -8,9 +9,15 @@ export declare class DispatchService extends BaseSequelizeService<DispatchModel>
     private readonly tripExpenseModel;
     private readonly auditLogModel;
     constructor(dispatchModel: typeof DispatchModel, shipmentModel: typeof ShipmentModel, vehicleModel: typeof VehicleModel, driverModel: typeof DriverModel, tripExpenseModel: typeof TripExpenseModel, auditLogModel: typeof AuditLogModel);
+    onModuleInit(): Promise<void>;
     findAll(organizationId?: string, status?: string): Promise<any>;
     getDispatchBoard(organizationId: string): Promise<Record<string, any[]>>;
     create(organizationId: string, data: any, userId?: string): Promise<DispatchModel>;
+    updateTrip(id: string, data: any): Promise<DispatchModel>;
+    deleteTrip(id: string): Promise<{
+        success: boolean;
+        id: string;
+    }>;
     updateStatus(id: string, status: string, userId?: string): Promise<DispatchModel>;
     addTripExpense(dispatchId: string, data: any): Promise<TripExpenseModel>;
     getTripExpenses(dispatchId: string): Promise<TripExpenseModel[]>;

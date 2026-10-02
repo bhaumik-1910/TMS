@@ -106,24 +106,45 @@ export class CustomersService extends BaseSequelizeService<CustomerModel> {
   }
 
   override async update(id: any, data: any): Promise<any> {
-    const customer = await this.findOne(id);
-    return customer.update({
-      companyName: data.name || data.companyName || customer.companyName,
-      email: data.email !== undefined ? data.email : customer.email,
-      phone: (data.mobile !== undefined ? data.mobile : data.phone) || customer.phone,
-      status: data.status ? (data.status.toUpperCase() === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE') : customer.status,
-      subType: data.subType || customer.subType,
-      branch: data.branch || customer.branch,
-      gstin: data.gstin !== undefined ? data.gstin : customer.gstin,
-      pan: data.pan !== undefined ? data.pan : customer.pan,
-      tdsSection: data.tdsSection !== undefined ? data.tdsSection : customer.tdsSection,
-      creditDays: data.creditDays !== undefined ? data.creditDays : customer.creditDays,
-      creditLimitStr: data.creditLimit !== undefined ? data.creditLimit : customer.creditLimitStr,
-      creditLimit: data.creditLimit ? parseFloat(String(data.creditLimit).replace(/[^0-9.]/g, '')) : customer.creditLimit,
-      bankName: data.bankName !== undefined ? data.bankName : customer.bankName,
-      accountNo: data.accountNo !== undefined ? data.accountNo : customer.accountNo,
-      ifscCode: data.ifscCode !== undefined ? data.ifscCode : customer.ifscCode,
-    });
+    // Always fetch the raw Sequelize model instance (NOT the plain-object override)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id));
+    let instance: CustomerModel | null = null;
+
+    if (isUuid) {
+      instance = await this.customerModel.findByPk(id);
+    }
+    if (!instance) {
+      instance = await this.customerModel.findOne({ where: { customerCode: id } });
+    }
+
+    if (!instance) {
+      throw new NotFoundException(`Customer ${id} not found`);
+    }
+
+    const updateData: any = {
+      companyName:   data.name        || data.companyName    || instance.companyName,
+      email:         data.email         !== undefined ? data.email    : instance.email,
+      phone:         (data.mobile       !== undefined ? data.mobile   : data.phone) ?? instance.phone,
+      status:        data.status ? (data.status.toUpperCase() === 'ACTIVE' || data.status === 'Active' ? 'ACTIVE' : 'INACTIVE') : instance.status,
+      subType:       data.subType       || instance.subType,
+      branch:        data.branch        || instance.branch,
+      gstin:         data.gstin         !== undefined ? data.gstin        : instance.gstin,
+      pan:           data.pan           !== undefined ? data.pan          : instance.pan,
+      tdsSection:    data.tdsSection    !== undefined ? data.tdsSection   : instance.tdsSection,
+      creditDays:    data.creditDays    !== undefined ? data.creditDays   : instance.creditDays,
+      creditLimitStr:data.creditLimit   !== undefined ? data.creditLimit  : instance.creditLimitStr,
+      creditLimit:   data.creditLimit   ? parseFloat(String(data.creditLimit).replace(/[^0-9.]/g, '')) || instance.creditLimit : instance.creditLimit,
+      bankName:      data.bankName      !== undefined ? data.bankName     : instance.bankName,
+      accountNo:     data.accountNo     !== undefined ? data.accountNo    : instance.accountNo,
+      ifscCode:      data.ifscCode      !== undefined ? data.ifscCode     : instance.ifscCode,
+    };
+
+    if (typeof instance.update === 'function') {
+      return instance.update(updateData);
+    }
+    // Fallback: use static model update
+    await this.customerModel.update(updateData, { where: { id } });
+    return this.customerModel.findByPk(id);
   }
 
   async remove(id: string) {

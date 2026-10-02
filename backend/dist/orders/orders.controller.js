@@ -29,7 +29,13 @@ let OrdersController = class OrdersController {
         return this.ordersService.findOne(id);
     }
     async create(user, body) {
-        return this.ordersService.create(user.organizationId, user.userId, body);
+        return this.ordersService.create(user?.organizationId, user?.userId, body);
+    }
+    async update(id, body) {
+        return this.ordersService.updateOrder(id, body);
+    }
+    async remove(id) {
+        return this.ordersService.deleteOrder(id);
     }
     async updateStatus(id, newStatus, userId) {
         return this.ordersService.updateStatus(id, newStatus, userId);
@@ -63,6 +69,23 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "create", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update transport order / booking' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete transport order / booking' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "remove", null);
 __decorate([
     (0, common_1.Patch)(':id/status'),
     (0, swagger_1.ApiOperation)({ summary: 'Transition order status with business validation' }),
