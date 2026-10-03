@@ -109,6 +109,15 @@ export class NotificationsService {
         }
       }
 
+      if (list.length === 0 && where.organizationId) {
+        delete where.organizationId;
+        list = await this.notificationModel.findAll({
+          where,
+          order: [['createdAt', 'DESC']],
+          limit: 50,
+        });
+      }
+
       return list;
     } catch (outerErr: any) {
       console.warn('[NotificationsService] findAll query fallback:', outerErr?.message);

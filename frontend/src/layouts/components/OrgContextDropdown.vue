@@ -63,14 +63,21 @@ import { useAuthStore } from '../../stores/auth';
 
 const authStore = useAuthStore();
 
-const availableOrgsList = computed(() => [
-  { id: 'org-apex-logistics', name: 'Apex Global Logistics Inc.', code: 'APEX-LOGISTICS' },
-  { id: 'org-swift-freight', name: 'Swift National Freight LLC', code: 'SWIFT-FREIGHT' },
-  { id: 'org-omni-transport', name: 'Omni Worldwide Transport Corp', code: 'OMNI-TRANS' },
-]);
+const availableOrgsList = computed(() => {
+  if (authStore.availableOrganizations && authStore.availableOrganizations.length > 0) {
+    return authStore.availableOrganizations.map((o: any) => ({
+      id: o.id,
+      name: o.name,
+      code: o.code || o.name,
+    }));
+  }
+  return [
+    { id: 'd09a96f3-5962-49fb-b002-e80766937054', name: 'Apex Global Logistics Inc.', code: 'APEX-LOGISTICS' },
+  ];
+});
 
 const activeOrgName = computed(() => {
   const match = availableOrgsList.value.find((o) => o.id === authStore.orgContext);
-  return match ? match.name.split(' ')[0] : 'Custom Org';
+  return match ? match.name.split(' ')[0] : 'Apex';
 });
 </script>

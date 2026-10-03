@@ -26,10 +26,13 @@ export class PermissionsGuard implements CanActivate {
       });
     }
 
-    // Wildcard Super Admin access or explicit role match
+    const roles: string[] = Array.isArray(user.roles) ? user.roles : (user.role ? [user.role] : []);
+    // Wildcard Super Admin access or explicit admin role match
     if (
-      user.permissions.includes('*') ||
-      (user.roles && (user.roles.includes('SUPER_ADMIN') || user.roles.includes('TMS_ADMIN')))
+      user.permissions?.includes('*') ||
+      roles.includes('SUPER_ADMIN') ||
+      roles.includes('TMS_ADMIN') ||
+      roles.includes('ADMIN')
     ) {
       return true;
     }

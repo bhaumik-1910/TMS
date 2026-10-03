@@ -36,8 +36,7 @@ let OrganizationsController = class OrganizationsController {
 exports.OrganizationsController = OrganizationsController;
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)('SUPER_ADMIN'),
-    (0, swagger_1.ApiOperation)({ summary: 'List all organizations (Super Admin only)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'List all organizations' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)

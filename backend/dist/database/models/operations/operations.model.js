@@ -15,6 +15,7 @@ const organization_model_1 = require("../auth/organization.model");
 const partners_model_1 = require("../partners/partners.model");
 const master_data_model_1 = require("../master-data/master-data.model");
 const fleet_model_1 = require("../fleet/fleet.model");
+const telematics_model_1 = require("../telematics/telematics.model");
 let TransportOrderModel = class TransportOrderModel extends sequelize_typescript_1.Model {
 };
 exports.TransportOrderModel = TransportOrderModel;
@@ -370,6 +371,10 @@ __decorate([
     (0, sequelize_typescript_1.HasMany)(() => DispatchModel, { onDelete: 'CASCADE' }),
     __metadata("design:type", Array)
 ], ShipmentModel.prototype, "dispatches", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasOne)(() => telematics_model_1.ProofOfDeliveryModel, { onDelete: 'CASCADE' }),
+    __metadata("design:type", telematics_model_1.ProofOfDeliveryModel)
+], ShipmentModel.prototype, "proofOfDelivery", void 0);
 __decorate([
     sequelize_typescript_1.CreatedAt,
     __metadata("design:type", Date)

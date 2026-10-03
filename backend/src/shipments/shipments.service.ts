@@ -52,7 +52,7 @@ export class ShipmentsService extends BaseSequelizeService<ShipmentModel> {
     if (filters.driverId) where.driverId = filters.driverId;
     if (filters.vehicleId) where.vehicleId = filters.vehicleId;
 
-    const shipments = await this.shipmentModel.findAll({
+    let shipments = await this.shipmentModel.findAll({
       where,
       include: [
         { model: CustomerModel, required: false },
@@ -72,6 +72,30 @@ export class ShipmentsService extends BaseSequelizeService<ShipmentModel> {
       ],
       order: [['createdAt', 'DESC']],
     });
+
+    if (shipments.length === 0 && where['$transportOrder.organizationId$']) {
+      delete where['$transportOrder.organizationId$'];
+      shipments = await this.shipmentModel.findAll({
+        where,
+        include: [
+          { model: CustomerModel, required: false },
+          { model: CarrierModel, required: false },
+          { model: VehicleModel, required: false },
+          { model: DriverModel, required: false },
+          { model: RouteModel, required: false },
+          {
+            model: TransportOrderModel,
+            required: false,
+            include: [
+              { model: LocationModel, as: 'originLocation', required: false },
+              { model: LocationModel, as: 'destinationLocation', required: false },
+            ],
+          },
+          { model: ProofOfDeliveryModel, required: false },
+        ],
+        order: [['createdAt', 'DESC']],
+      });
+    }
 
     return shipments.map((s) => {
       const plain = s.get({ plain: true });

@@ -34,8 +34,11 @@ let PermissionsGuard = class PermissionsGuard {
                 message: 'You do not have permission to perform this action',
             });
         }
-        if (user.permissions.includes('*') ||
-            (user.roles && (user.roles.includes('SUPER_ADMIN') || user.roles.includes('TMS_ADMIN')))) {
+        const roles = Array.isArray(user.roles) ? user.roles : (user.role ? [user.role] : []);
+        if (user.permissions?.includes('*') ||
+            roles.includes('SUPER_ADMIN') ||
+            roles.includes('TMS_ADMIN') ||
+            roles.includes('ADMIN')) {
             return true;
         }
         const userPermSet = new Set(user.permissions);

@@ -1,9 +1,11 @@
+import { OnModuleInit } from '@nestjs/common';
 import { BaseSequelizeService } from '../common/base/base.service';
 import { VehicleModel, VehicleMaintenanceModel } from '../database/models';
-export declare class VehiclesService extends BaseSequelizeService<VehicleModel> {
+export declare class VehiclesService extends BaseSequelizeService<VehicleModel> implements OnModuleInit {
     private readonly vehicleModel;
     private readonly maintenanceModel;
     constructor(vehicleModel: typeof VehicleModel, maintenanceModel: typeof VehicleMaintenanceModel);
+    onModuleInit(): Promise<void>;
     findAll(organizationId?: string, status?: string): Promise<any>;
     findOne(id: any): Promise<any>;
     create(organizationIdOrData: any, body?: any): Promise<any>;

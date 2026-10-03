@@ -58,7 +58,16 @@ export declare class PlanningService {
             sequelize: import("sequelize").Sequelize;
             _model: import("sequelize").Model<TransportOrderModel, TransportOrderModel>;
         }[];
-        availableVehicles: VehicleModel[];
+        availableVehicles: {
+            id: string;
+            vehicleNumber: string;
+            make: string;
+            model: string;
+            type: string;
+            depot: string;
+            capacityWeight: number;
+            capacityVolume: number;
+        }[];
         plannedShipments: ShipmentModel[];
     }>;
     optimizeLoad(organizationId: string, vehicleId: string, orderIds: string[]): Promise<{

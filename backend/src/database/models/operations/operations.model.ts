@@ -1,8 +1,9 @@
-import { Table, Column, Model, DataType, PrimaryKey, Default, ForeignKey, BelongsTo, HasMany, CreatedAt, UpdatedAt } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, PrimaryKey, Default, ForeignKey, BelongsTo, HasMany, HasOne, CreatedAt, UpdatedAt } from 'sequelize-typescript';
 import { OrganizationModel } from '../auth/organization.model';
 import { CustomerModel, CarrierModel } from '../partners/partners.model';
 import { LocationModel } from '../master-data/master-data.model';
 import { VehicleModel, DriverModel } from '../fleet/fleet.model';
+import { ProofOfDeliveryModel } from '../telematics/telematics.model';
 
 @Table({ tableName: 'transport_orders', timestamps: true })
 export class TransportOrderModel extends Model<TransportOrderModel> {
@@ -270,6 +271,9 @@ export class ShipmentModel extends Model<ShipmentModel> {
 
   @HasMany(() => DispatchModel, { onDelete: 'CASCADE' })
   dispatches: DispatchModel[];
+
+  @HasOne(() => ProofOfDeliveryModel, { onDelete: 'CASCADE' })
+  proofOfDelivery?: ProofOfDeliveryModel;
 
   @CreatedAt
   createdAt: Date;

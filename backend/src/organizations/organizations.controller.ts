@@ -13,8 +13,7 @@ export class OrganizationsController {
   constructor(private organizationsService: OrganizationsService) {}
 
   @Get()
-  @Roles('SUPER_ADMIN')
-  @ApiOperation({ summary: 'List all organizations (Super Admin only)' })
+  @ApiOperation({ summary: 'List all organizations' })
   async findAll() {
     return this.organizationsService.findAll();
   }

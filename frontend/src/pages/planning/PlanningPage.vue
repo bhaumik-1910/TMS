@@ -218,6 +218,55 @@
       </div>
     </transition>
 
+    <!-- 3-Step Guided Planning Workflow Bar -->
+    <div class="planner-steps-guide p-3 sm:p-4 rounded-xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-slate-900/90 to-blue-950/40 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-[0_0_15px_rgba(0,242,254,0.08)]">
+      <!-- Step 1 -->
+      <div class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800/90 flex-1">
+        <div class="w-8 h-8 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-500/50 flex items-center justify-center font-mono font-bold text-sm shrink-0">1</div>
+        <div class="min-w-0">
+          <div class="text-xs font-bold text-white flex items-center gap-1.5">
+            <span>Select Orders</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/30 font-bold">
+              {{ selectedOrderIds.length }} STAGED
+            </span>
+          </div>
+          <div class="text-[11px] text-slate-400 truncate">Tick pending consignments from the left queue</div>
+        </div>
+      </div>
+
+      <q-icon name="arrow_forward" size="18px" class="hidden md:block text-slate-600 shrink-0" />
+
+      <!-- Step 2 -->
+      <div class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800/90 flex-1">
+        <div class="w-8 h-8 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-500/50 flex items-center justify-center font-mono font-bold text-sm shrink-0">2</div>
+        <div class="min-w-0">
+          <div class="text-xs font-bold text-white flex items-center gap-1.5">
+            <span>Assign Fleet Vehicle</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/30 font-bold" v-if="currentSelectedVehicle">
+              {{ currentSelectedVehicle.vehicleNumber }}
+            </span>
+          </div>
+          <div class="text-[11px] text-slate-400 truncate">Choose available truck with sufficient payload capacity</div>
+        </div>
+      </div>
+
+      <q-icon name="arrow_forward" size="18px" class="hidden md:block text-slate-600 shrink-0" />
+
+      <!-- Step 3 -->
+      <div class="flex items-center gap-3 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800/90 flex-1">
+        <div class="w-8 h-8 rounded-full bg-cyan-950 text-cyan-400 border border-cyan-500/50 flex items-center justify-center font-mono font-bold text-sm shrink-0">3</div>
+        <div class="min-w-0">
+          <div class="text-xs font-bold text-white flex items-center gap-1.5">
+            <span>Simulate &amp; Approve</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.2 rounded font-bold" :class="isOverweight ? 'bg-rose-950 text-rose-300 border border-rose-500/40' : 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'">
+              {{ currentSimulatedFillRate }}% FILL
+            </span>
+          </div>
+          <div class="text-[11px] text-slate-400 truncate">Click "Simulate Staged Load" to test axle balance</div>
+        </div>
+      </div>
+    </div>
+
     <!-- VIEW 1: Split Console Arrangement (Default) -->
     <div v-if="activeViewMode === 'split'" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
       <!-- Left Column: Unplanned Transport Orders (7 cols) -->
@@ -227,7 +276,7 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-3 mb-4">
             <div>
               <div class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f2fe]"></span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40 font-bold uppercase">STEP 1</span>
                 Unplanned Transport Orders Queue
                 <span class="text-xs font-mono text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">
                   {{ filteredOrders.length }} ORDERS
@@ -407,22 +456,23 @@
           <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
             <div>
               <div class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40 font-bold uppercase">STEP 2</span>
                 <q-icon name="local_shipping" color="cyan" size="18px" />
                 Select Target Fleet Vehicle
               </div>
-              <div class="text-xs text-slate-400">Assign staged cargo load to available tractor capacity</div>
+              <div class="text-xs text-slate-400">Click a truck to assign staged cargo load</div>
             </div>
             <span class="text-xs font-mono text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">
               {{ availableVehicles.length }} READY
             </span>
           </div>
 
-          <div class="space-y-2.5 max-h-[290px] overflow-y-auto pr-1 custom-scroll">
+          <div class="space-y-2.5 max-h-[310px] overflow-y-auto pr-1 custom-scroll">
             <div
               v-for="v in availableVehicles"
               :key="v.id"
               class="p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 group"
-              :class="selectedVehicleId === v.id ? 'border-cyan-400/80 bg-cyan-950/30 shadow-[0_0_12px_rgba(0,242,254,0.15)]' : 'border-slate-800 bg-slate-900/60 hover:border-slate-700'"
+              :class="selectedVehicleId === v.id ? 'border-cyan-400/80 bg-cyan-950/40 shadow-[0_0_12px_rgba(0,242,254,0.18)]' : 'border-slate-800 bg-slate-900/60 hover:border-slate-700'"
               @click="selectedVehicleId = v.id"
             >
               <div class="flex items-center gap-3">
@@ -440,16 +490,27 @@
                     <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700">
                       {{ v.vehicleType?.name || v.type || 'Multi-Axle HCV' }}
                     </span>
+                    <span v-if="selectedVehicleId === v.id" class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40 animate-pulse">
+                      ASSIGNED
+                    </span>
                   </div>
                   <div class="text-xs text-slate-400 mt-0.5">
-                    {{ v.make }} {{ v.model }} &bull; Staged: <span class="text-slate-300">{{ v.depot || 'Central Hub Yard' }}</span>
+                    {{ v.make }} {{ v.model }} &bull; Staged: <span class="text-slate-300">{{ v.depot || 'Ahmedabad Central Yard' }}</span>
                   </div>
                 </div>
               </div>
 
-              <div class="text-right font-mono text-xs">
-                <div class="font-bold text-cyan-300">{{ (v.capacityWeight || 28000).toLocaleString() }} kg</div>
+              <div class="text-right font-mono text-xs flex flex-col items-end gap-1">
+                <div class="font-bold text-cyan-300">{{ (v.capacityWeight || 25000).toLocaleString() }} kg</div>
                 <div class="text-slate-500 text-[11px]">{{ v.capacityVolume || 52 }} m³ cap</div>
+                <span
+                  class="text-[9px] font-mono px-1.5 py-0.2 rounded font-bold border"
+                  :class="selectedOrdersWeight > (v.capacityWeight || 25000)
+                    ? 'bg-rose-950 text-rose-300 border-rose-500/50'
+                    : 'bg-emerald-950 text-emerald-300 border-emerald-500/50'"
+                >
+                  {{ selectedOrdersWeight > (v.capacityWeight || 25000) ? '⚠️ OVERLOAD' : '✅ FITS CARGO' }}
+                </span>
               </div>
             </div>
           </div>
@@ -459,8 +520,9 @@
         <div class="cyber-card p-5">
           <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
             <div class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40 font-bold uppercase">STEP 3</span>
               <q-icon name="view_in_ar" color="cyan" size="18px" />
-              Live Trailer Axle & Cube Simulation
+              Live Trailer Axle &amp; Cube Simulation
             </div>
             <span
               class="text-xs font-mono font-bold px-2 py-0.5 rounded border"
@@ -856,37 +918,48 @@ const mockUnplannedOrders = [
 
 const mockVehicles = [
   {
-    id: 'veh-1',
-    vehicleNumber: 'GJ-01-AX-9942',
-    make: 'Tata Motors',
-    model: 'Prima 2825.K',
-    vehicleType: { name: '28T Multi-Axle' },
-    type: '28T Multi-Axle',
+    id: '19f9d18c-7615-4246-b37e-61d36185bd1e',
+    vehicleNumber: 'GSJFG',
+    make: 'Tata',
+    model: 'Prima 4928.S',
+    vehicleType: { name: '16T HCV' },
+    type: '16T HCV',
     depot: 'Ahmedabad Central Yard',
-    capacityWeight: 28000,
-    capacityVolume: 58,
+    capacityWeight: 16000,
+    capacityVolume: 50,
   },
   {
-    id: 'veh-2',
-    vehicleNumber: 'MH-04-CP-8119',
-    make: 'BharatBenz',
-    model: '2823R HCV',
-    vehicleType: { name: '20T 10-Wheeler' },
-    type: '20T 10-Wheeler',
+    id: 'd3c07342-b1a3-4aab-94b2-d25547fd1b60',
+    vehicleNumber: 'GJ-01-AB-1122',
+    make: 'Tata',
+    model: 'Prima 4928.S',
+    vehicleType: { name: '20T Heavy Commercial' },
+    type: '20T Heavy Commercial',
     depot: 'Surat Ring Road Yard',
     capacityWeight: 20000,
-    capacityVolume: 42,
+    capacityVolume: 52,
   },
   {
-    id: 'veh-3',
-    vehicleNumber: 'DL-01-AB-4491',
-    make: 'Ashok Leyland',
-    model: 'Captain 40i Trailer',
-    vehicleType: { name: '32T Trailer' },
-    type: '32T Trailer',
+    id: '3fa72487-3ab6-435d-9ea9-c36dfeb65df5',
+    vehicleNumber: 'MH-14-DX-9000',
+    make: 'Tata',
+    model: 'Signa 4825.TK',
+    vehicleType: { name: '25T Trailer' },
+    type: '25T Trailer',
     depot: 'Mumbai Port Logistics Park',
-    capacityWeight: 32000,
+    capacityWeight: 25000,
     capacityVolume: 65,
+  },
+  {
+    id: 'b5dbf083-451d-4920-b43a-1e7147a597be',
+    vehicleNumber: 'RJ-13-TR-7788',
+    make: 'Mahindra',
+    model: 'Furio 14',
+    vehicleType: { name: '32T Container' },
+    type: '32T Container',
+    depot: 'Delhi NCR Logistics Hub',
+    capacityWeight: 32000,
+    capacityVolume: 72,
   },
 ];
 
@@ -984,14 +1057,32 @@ async function loadWorkspace() {
   loading.value = true;
   const startTime = Date.now();
   try {
-    const res: any = await api.get('/api/v1/planning/workspace');
-    const data = res.data || res;
+    const [wsRes, vehRes]: any[] = await Promise.all([
+      api.get('/api/v1/planning/workspace').catch(() => null),
+      api.get('/api/v1/vehicles').catch(() => null),
+    ]);
+
+    const data = wsRes?.data || wsRes;
     if (data?.unplannedOrders?.length) {
       unplannedOrders.value = data.unplannedOrders;
     }
-    if (data?.availableVehicles?.length) {
+
+    const vList = (vehRes && (vehRes.data || (Array.isArray(vehRes) ? vehRes : null))) || data?.availableVehicles;
+    if (vList && vList.length) {
+      availableVehicles.value = vList.map((v: any) => ({
+        id: v.id,
+        vehicleNumber: v.vehicleNumber || v.regNo,
+        make: v.make || 'Tata',
+        model: v.model || 'Prima',
+        type: v.vehicleTypeStr || v.type || v.vehicleType?.name || 'HCV',
+        depot: v.depot || 'Ahmedabad Central Yard',
+        capacityWeight: v.capacityWeight ? (v.capacityWeight > 1000 ? v.capacityWeight : v.capacityWeight * 1000) : 20000,
+        capacityVolume: v.capacityVolume || 52,
+      }));
+    } else if (data?.availableVehicles?.length) {
       availableVehicles.value = data.availableVehicles;
     }
+
     if (!selectedVehicleId.value && availableVehicles.value.length) {
       selectedVehicleId.value = availableVehicles.value[0].id;
     }
@@ -1067,12 +1158,13 @@ function autoConsolidateAll() {
 }
 
 function confirmDispatchPlan() {
+  const vehNum = currentSelectedVehicle.value?.vehicleNumber || 'GSJFG';
   showManifestModal.value = false;
   $q.notify({
     type: 'positive',
     icon: 'verified',
     message: 'Plan Approved! Load Pushed to Dispatch Console',
-    caption: 'Driver Ramesh Kumar and tractor GJ-01-AX-9942 staged for departure',
+    caption: `Tractor ${vehNum} assigned and staged for departure.`,
     timeout: 3500,
     position: 'top-right',
   });

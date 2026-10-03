@@ -14,7 +14,8 @@ export class NotificationsController {
   @Get()
   @ApiOperation({ summary: 'List notifications for current user/organization' })
   async findAll(@CurrentUser() user: any) {
-    return this.notificationsService.findAll(user.organizationId, user.userId);
+    const list = await this.notificationsService.findAll(user?.organizationId, user?.userId || user?.id);
+    return { success: true, data: list };
   }
 
   @Post()

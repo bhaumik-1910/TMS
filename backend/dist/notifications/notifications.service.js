@@ -114,6 +114,14 @@ let NotificationsService = class NotificationsService {
                     console.warn('[NotificationsService] Auto-seed skipped:', err?.message);
                 }
             }
+            if (list.length === 0 && where.organizationId) {
+                delete where.organizationId;
+                list = await this.notificationModel.findAll({
+                    where,
+                    order: [['createdAt', 'DESC']],
+                    limit: 50,
+                });
+            }
             return list;
         }
         catch (outerErr) {

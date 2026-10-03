@@ -517,6 +517,7 @@ const editingItem = ref<Vehicle | null>(null);
 
 const showDeleteDialog = ref(false);
 const deletingItem = ref<Vehicle | null>(null);
+const isSaving = ref(false);
 
 export interface Vehicle {
   id: string;
@@ -735,10 +736,10 @@ onMounted(async () => {
 async function loadVehicles() {
   try {
     const res: any = await api.get('/api/v1/vehicles');
-    const rawList = Array.isArray(res) ? res : (res && Array.isArray(res.data) ? res.data : null);
-    if (rawList && rawList.length > 0) {
+    const rawList = Array.isArray(res) ? res : (res?.data && Array.isArray(res.data) ? res.data : null);
+    if (rawList !== null && rawList.length > 0) {
       const normalized = rawList.map(normalizeVehicle);
-      // Sort to match Image 4 order: GJ-01-AB-1122, GJ-01-AC-3444, MH-14-DX-9000, RJ-13-TR-7788
+      // Sort to match standard display order
       const order = ['GJ-01-AB-1122', 'GJ-01-AC-3444', 'MH-14-DX-9000', 'RJ-13-TR-7788'];
       normalized.sort((a: Vehicle, b: Vehicle) => {
         const ia = order.indexOf(a.regNo);
@@ -760,7 +761,7 @@ async function loadVehicles() {
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         vehicles.value = parsed.map(normalizeVehicle);
         return;
       }
@@ -926,6 +927,7 @@ function editVehicle(item: Vehicle) {
 }
 
 async function saveVehicle() {
+  if (isSaving.value) return;
   if (!newVeh.value.regNo) {
     $q.notify({
       type: 'warning',
@@ -936,7 +938,9 @@ async function saveVehicle() {
     return;
   }
 
-  const finalMake = newVeh.value.make || (newVeh.value.makeModel ? newVeh.value.makeModel.split(' ')[0] : 'Tata');
+  isSaving.value = true;
+  try {
+    const finalMake = newVeh.value.make || (newVeh.value.makeModel ? newVeh.value.makeModel.split(' ')[0] : 'Tata');
   const finalModel = newVeh.value.model || (newVeh.value.makeModel ? newVeh.value.makeModel.split(' ').slice(1).join(' ') : 'Prima 4928.S');
   newVeh.value.make = finalMake;
   newVeh.value.model = finalModel;
@@ -971,7 +975,16 @@ async function saveVehicle() {
     }
 
     try {
-      await api.patch(`/api/v1/vehicles/${targetId}`, apiPayload);
+      const res: any = await api.patch(`/api/v1/vehicles/${targetId}`, apiPayload);
+      const updated = res?.data || res;
+      if (updated && updated.id) {
+        vehicles.value[idx] = {
+          ...vehicles.value[idx],
+          ...payload,
+          id: String(updated.id),
+        };
+        persist();
+      }
     } catch (e) {
       console.warn('DB patch error, preserved locally:', e);
     }
@@ -993,8 +1006,9 @@ async function saveVehicle() {
 
     try {
       const res: any = await api.post('/api/v1/vehicles', apiPayload);
-      if (res && res.id) {
-        newEntry.id = res.id;
+      const created = res?.data || res;
+      if (created && created.id) {
+        newEntry.id = String(created.id);
         persist();
       }
     } catch (e) {
@@ -1009,7 +1023,10 @@ async function saveVehicle() {
     });
   }
 
-  showAddModal.value = false;
+    showAddModal.value = false;
+  } finally {
+    isSaving.value = false;
+  }
 }
 
 function handleGlobalKeydown(e: KeyboardEvent) {
@@ -1088,14 +1105,14 @@ async function executeDeleteVehicle() {
   const targetId = deletingItem.value.id;
   const targetReg = deletingItem.value.regNo;
 
-  vehicles.value = vehicles.value.filter((v) => v.id !== targetId);
-  persist();
-
   try {
-    await api.delete(`/api/v1/vehicles/${targetId}`);
+    await api.delete(`/api/v1/vehicles/${targetId || targetReg}`);
   } catch (e) {
     console.warn('DB delete error, removed locally:', e);
   }
+
+  vehicles.value = vehicles.value.filter((v) => v.id !== targetId && v.regNo !== targetReg);
+  persist();
 
   $q.notify({
     type: 'negative',

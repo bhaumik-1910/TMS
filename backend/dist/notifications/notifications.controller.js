@@ -23,7 +23,8 @@ let NotificationsController = class NotificationsController {
         this.notificationsService = notificationsService;
     }
     async findAll(user) {
-        return this.notificationsService.findAll(user.organizationId, user.userId);
+        const list = await this.notificationsService.findAll(user?.organizationId, user?.userId || user?.id);
+        return { success: true, data: list };
     }
     async create(orgId, body) {
         return this.notificationsService.create({

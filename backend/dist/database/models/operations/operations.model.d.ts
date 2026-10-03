@@ -3,6 +3,7 @@ import { OrganizationModel } from '../auth/organization.model';
 import { CustomerModel, CarrierModel } from '../partners/partners.model';
 import { LocationModel } from '../master-data/master-data.model';
 import { VehicleModel, DriverModel } from '../fleet/fleet.model';
+import { ProofOfDeliveryModel } from '../telematics/telematics.model';
 export declare class TransportOrderModel extends Model<TransportOrderModel> {
     id: string;
     organizationId: string;
@@ -89,6 +90,7 @@ export declare class ShipmentModel extends Model<ShipmentModel> {
     items: ShipmentItemModel[];
     routes: RouteModel[];
     dispatches: DispatchModel[];
+    proofOfDelivery?: ProofOfDeliveryModel;
     createdAt: Date;
     updatedAt: Date;
 }

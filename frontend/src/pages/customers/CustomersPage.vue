@@ -9,6 +9,9 @@
         </div>
       </div>
       <div class="row items-center q-gutter-x-sm no-wrap">
+        <button type="button" class="btn-hdr-import" @click="exportCsv">
+          Export CSV
+        </button>
         <button type="button" class="btn-hdr-add" @click="openAddParty">
           + Party
         </button>
@@ -68,7 +71,7 @@
         selection-mode="none"
         :loading="isRefreshing"
         :allow-create="false"
-        :allow-export="true"
+        :allow-export="false"
         :allow-refresh="false"
         :allow-delete="true"
         @edit="editParty"
@@ -77,6 +80,13 @@
       >
         <!-- Top Filters -->
         <template #top-filters>
+          <DeskCombo
+            ref="typeComboRef"
+            v-model="typeFilterCombo"
+            :options="typeFilterOptions"
+            class="desk-filter-select"
+            style="min-width: 145px;"
+          />
           <DeskCombo
             ref="branchComboRef"
             v-model="branchFilter"
@@ -93,22 +103,7 @@
           />
         </template>
 
-        <!-- Add Party button in actions slot -->
-        <template #top-actions>
-          <q-btn
-            unelevated
-            dense
-            color="cyan-8"
-            text-color="white"
-            size="sm"
-            icon="add"
-            label="Add Party"
-            class="q-px-sm text-weight-bold"
-            @click="openAddParty"
-          >
-            <q-tooltip>Add New Party (Alt+C)</q-tooltip>
-          </q-btn>
-        </template>
+
 
         <!-- Name cell -->
         <template #body-cell-name="{ props, value }">
@@ -146,6 +141,18 @@
           >
             {{ value || props?.row?.status || 'Active' }}
           </span>
+        </template>
+
+        <!-- Actions: Edit + Delete matching Fleet page -->
+        <template #body-cell-actions="{ props }">
+          <div class="row items-center q-gutter-x-xs no-wrap justify-end">
+            <button class="btn-table-edit" @click.stop="editParty(props.row)">
+              Edit
+            </button>
+            <button class="btn-table-delete" @click.stop="confirmDeleteParty(props.row)" title="Delete Party">
+              <q-icon name="delete" size="16px" />
+            </button>
+          </div>
         </template>
       </DeskDataTable>
 
@@ -334,7 +341,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useQuasar } from 'quasar';
 import api from '../../api/client';
 import AppLoadingOverlay from '../../components/AppLoadingOverlay.vue';
@@ -360,11 +367,13 @@ const isRefreshing = ref(false);
 // ─── Refs ──────────────────────────────────────────────────────────────────────
 const gridRef = ref<any>(null);
 const partyNameRef = ref<any>(null);
+const typeComboRef = ref<any>(null);
 const branchComboRef = ref<any>(null);
 const statusComboRef = ref<any>(null);
 
 // ─── Filter state ─────────────────────────────────────────────────────────────
-const typeFilter = ref('All');
+const typeFilter = ref('All');        // pill filter
+const typeFilterCombo = ref('ALL');   // combo filter (synced with pill)
 const branchFilter = ref('ALL');
 const statusFilter = ref('ALL');
 
@@ -390,37 +399,38 @@ export interface Party {
 // ─── Options ───────────────────────────────────────────────────────────────────
 const subTypes = ['All', 'Customer', 'Fuel Station', 'Driver', 'Service Centre', 'Tyre Supplier', 'Vehicle Owner', 'Spare Supplier'];
 
+// ─── Form dropdown options (plain strings — same as Vehicle Master) ─────────────
 const subTypeDropdownOptions = [
-  { label: '— Select —', value: '— Select —' },
-  { label: 'Customer', value: 'Customer' },
-  { label: 'Fuel Station', value: 'Fuel Station' },
-  { label: 'Driver', value: 'Driver' },
-  { label: 'Service Centre', value: 'Service Centre' },
-  { label: 'Tyre Supplier', value: 'Tyre Supplier' },
-  { label: 'Vehicle Owner', value: 'Vehicle Owner' },
-  { label: 'Spare Supplier', value: 'Spare Supplier' },
+  '— Select —',
+  'Customer',
+  'Fuel Station',
+  'Driver',
+  'Service Centre',
+  'Tyre Supplier',
+  'Vehicle Owner',
+  'Spare Supplier',
 ];
 
 const branchDropdownOptions = [
-  { label: '— Select —', value: '— Select —' },
-  { label: 'Ahmedabad', value: 'Ahmedabad' },
-  { label: 'Surat', value: 'Surat' },
-  { label: 'Mumbai', value: 'Mumbai' },
-  { label: 'Vadodara', value: 'Vadodara' },
-  { label: 'Rajkot', value: 'Rajkot' },
-  { label: 'Delhi', value: 'Delhi' },
+  '— Select —',
+  'Ahmedabad',
+  'Surat',
+  'Mumbai',
+  'Vadodara',
+  'Rajkot',
+  'Delhi',
 ];
 
 const statusDropdownOptions = [
-  { label: 'Active', value: 'Active' },
-  { label: 'Inactive', value: 'Inactive' },
+  'Active',
+  'Inactive',
 ];
 
 const tdsSectionOptions = [
-  { label: '194C', value: '194C' },
-  { label: '194I', value: '194I' },
-  { label: '194J', value: '194J' },
-  { label: 'None', value: 'None' },
+  '194C',
+  '194I',
+  '194J',
+  'None',
 ];
 
 const branchFilterOptions = [
@@ -439,6 +449,17 @@ const statusFilterOptions = [
   { label: 'Inactive', value: 'Inactive' },
 ];
 
+const typeFilterOptions = [
+  { label: 'All Types', value: 'ALL' },
+  { label: 'Customer', value: 'Customer' },
+  { label: 'Fuel Station', value: 'Fuel Station' },
+  { label: 'Driver', value: 'Driver' },
+  { label: 'Service Centre', value: 'Service Centre' },
+  { label: 'Tyre Supplier', value: 'Tyre Supplier' },
+  { label: 'Vehicle Owner', value: 'Vehicle Owner' },
+  { label: 'Spare Supplier', value: 'Spare Supplier' },
+];
+
 // ─── Table Columns ─────────────────────────────────────────────────────────────
 const tableColumns: GridColumn[] = [
   { name: 'name',        label: 'PARTY NAME',    field: 'name',        align: 'left', sortable: true },
@@ -447,6 +468,7 @@ const tableColumns: GridColumn[] = [
   { name: 'creditLimit', label: 'CREDIT LIMIT',  field: 'creditLimit', align: 'left', sortable: true },
   { name: 'branch',      label: 'BRANCH',        field: 'branch',      align: 'left', sortable: true },
   { name: 'status',      label: 'STATUS',        field: 'status',      align: 'left', sortable: true },
+  { name: 'actions',     label: '',              field: 'actions',     align: 'right' },
 ];
 
 // ─── Default data ──────────────────────────────────────────────────────────────
@@ -491,13 +513,19 @@ const creditCount = computed(() => parties.value.filter(p => p.creditLimit && p.
 
 // ─── Filtered list ─────────────────────────────────────────────────────────────
 const filteredParties = computed(() => {
+  // Pill filter drives typeFilter; combo drives typeFilterCombo — keep both in sync
+  const typeVal = typeFilterCombo.value !== 'ALL' ? typeFilterCombo.value : typeFilter.value;
   return parties.value.filter(p => {
-    const matchType   = typeFilter.value === 'All' || p.subType === typeFilter.value;
+    const matchType   = (typeVal === 'ALL' || typeVal === 'All') || p.subType === typeVal;
     const matchBranch = branchFilter.value === 'ALL' || p.branch === branchFilter.value;
     const matchStatus = statusFilter.value === 'ALL' || p.status === statusFilter.value;
     return matchType && matchBranch && matchStatus;
   });
 });
+
+// Keep pill + combo in sync
+watch(typeFilter, (v) => { typeFilterCombo.value = v === 'All' ? 'ALL' : v; });
+watch(typeFilterCombo, (v) => { typeFilter.value = v === 'ALL' ? 'All' : v; });
 
 // ─── Subtype CSS ───────────────────────────────────────────────────────────────
 function getSubtypeClass(subType: string) {
@@ -545,8 +573,8 @@ function persist() {
 async function loadParties() {
   try {
     const res: any = await api.get('/api/v1/customers');
-    const raw = Array.isArray(res) ? res : (res && Array.isArray(res.data) ? res.data : null);
-    if (raw && raw.length > 0) {
+    const raw = Array.isArray(res) ? res : (res?.data && Array.isArray(res.data) ? res.data : null);
+    if (raw !== null) {
       parties.value = raw.filter((c: any) => c.companyName || c.name).map(normalizeParty);
       persist();
       return;
@@ -558,7 +586,7 @@ async function loadParties() {
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         parties.value = parsed.map(normalizeParty);
         return;
       }
@@ -582,26 +610,32 @@ function handleGlobalKeydown(e: KeyboardEvent) {
   if (showAddModal.value || showDeleteDialog.value) return;
   const key = e.key.toLowerCase();
 
-  // Alt+F or F3 → search
+  // Alt+F or F3 → focus Search
   if ((e.altKey && key === 'f') || e.key === 'F3') {
     e.preventDefault(); e.stopPropagation();
     gridRef.value?.focusSearch?.();
     return;
   }
-  // Alt+C or Insert → Add
+  // Alt+C or Insert → Add Party
   if ((e.altKey && key === 'c') || e.key === 'Insert') {
     e.preventDefault(); e.stopPropagation();
     openAddParty();
     return;
   }
-  // Alt+1 or Ctrl+Shift+B → Branch filter
-  if ((e.altKey && key === '1') || (e.ctrlKey && e.shiftKey && key === 'b')) {
+  // Alt+1 or Ctrl+Shift+T → Type filter
+  if ((e.altKey && key === '1') || (e.ctrlKey && e.shiftKey && key === 't')) {
+    e.preventDefault(); e.stopPropagation();
+    typeComboRef.value?.focusAndOpen();
+    return;
+  }
+  // Alt+2 or Ctrl+Shift+B → Branch filter
+  if ((e.altKey && key === '2') || (e.ctrlKey && e.shiftKey && key === 'b')) {
     e.preventDefault(); e.stopPropagation();
     branchComboRef.value?.focusAndOpen();
     return;
   }
-  // Alt+2 or Ctrl+Shift+S → Status filter
-  if ((e.altKey && key === '2') || (e.ctrlKey && e.shiftKey && key === 's')) {
+  // Alt+3 or Ctrl+Shift+S → Status filter
+  if ((e.altKey && key === '3') || (e.ctrlKey && e.shiftKey && key === 's')) {
     e.preventDefault(); e.stopPropagation();
     statusComboRef.value?.focusAndOpen();
     return;
@@ -618,6 +652,23 @@ function openAddParty() {
     const el = partyNameRef.value?.$el?.querySelector('input') || partyNameRef.value;
     if (el && typeof el.focus === 'function') { el.focus(); el.select?.(); }
   }, 200);
+}
+
+function exportCsv() {
+  const headers = ['Name', 'Type', 'GSTIN', 'PAN', 'Mobile', 'Email', 'Branch', 'Status', 'Credit Limit', 'Credit Days', 'TDS Section', 'Bank', 'Account No', 'IFSC'];
+  const rows = filteredParties.value.map(p => [
+    p.name, p.subType, p.gstin, p.pan || '', p.mobile || '', p.email || '',
+    p.branch, p.status, p.creditLimit, p.creditDays || '', p.tdsSection || '',
+    p.bankName || '', p.accountNo || '', p.ifscCode || '',
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `party-master-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function editParty(p: Party) {
@@ -646,56 +697,65 @@ function editParty(p: Party) {
   }, 200);
 }
 
+const isSavingParty = ref(false);
+
 async function saveParty() {
+  if (isSavingParty.value) return;
   if (!newParty.value.name.trim()) {
     $q.notify({ type: 'warning', message: 'Validation Error', caption: 'Please enter party name', position: 'top-right' });
     return;
   }
 
-  const cleanSubType = (newParty.value.subType === '— Select —' || !newParty.value.subType) ? 'Customer' : newParty.value.subType;
-  const cleanBranch  = (newParty.value.branch  === '— Select —' || !newParty.value.branch)  ? 'Ahmedabad' : newParty.value.branch;
+  isSavingParty.value = true;
+  try {
+    const cleanSubType = (newParty.value.subType === '— Select —' || !newParty.value.subType) ? 'Customer' : newParty.value.subType;
+    const cleanBranch  = (newParty.value.branch  === '— Select —' || !newParty.value.branch)  ? 'Ahmedabad' : newParty.value.branch;
 
-  const payload: Party = {
-    id:          editingId.value || String(Date.now()),
-    name:        newParty.value.name.trim(),
-    subType:     cleanSubType,
-    branch:      cleanBranch,
-    mobile:      newParty.value.mobile,
-    email:       newParty.value.email,
-    status:      newParty.value.status,
-    gstin:       newParty.value.gstin.trim()       || '—',
-    pan:         newParty.value.pan.trim()          || '',
-    tdsSection:  newParty.value.tdsSection === '— Select —' ? '194C' : newParty.value.tdsSection,
-    creditLimit: newParty.value.creditLimit.trim()
-      ? (newParty.value.creditLimit.startsWith('₹') ? newParty.value.creditLimit : `₹${newParty.value.creditLimit}`)
-      : '—',
-    creditDays:  newParty.value.creditDays,
-    bankName:    newParty.value.bankName,
-    accountNo:   newParty.value.accountNo,
-    ifscCode:    newParty.value.ifscCode.toUpperCase(),
-  };
+    const payload: Party = {
+      id:          editingId.value || String(Date.now()),
+      name:        newParty.value.name.trim(),
+      subType:     cleanSubType,
+      branch:      cleanBranch,
+      mobile:      newParty.value.mobile,
+      email:       newParty.value.email,
+      status:      newParty.value.status,
+      gstin:       newParty.value.gstin.trim()       || '—',
+      pan:         newParty.value.pan.trim()          || '',
+      tdsSection:  newParty.value.tdsSection === '— Select —' ? '194C' : newParty.value.tdsSection,
+      creditLimit: newParty.value.creditLimit.trim()
+        ? (newParty.value.creditLimit.startsWith('₹') ? newParty.value.creditLimit : `₹${newParty.value.creditLimit}`)
+        : '—',
+      creditDays:  newParty.value.creditDays,
+      bankName:    newParty.value.bankName,
+      accountNo:   newParty.value.accountNo,
+      ifscCode:    newParty.value.ifscCode.toUpperCase(),
+    };
 
-  const apiPayload = { ...payload, companyName: payload.name, phone: payload.mobile };
+    const apiPayload = { ...payload, companyName: payload.name, phone: payload.mobile };
 
-  if (isEditing.value && editingId.value) {
-    const idx = parties.value.findIndex(p => p.id === editingId.value);
-    if (idx !== -1) { parties.value[idx] = payload; persist(); }
-    try { await api.patch(`/api/v1/customers/${editingId.value}`, apiPayload); }
-    catch (e) { console.warn('Party update error:', e); }
-    $q.notify({ type: 'positive', message: 'Party Updated', caption: `${payload.name} saved.`, position: 'top-right' });
-  } else {
-    parties.value.unshift(payload);
-    persist();
-    try {
-      const res: any = await api.post('/api/v1/customers', apiPayload);
-      if (res?.id) { payload.id = res.id; persist(); }
-    } catch (e) { console.warn('Party create error:', e); }
-    $q.notify({ type: 'positive', message: 'Party Added', caption: `${payload.name} created.`, position: 'top-right' });
+    if (isEditing.value && editingId.value) {
+      const idx = parties.value.findIndex(p => p.id === editingId.value);
+      if (idx !== -1) { parties.value[idx] = payload; persist(); }
+      try { await api.patch(`/api/v1/customers/${editingId.value}`, apiPayload); }
+      catch (e) { console.warn('Party update error:', e); }
+      $q.notify({ type: 'positive', message: 'Party Updated', caption: `${payload.name} saved.`, position: 'top-right' });
+    } else {
+      parties.value.unshift(payload);
+      persist();
+      try {
+        const res: any = await api.post('/api/v1/customers', apiPayload);
+        const created = res?.data || res;
+        if (created?.id) { payload.id = String(created.id); persist(); }
+      } catch (e) { console.warn('Party create error:', e); }
+      $q.notify({ type: 'positive', message: 'Party Added', caption: `${payload.name} created.`, position: 'top-right' });
+    }
+
+    showAddModal.value = false;
+    isEditing.value = false;
+    editingId.value = null;
+  } finally {
+    isSavingParty.value = false;
   }
-
-  showAddModal.value = false;
-  isEditing.value = false;
-  editingId.value = null;
 }
 
 function confirmDeleteParty(p: Party) {
@@ -706,10 +766,10 @@ function confirmDeleteParty(p: Party) {
 async function executeDeleteParty() {
   if (!deletingParty.value) return;
   const { id, name } = deletingParty.value;
-  parties.value = parties.value.filter(p => p.id !== id);
-  persist();
   try { await api.delete(`/api/v1/customers/${id}`); }
   catch (e) { console.warn('Party delete error:', e); }
+  parties.value = parties.value.filter(p => p.id !== id);
+  persist();
   $q.notify({ type: 'negative', message: 'Party Deleted', caption: `${name} removed.`, position: 'top-right' });
   showDeleteDialog.value = false;
   deletingParty.value = null;
@@ -744,6 +804,21 @@ async function executeDeleteParty() {
 .btn-hdr-add:hover {
   filter: brightness(1.1);
   box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+}
+.btn-hdr-import {
+  background: #070c18;
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-hdr-import:hover {
+  background: rgba(0, 242, 254, 0.1);
+  border-color: #00f2fe;
 }
 
 /* ── KPI Cards ───────────────────────────────────── */
@@ -826,5 +901,47 @@ async function executeDeleteParty() {
   letter-spacing: 0.08em;
   margin-top: 4px;
   margin-bottom: 2px;
+}
+
+/* ── Table action buttons (Fleet-page identical) ─── */
+.btn-table-edit {
+  background: #131d32;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #38bdf8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 3px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+}
+.btn-table-edit:hover {
+  background: #1c2b4a;
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.btn-table-delete {
+  background: #131d32;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  width: 32px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.btn-table-delete:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #f87171;
 }
 </style>

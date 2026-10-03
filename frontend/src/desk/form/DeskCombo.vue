@@ -1,4 +1,4 @@
-l<template>
+<template>
   <q-select
     ref="selectRef"
     v-model="modelValueComputed"
@@ -247,10 +247,11 @@ function onPopupHide() {
   isPopupOpen.value = false;
   if (valueJustSelected) {
     valueJustSelected = false;
+    // Delay slightly so Quasar can finish cleanup before we move focus
     nextTick(() => {
       setTimeout(() => {
         advanceFocus(1);
-      }, 40);
+      }, 60);
     });
   }
 }
@@ -307,19 +308,24 @@ function handleKeyDown(e: KeyboardEvent) {
   if (e.key === 'Enter') {
     e.preventDefault();
     e.stopPropagation();
+
     if (!isPopupOpen.value) {
-      // Open dropdown
+      // First Enter → open dropdown and highlight current/first item
       selectRef.value?.showPopup();
     } else {
-      // Pick currently highlighted option and advance
-      let idx = typeof selectRef.value?.getOptionIndex === 'function' ? selectRef.value.getOptionIndex() : -1;
+      // Second Enter → select highlighted option then move to next field
+      let idx = typeof selectRef.value?.getOptionIndex === 'function'
+        ? selectRef.value.getOptionIndex()
+        : -1;
       if (idx < 0) idx = getInitialTargetIndex();
+
       if (idx >= 0 && props.options && props.options[idx] !== undefined) {
         const val = getOptionValue(props.options[idx]);
         valueJustSelected = true;
         emit('update:modelValue', val);
-        selectRef.value?.hidePopup();
       }
+      // Hide popup — onPopupHide will call advanceFocus(1)
+      selectRef.value?.hidePopup();
     }
     return;
   }

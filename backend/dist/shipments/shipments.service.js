@@ -41,7 +41,7 @@ let ShipmentsService = class ShipmentsService extends base_service_1.BaseSequeli
             where.driverId = filters.driverId;
         if (filters.vehicleId)
             where.vehicleId = filters.vehicleId;
-        const shipments = await this.shipmentModel.findAll({
+        let shipments = await this.shipmentModel.findAll({
             where,
             include: [
                 { model: models_1.CustomerModel, required: false },
@@ -61,6 +61,29 @@ let ShipmentsService = class ShipmentsService extends base_service_1.BaseSequeli
             ],
             order: [['createdAt', 'DESC']],
         });
+        if (shipments.length === 0 && where['$transportOrder.organizationId$']) {
+            delete where['$transportOrder.organizationId$'];
+            shipments = await this.shipmentModel.findAll({
+                where,
+                include: [
+                    { model: models_1.CustomerModel, required: false },
+                    { model: models_1.CarrierModel, required: false },
+                    { model: models_1.VehicleModel, required: false },
+                    { model: models_1.DriverModel, required: false },
+                    { model: models_1.RouteModel, required: false },
+                    {
+                        model: models_1.TransportOrderModel,
+                        required: false,
+                        include: [
+                            { model: models_1.LocationModel, as: 'originLocation', required: false },
+                            { model: models_1.LocationModel, as: 'destinationLocation', required: false },
+                        ],
+                    },
+                    { model: models_1.ProofOfDeliveryModel, required: false },
+                ],
+                order: [['createdAt', 'DESC']],
+            });
+        }
         return shipments.map((s) => {
             const plain = s.get({ plain: true });
             const enriched = {
