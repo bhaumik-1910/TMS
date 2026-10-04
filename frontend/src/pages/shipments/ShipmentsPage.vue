@@ -255,14 +255,33 @@
       v-model="detailDialog"
       :title="selectedShipment ? `Shipment Details — ${selectedShipment.shipmentNumber}` : 'Shipment Details'"
       icon="timeline"
-      width="680px"
+      width="760px"
       :show-footer="false"
       @cancel="detailDialog = false"
     >
       <div v-if="selectedShipment" class="q-py-xs">
-        <div class="row items-center justify-between q-mb-md">
-          <span class="text-subtitle1 text-weight-bold font-mono text-cyan-4">{{ selectedShipment.shipmentNumber }}</span>
-          <span class="desk-pill desk-pill-active">{{ selectedShipment.status }}</span>
+        <!-- Sleek Consignment Overview Strip -->
+        <div class="shipment-overview-bar q-pa-sm q-mb-md">
+          <div class="row items-center justify-between">
+            <div class="row items-center q-gutter-x-md">
+              <div class="row items-center q-gutter-x-xs">
+                <span class="text-caption font-mono text-slate-400">WAYBILL:</span>
+                <span class="text-subtitle1 font-mono text-weight-bolder text-cyan-300">{{ selectedShipment.shipmentNumber }}</span>
+              </div>
+              <div v-if="selectedShipment.route || selectedShipment.transportOrder" class="row items-center text-caption text-slate-300 q-gutter-x-xs">
+                <q-icon name="route" size="14px" class="text-cyan-400" />
+                <span class="font-mono text-weight-medium">
+                  {{ selectedShipment.route?.name || `${selectedShipment.transportOrder?.originLocation?.city || 'Origin'} → ${selectedShipment.transportOrder?.destinationLocation?.city || 'Destination'}` }}
+                </span>
+              </div>
+            </div>
+            <div class="row items-center q-gutter-x-sm">
+              <div v-if="selectedShipment.totalWeight" class="text-caption font-mono text-slate-400">
+                {{ Number(selectedShipment.totalWeight).toLocaleString() }} KG
+              </div>
+              <span class="desk-pill desk-pill-active">{{ selectedShipment.status }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Dynamic Workflow State Machine -->
@@ -279,56 +298,78 @@
             :resource-id="selectedShipment.id"
             :driver-name="selectedShipment.driver ? `${selectedShipment.driver.firstName} ${selectedShipment.driver.lastName}` : 'Unassigned'"
             :driver-phone="selectedShipment.driver?.phone"
-            :carrier-name="selectedShipment.carrier?.companyName || 'Titan Freightways Corp'"
-            :vehicle-plate="selectedShipment.vehicle?.plateNumber || selectedShipment.vehicle?.vehicleNumber || 'TRK-101'"
-            :customer-name="selectedShipment.customer?.companyName"
+            :carrier-name="selectedShipment.carrier?.companyName || 'Swift Linehaul Express'"
+            :vehicle-plate="selectedShipment.vehicle?.plateNumber || selectedShipment.vehicle?.vehicleNumber || 'GJ-01-AB-1122'"
+            :customer-name="selectedShipment.customer?.companyName || selectedShipment.transportOrder?.customer?.companyName"
             @reassigned="handleReassigned"
           />
         </div>
 
-        <!-- Auditable Transport Milestones -->
-        <div class="text-subtitle2 text-weight-bold text-white q-mb-md font-mono">Auditable Transport Milestones</div>
-        <q-timeline color="cyan" dense>
-          <q-timeline-entry
-            title="Transport Order Created & Confirmed"
-            subtitle="Initial Booking"
-            icon="check_circle"
-            color="positive"
-          >
-            <div class="text-grey-3">Order {{ selectedShipment.transportOrder?.orderNumber }} for {{ selectedShipment.customer?.companyName }}</div>
-          </q-timeline-entry>
-
-          <q-timeline-entry
-            title="Fleet & Driver Assigned"
-            :subtitle="selectedShipment.vehicle ? 'Resource Allocated' : 'Pending Allocation'"
-            :icon="selectedShipment.vehicle ? 'check_circle' : 'pending'"
-            :color="selectedShipment.vehicle ? 'positive' : 'grey-5'"
-          >
-            <div v-if="selectedShipment.vehicle" class="text-grey-3">
-              Vehicle: {{ selectedShipment.vehicle?.plateNumber || selectedShipment.vehicle?.vehicleNumber }} • Driver: {{ selectedShipment.driver?.firstName || 'Assigned' }}
+        <!-- Auditable Transport Milestones Card -->
+        <div class="milestones-card q-pa-md q-mt-md">
+          <div class="row items-center justify-between q-mb-md border-b border-cyan-500-15 pb-2">
+            <div class="row items-center q-gutter-x-xs">
+              <q-icon name="fact_check" size="18px" class="text-cyan-400" />
+              <div class="text-sm text-weight-bold text-white font-sans">Auditable Transport Milestones</div>
             </div>
-          </q-timeline-entry>
-
-          <q-timeline-entry
-            title="Dispatched & In Transit"
-            :subtitle="selectedShipment.actualPickup ? 'In Transit' : 'Scheduled'"
-            :icon="selectedShipment.status === 'IN_TRANSIT' ? 'local_shipping' : 'pending'"
-            :color="['IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(selectedShipment.status) ? 'cyan' : 'grey-5'"
-          >
-            <div class="text-grey-3">Traversing Interstate Corridor with real-time GPS telemetry</div>
-          </q-timeline-entry>
-
-          <q-timeline-entry
-            title="Destination Delivery & Proof of Delivery (POD)"
-            :subtitle="selectedShipment.status === 'DELIVERED' || selectedShipment.status === 'COMPLETED' ? 'Delivery Completed' : 'Pending Final Drop'"
-            :icon="selectedShipment.status === 'DELIVERED' || selectedShipment.status === 'COMPLETED' ? 'verified' : 'radio_button_unchecked'"
-            :color="selectedShipment.status === 'DELIVERED' || selectedShipment.status === 'COMPLETED' ? 'positive' : 'grey-5'"
-          >
-            <div v-if="selectedShipment.proofOfDelivery" class="text-grey-3">
-              Signed by {{ selectedShipment.proofOfDelivery.receiverName }}
+            <div class="row items-center q-gutter-x-xs text-caption font-mono text-slate-400">
+              <q-icon name="lock" size="13px" class="text-emerald-400" />
+              <span>Immutable Ledger Records</span>
             </div>
-          </q-timeline-entry>
-        </q-timeline>
+          </div>
+
+          <q-timeline color="cyan" dense class="q-pl-sm">
+            <q-timeline-entry
+              title="Transport Order Created & Confirmed"
+              subtitle="Initial Booking Confirmation"
+              icon="check_circle"
+              color="positive"
+            >
+              <div class="text-slate-300 font-mono text-xs">
+                Order <span class="text-cyan-300 font-bold">{{ selectedShipment.transportOrder?.orderNumber || 'ORD-2026-001' }}</span> for <span class="text-white">{{ selectedShipment.customer?.companyName || selectedShipment.transportOrder?.customer?.companyName || 'Global Retail Direct Inc.' }}</span>
+              </div>
+            </q-timeline-entry>
+
+            <q-timeline-entry
+              title="Fleet & Driver Allocated"
+              :subtitle="selectedShipment.vehicle ? 'Resource Assigned & Audited' : 'Pending Allocation'"
+              :icon="selectedShipment.vehicle ? 'check_circle' : 'pending'"
+              :color="selectedShipment.vehicle ? 'positive' : 'grey-6'"
+            >
+              <div v-if="selectedShipment.vehicle" class="text-slate-300 font-mono text-xs">
+                Vehicle: <span class="text-cyan-300 font-bold">{{ selectedShipment.vehicle?.plateNumber || selectedShipment.vehicle?.vehicleNumber }}</span> • Driver: <span class="text-white">{{ selectedShipment.driver ? `${selectedShipment.driver.firstName} ${selectedShipment.driver.lastName}` : 'Assigned' }}</span>
+              </div>
+              <div v-else class="text-slate-500 font-mono text-xs italic">
+                Awaiting vehicle and driver assignment
+              </div>
+            </q-timeline-entry>
+
+            <q-timeline-entry
+              title="Dispatched & Linehaul In Transit"
+              :subtitle="['IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(selectedShipment.status) ? 'Active Interstate Transit' : 'Awaiting Linehaul Dispatch'"
+              :icon="['IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(selectedShipment.status) ? 'local_shipping' : 'pending'"
+              :color="['IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(selectedShipment.status) ? 'cyan' : 'grey-6'"
+            >
+              <div class="text-slate-300 font-mono text-xs">
+                Traversing Western Logistics Corridor with real-time GPS telemetry and geofence monitoring
+              </div>
+            </q-timeline-entry>
+
+            <q-timeline-entry
+              title="Destination Delivery & Proof of Delivery (POD)"
+              :subtitle="selectedShipment.status === 'DELIVERED' || selectedShipment.status === 'COMPLETED' ? 'Delivery Completed & Audited' : 'Pending Final Drop'"
+              :icon="selectedShipment.status === 'DELIVERED' || selectedShipment.status === 'COMPLETED' ? 'verified' : 'radio_button_unchecked'"
+              :color="selectedShipment.status === 'DELIVERED' || selectedShipment.status === 'COMPLETED' ? 'positive' : 'grey-6'"
+            >
+              <div v-if="selectedShipment.proofOfDelivery" class="text-slate-300 font-mono text-xs">
+                Signed by <span class="text-cyan-300 font-bold">{{ selectedShipment.proofOfDelivery.receiverName }}</span> • Digital Signature Verified
+              </div>
+              <div v-else class="text-slate-500 font-mono text-xs italic">
+                Pending dock arrival and digital consignee signature
+              </div>
+            </q-timeline-entry>
+          </q-timeline>
+        </div>
       </div>
     </DeskDialog>
 
@@ -554,12 +595,13 @@ async function handleTransition(transition: any) {
   if (!selectedShipment.value) return;
   transitioning.value = true;
   try {
+    const toState = typeof transition === 'string' ? transition : (transition.to || transition.nextState);
     const res: any = await api.post(`/api/v1/workflow/DISPATCH/${selectedShipment.value.id}/transition`, {
-      toState: transition.nextState,
+      toState,
       reason: `Transitioned via Dispatch Board by current user`,
     });
-    notify.success(`Status updated to ${transition.nextState}`);
-    selectedShipment.value.status = transition.nextState;
+    notify.success(`Status updated to ${toState}`);
+    selectedShipment.value.status = toState;
     await fetchWorkflow(selectedShipment.value.id);
     await loadShipments();
   } catch (err: any) {
@@ -640,5 +682,25 @@ onMounted(() => {
   color: #00f2fe;
   font-family: var(--desk-font-mono, monospace);
   font-size: 10px;
+}
+
+/* Consignment Overview Strip */
+.shipment-overview-bar {
+  background: rgba(13, 23, 48, 0.6);
+  border: 1px solid rgba(0, 242, 254, 0.18);
+  border-radius: 8px;
+}
+
+/* Milestones Container */
+.milestones-card {
+  background: linear-gradient(135deg, rgba(11, 20, 44, 0.95) 0%, rgba(7, 13, 29, 0.98) 100%);
+  border: 1px solid rgba(0, 242, 254, 0.22);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+}
+
+.border-cyan-500-15 {
+  border-bottom: 1px solid rgba(0, 242, 254, 0.15);
 }
 </style>

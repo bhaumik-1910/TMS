@@ -209,18 +209,31 @@ export class TrackingService {
 
   async getActiveFleetLocations(organizationId: string) {
     const where: any = {
-      status: { [Op.in]: ['IN_TRANSIT', 'ASSIGNED', 'AVAILABLE'] },
+      status: { [Op.in]: ['IN_TRANSIT', 'ASSIGNED', 'AVAILABLE', 'Active', 'ACTIVE'] },
     };
-    if (organizationId && organizationId !== 'SYSTEM') {
+    if (organizationId && organizationId !== 'SYSTEM' && organizationId !== '00000000-0000-0000-0000-000000000001') {
       where.organizationId = organizationId;
     }
 
-    return this.vehicleModel.findAll({
+    let vehicles = await this.vehicleModel.findAll({
       where,
       include: [
         { model: VehicleTypeModel, required: false },
       ],
+      order: [['currentSpeed', 'DESC']],
     });
+
+    if (vehicles.length === 0) {
+      delete where.organizationId;
+      vehicles = await this.vehicleModel.findAll({
+        include: [
+          { model: VehicleTypeModel, required: false },
+        ],
+        order: [['currentSpeed', 'DESC']],
+      });
+    }
+
+    return vehicles;
   }
 
   async getGeofences(organizationId: string) {

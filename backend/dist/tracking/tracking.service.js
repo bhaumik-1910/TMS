@@ -164,17 +164,28 @@ let TrackingService = class TrackingService {
     }
     async getActiveFleetLocations(organizationId) {
         const where = {
-            status: { [sequelize_2.Op.in]: ['IN_TRANSIT', 'ASSIGNED', 'AVAILABLE'] },
+            status: { [sequelize_2.Op.in]: ['IN_TRANSIT', 'ASSIGNED', 'AVAILABLE', 'Active', 'ACTIVE'] },
         };
-        if (organizationId && organizationId !== 'SYSTEM') {
+        if (organizationId && organizationId !== 'SYSTEM' && organizationId !== '00000000-0000-0000-0000-000000000001') {
             where.organizationId = organizationId;
         }
-        return this.vehicleModel.findAll({
+        let vehicles = await this.vehicleModel.findAll({
             where,
             include: [
                 { model: models_1.VehicleTypeModel, required: false },
             ],
+            order: [['currentSpeed', 'DESC']],
         });
+        if (vehicles.length === 0) {
+            delete where.organizationId;
+            vehicles = await this.vehicleModel.findAll({
+                include: [
+                    { model: models_1.VehicleTypeModel, required: false },
+                ],
+                order: [['currentSpeed', 'DESC']],
+            });
+        }
+        return vehicles;
     }
     async getGeofences(organizationId) {
         const where = {};

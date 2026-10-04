@@ -17,10 +17,7 @@
 
       <!-- Page Content Container -->
       <q-page-container class="bg-black" style="min-height: calc(100vh - 26px);">
-        <!-- Top Enterprise Desk Menu Bar -->
-        <DeskMenuBar :sections="menuSections" />
-
-        <div style="width: 100%; margin: 0; padding: 0; min-height: calc(100vh - 90px);">
+        <div style="width: 100%; margin: 0; padding: 0; min-height: calc(100vh - 60px);">
           <router-view v-slot="{ Component }">
             <transition name="fade" mode="out-in">
               <component :is="Component" />

@@ -4,100 +4,91 @@
     side="right"
     overlay
     behavior="mobile"
-    :width="420"
+    :width="490"
     class="notifications-cyber-drawer text-white shadow-24"
-    style="background: #080e1c; border-left: 1px solid #1a2744;"
+    style="max-width: 96vw; background: #060b17 !important; border-left: 1px solid rgba(0, 242, 254, 0.28); box-shadow: -12px 0 40px rgba(0, 0, 0, 0.85);"
   >
-    <div class="column full-height">
+    <div class="column full-height" style="overflow-x: hidden;">
       <!-- Drawer Header -->
-      <div class="row items-center justify-between q-px-md q-py-sm" style="border-bottom: 1px solid #1e293b; background: rgba(13, 23, 43, 0.95);">
-        <div class="row items-center q-gutter-x-sm">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-950/80 border border-cyan-800/80 text-cyan-400">
-            <q-icon name="notifications_active" size="18px" />
+      <div class="notif-drawer-header">
+        <div class="row items-center q-gutter-x-sm no-wrap">
+          <div class="notif-header-icon-box flex-shrink-0">
+            <q-icon name="notifications_active" size="18px" class="text-cyan-300" />
           </div>
-          <div>
-            <div class="row items-center gap-2">
-              <span class="text-sm font-bold text-white tracking-wide">Live Notification Feed</span>
+          <div class="min-w-0">
+            <div class="row items-center gap-2 no-wrap">
+              <span class="text-sm font-bold text-white tracking-wide truncate">Live Notification Feed</span>
               <span
                 v-if="notifStore.unreadCount > 0"
-                class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 animate-pulse"
+                class="unread-pill-counter flex-shrink-0"
               >
                 {{ notifStore.unreadCount }} NEW
               </span>
             </div>
-            <div class="text-[10px] font-mono text-slate-400">Real-time telematics & operational alerts</div>
+            <div class="text-[10px] font-mono text-slate-400 truncate">Real-time telematics & operational alerts</div>
           </div>
         </div>
 
-        <div class="row items-center q-gutter-x-xs">
+        <div class="row items-center q-gutter-x-xs flex-shrink-0">
           <!-- Quick Mark All Read -->
-          <q-btn
+          <button
             v-if="notifStore.unreadCount > 0"
-            flat
-            dense
-            no-caps
-            size="xs"
-            color="cyan-4"
-            icon="done_all"
-            label="Read All"
-            class="font-mono text-[11px] q-mr-xs"
+            type="button"
+            class="header-quick-action-btn flex-shrink-0"
+            title="Mark all notifications as read"
             @click="notifStore.markAllAsRead"
           >
-            <q-tooltip>Mark all notifications as read</q-tooltip>
-          </q-btn>
+            <q-icon name="done_all" size="13px" class="q-mr-xs text-cyan-300" />
+            <span>Read All</span>
+          </button>
 
           <!-- Refresh Feed -->
-          <q-btn
-            flat
-            dense
-            round
-            size="sm"
-            color="cyan-4"
-            icon="refresh"
-            :loading="notifStore.isRefreshing"
+          <button
+            type="button"
+            class="header-icon-btn flex-shrink-0"
+            title="Refresh Live Notifications"
+            :disabled="notifStore.isRefreshing"
             @click="refreshFeed"
           >
-            <q-tooltip>Refresh Live Notifications</q-tooltip>
-          </q-btn>
+            <q-spinner v-if="notifStore.isRefreshing" size="14px" color="cyan" />
+            <q-icon v-else name="refresh" size="16px" class="text-cyan-300" />
+          </button>
 
           <!-- Close Drawer -->
-          <q-btn flat round dense icon="close" color="slate-400" size="sm" @click="close">
-            <q-tooltip>Close</q-tooltip>
-          </q-btn>
+          <button
+            type="button"
+            class="header-icon-btn flex-shrink-0"
+            title="Close"
+            @click="close"
+          >
+            <q-icon name="close" size="16px" class="text-slate-400" />
+          </button>
         </div>
       </div>
 
-      <!-- Quick Category Tabs with Dynamic Live Counters -->
-      <div class="q-px-sm q-pt-xs" style="border-bottom: 1px solid #1a2744; background: #070c18;">
-        <q-tabs
-          v-model="activeTab"
-          dense
-          no-caps
-          active-color="cyan"
-          indicator-color="cyan"
-          class="text-slate-400 font-mono text-xs"
-          align="justify"
-          inline-label
+      <!-- Quick Category Filter Bar with Inline Counts -->
+      <div class="notif-filter-bar">
+        <button
+          v-for="tab in filterTabs"
+          :key="tab.key"
+          type="button"
+          class="notif-pill-btn"
+          :class="{ 'notif-pill-btn--active': activeTab === tab.key }"
+          @click="activeTab = tab.key"
         >
-          <q-tab name="all">
-            <span class="q-mr-xs">All</span>
-            <span class="text-[10px] text-slate-500">({{ notifStore.notifications.length }})</span>
-          </q-tab>
-          <q-tab name="unread">
-            <span class="q-mr-xs">Unread</span>
-            <span class="text-[10px] text-cyan-400 font-bold" v-if="notifStore.unreadCount > 0">({{ notifStore.unreadCount }})</span>
-          </q-tab>
-          <q-tab name="critical">
-            <span class="q-mr-xs">Critical</span>
-            <span class="text-[10px] text-rose-400 font-bold" v-if="notifStore.criticalCount > 0">({{ notifStore.criticalCount }})</span>
-          </q-tab>
-          <q-tab name="operations" label="Ops" />
-          <q-tab name="system" label="System" />
-        </q-tabs>
+          <span class="pill-title">{{ tab.label }}</span>
+          <span
+            v-if="tab.count !== undefined"
+            class="pill-count"
+            :class="tab.badgeClass"
+          >
+            {{ tab.count }}
+          </span>
+        </button>
       </div>
 
       <!-- Notifications Scroll List -->
-      <div class="col overflow-auto q-pa-sm custom-scroll relative-position">
+      <div class="col overflow-y-auto overflow-x-hidden p-3 custom-scroll relative-position">
         <!-- Inner Loading Indicator -->
         <AppLoadingOverlay
           :showing="notifStore.loading"
@@ -127,18 +118,18 @@
         </div>
 
         <!-- List of Notifications -->
-        <div v-else class="space-y-2.5">
+        <div v-else class="space-y-2.5 w-full">
           <div
             v-for="item in filteredList"
             :key="item.id"
             class="notif-card p-3 rounded-lg border transition-all cursor-pointer relative group"
             :class="[
-              !item.isRead ? 'bg-slate-900/90 border-cyan-800/60 shadow-[0_0_12px_rgba(0,242,254,0.08)]' : 'bg-slate-950/60 border-slate-800/70 opacity-80 hover:opacity-100',
+              !item.isRead ? 'notif-card-unread' : 'notif-card-read',
               getCardBorderAccent(item.type)
             ]"
             @click="handleItemClick(item)"
           >
-            <div class="row items-start no-wrap gap-3">
+            <div class="row items-start no-wrap gap-2.5">
               <!-- Type Icon Avatar -->
               <div
                 class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center border text-sm"
@@ -148,9 +139,10 @@
               </div>
 
               <!-- Content Body -->
-              <div class="col min-w-0">
+              <div class="col min-w-0" style="overflow: hidden;">
+                <!-- Title & Relative Time Row -->
                 <div class="row items-center justify-between no-wrap gap-2">
-                  <div class="row items-center gap-1.5 min-w-0">
+                  <div class="row items-center gap-1.5 min-w-0 col">
                     <span
                       class="text-xs font-bold leading-tight truncate text-white group-hover:text-cyan-300 transition-colors"
                     >
@@ -161,29 +153,30 @@
                       class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping flex-shrink-0"
                     ></span>
                   </div>
-                  <span class="text-[10px] font-mono text-slate-500 flex-shrink-0 whitespace-nowrap">
+                  <span class="text-[10px] font-mono text-slate-400 flex-shrink-0 whitespace-nowrap pl-1">
                     {{ formatRelativeTime(item.createdAt) }}
                   </span>
                 </div>
 
-                <div class="text-[11px] text-slate-400 mt-1 leading-relaxed font-sans line-clamp-2">
+                <!-- Message Snippet -->
+                <div class="text-[11.5px] text-slate-300 mt-1 leading-relaxed font-sans line-clamp-2 break-words">
                   {{ item.message }}
                 </div>
 
                 <!-- Footer Quick Actions & Badges -->
-                <div class="row items-center justify-between mt-2 pt-2 border-t border-slate-800/60 text-[10px] font-mono">
+                <div class="row items-center justify-between mt-2 pt-2 border-t border-slate-800/80 text-[10px] font-mono gap-1 no-wrap">
                   <span
-                    class="px-1.5 py-0.5 rounded uppercase tracking-wider text-[9px] font-semibold border"
+                    class="px-2 py-0.5 rounded uppercase tracking-wider text-[9px] font-bold border flex-shrink-0"
                     :class="getTypeTagClasses(item.type)"
                   >
                     {{ item.type || 'INFO' }}
                   </span>
 
-                  <div class="row items-center gap-1">
+                  <div class="row items-center gap-1 flex-shrink-0">
                     <!-- Quick Navigate Link -->
                     <span
                       v-if="getDeepLink(item.title, item.message)"
-                      class="text-cyan-400 hover:underline flex items-center gap-0.5 q-mr-xs"
+                      class="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer font-bold transition-colors q-mr-xs"
                       @click.stop="navigateDirect(item)"
                     >
                       <span>{{ getDeepLinkLabel(item.title, item.message) }}</span>
@@ -191,32 +184,25 @@
                     </span>
 
                     <!-- Mark Single Read -->
-                    <q-btn
+                    <button
                       v-if="!item.isRead"
-                      flat
-                      round
-                      dense
-                      icon="done"
-                      size="xs"
-                      color="cyan-4"
+                      type="button"
+                      class="icon-action-btn hover:text-cyan-300 hover:bg-cyan-500/10"
+                      title="Mark as Read"
                       @click.stop="notifStore.markAsRead(item.id)"
                     >
-                      <q-tooltip>Mark as Read</q-tooltip>
-                    </q-btn>
+                      <q-icon name="done" size="13px" />
+                    </button>
 
                     <!-- Delete Notification -->
-                    <q-btn
-                      flat
-                      round
-                      dense
-                      icon="close"
-                      size="xs"
-                      color="slate-500"
-                      class="hover:text-rose-400"
+                    <button
+                      type="button"
+                      class="icon-action-btn hover:text-rose-400 hover:bg-rose-500/10"
+                      title="Dismiss"
                       @click.stop="notifStore.deleteNotification(item.id)"
                     >
-                      <q-tooltip>Dismiss</q-tooltip>
-                    </q-btn>
+                      <q-icon name="close" size="13px" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -226,32 +212,29 @@
       </div>
 
       <!-- Drawer Footer Controls -->
-      <div class="q-pa-sm bg-slate-950 border-t border-slate-800 flex items-center justify-between">
-        <div class="row items-center gap-2">
-          <q-btn
-            dense
-            flat
-            no-caps
-            size="xs"
-            color="cyan-4"
-            icon="done_all"
-            label="Mark All Read"
-            :disable="notifStore.unreadCount === 0"
+      <div class="notif-drawer-footer">
+        <div class="row items-center q-gutter-x-sm">
+          <button
+            type="button"
+            class="footer-pill-btn flex items-center gap-1"
+            :disabled="notifStore.unreadCount === 0"
             @click="notifStore.markAllAsRead"
-          />
-          <q-btn
-            dense
-            flat
-            no-caps
-            size="xs"
-            color="slate-400"
-            icon="clear_all"
-            label="Clear Read"
+          >
+            <q-icon name="done_all" size="13px" class="text-cyan-300" />
+            <span>Mark All Read</span>
+          </button>
+
+          <button
+            type="button"
+            class="footer-pill-btn flex items-center gap-1"
             @click="notifStore.clearRead"
-          />
+          >
+            <q-icon name="clear_all" size="13px" class="text-slate-400" />
+            <span>Clear Read</span>
+          </button>
         </div>
 
-        <div class="row items-center gap-1.5 text-[10px] font-mono text-emerald-400">
+        <div class="row items-center gap-1.5 text-[10.5px] font-mono text-emerald-400 flex-shrink-0">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span>Live Synced</span>
         </div>
@@ -269,6 +252,39 @@ const router = useRouter();
 const notifStore = useNotificationsStore();
 const isOpen = ref(false);
 const activeTab = ref('all');
+
+const filterTabs = computed(() => [
+  {
+    key: 'all',
+    label: 'All',
+    count: notifStore.notifications.length,
+    badgeClass: 'pill-count-neutral',
+  },
+  {
+    key: 'unread',
+    label: 'Unread',
+    count: notifStore.unreadCount,
+    badgeClass: 'pill-count-cyan',
+  },
+  {
+    key: 'critical',
+    label: 'Critical',
+    count: notifStore.criticalCount,
+    badgeClass: notifStore.criticalCount > 0 ? 'pill-count-rose' : 'pill-count-neutral',
+  },
+  {
+    key: 'operations',
+    label: 'Operations',
+    count: notifStore.operationsCount,
+    badgeClass: 'pill-count-neutral',
+  },
+  {
+    key: 'system',
+    label: 'System',
+    count: notifStore.systemCount,
+    badgeClass: 'pill-count-neutral',
+  },
+]);
 
 const filteredList = computed(() => {
   const list = notifStore.notifications;
@@ -291,8 +307,8 @@ function getIconName(type?: string, title = '') {
   const t = (type || '').toUpperCase();
   const text = title.toLowerCase();
   if (text.includes('gps') || text.includes('radar') || text.includes('deviation')) return 'gps_fixed';
-  if (text.includes('pod') || text.includes('signature')) return 'draw';
-  if (text.includes('invoice') || text.includes('sap') || text.includes('billing')) return 'receipt_long';
+  if (text.includes('pod') || text.includes('signature') || text.includes('epod')) return 'draw';
+  if (text.includes('invoice') || text.includes('sap') || text.includes('ledger') || text.includes('billing')) return 'receipt_long';
   if (text.includes('driver') || text.includes('transit') || text.includes('dispatched')) return 'local_shipping';
 
   switch (t) {
@@ -304,6 +320,8 @@ function getIconName(type?: string, title = '') {
       return 'route';
     case 'SYSTEM':
       return 'tune';
+    case 'SUCCESS':
+      return 'verified';
     default:
       return 'notifications';
   }
@@ -318,6 +336,8 @@ function getTypeBadgeClasses(type?: string) {
       return 'bg-amber-950/80 text-amber-400 border-amber-800 shadow-[0_0_8px_rgba(245,158,11,0.25)]';
     case 'OPERATIONS':
       return 'bg-cyan-950/80 text-cyan-400 border-cyan-800 shadow-[0_0_8px_rgba(0,242,254,0.25)]';
+    case 'SUCCESS':
+      return 'bg-emerald-950/80 text-emerald-400 border-emerald-800 shadow-[0_0_8px_rgba(16,185,129,0.25)]';
     case 'SYSTEM':
       return 'bg-indigo-950/80 text-indigo-400 border-indigo-800';
     default:
@@ -334,6 +354,8 @@ function getTypeTagClasses(type?: string) {
       return 'bg-amber-950/60 text-amber-300 border-amber-800/80';
     case 'OPERATIONS':
       return 'bg-cyan-950/60 text-cyan-300 border-cyan-800/80';
+    case 'SUCCESS':
+      return 'bg-emerald-950/60 text-emerald-300 border-emerald-800/80';
     case 'SYSTEM':
       return 'bg-indigo-950/60 text-indigo-300 border-indigo-800/80';
     default:
@@ -346,6 +368,8 @@ function getCardBorderAccent(type?: string) {
   if (t === 'CRITICAL') return 'border-l-4 border-l-rose-500';
   if (t === 'WARNING') return 'border-l-4 border-l-amber-500';
   if (t === 'OPERATIONS') return 'border-l-4 border-l-cyan-400';
+  if (t === 'SUCCESS') return 'border-l-4 border-l-emerald-400';
+  if (t === 'SYSTEM') return 'border-l-4 border-l-indigo-400';
   return 'border-l-2 border-l-slate-700';
 }
 
@@ -385,7 +409,7 @@ function getDeepLinkLabel(title = '', message = '') {
   if (text.includes('deviation') || text.includes('radar')) return 'Track Radar';
   if (text.includes('shp-') || text.includes('shipment')) return 'View Shipment';
   if (text.includes('pod')) return 'Review POD';
-  if (text.includes('invoice')) return 'Open Ledger';
+  if (text.includes('invoice') || text.includes('sap') || text.includes('ledger')) return 'Open Ledger';
   return 'Inspect';
 }
 
@@ -463,32 +487,260 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
 
 <style scoped>
 .notifications-cyber-drawer {
-  background: #080e1c !important;
+  background: #060b17 !important;
 }
 
+/* Header */
+.notif-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(11, 20, 42, 0.95);
+  border-bottom: 1px solid rgba(0, 242, 254, 0.18);
+  box-sizing: border-box;
+}
+
+.notif-header-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 242, 254, 0.1);
+  border: 1px solid rgba(0, 242, 254, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.unread-pill-counter {
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-family: monospace;
+  font-weight: 700;
+  background: rgba(0, 242, 254, 0.15);
+  color: #00f2fe;
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.25);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.header-quick-action-btn {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 242, 254, 0.08);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  color: #00f2fe;
+  font-size: 11px;
+  font-family: monospace;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.header-quick-action-btn:hover {
+  background: rgba(0, 242, 254, 0.18);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+}
+
+.header-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.header-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(0, 242, 254, 0.3);
+}
+
+/* Modern Cyber Filter Bar */
+.notif-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #070e1e;
+  border-bottom: 1px solid rgba(0, 242, 254, 0.15);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.notif-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.notif-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.notif-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(0, 242, 254, 0.3);
+  color: #e2e8f0;
+}
+
+.notif-pill-btn--active {
+  background: rgba(0, 242, 254, 0.12) !important;
+  border-color: #00f2fe !important;
+  color: #00f2fe !important;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+  font-weight: 700;
+}
+
+.pill-title {
+  display: inline-block;
+  line-height: 1;
+}
+
+.pill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pill-count-neutral {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+.notif-pill-btn--active .pill-count-neutral {
+  background: rgba(0, 242, 254, 0.25);
+  color: #00f2fe;
+}
+
+.pill-count-cyan {
+  background: rgba(0, 242, 254, 0.2);
+  color: #00f2fe;
+  border: 1px solid rgba(0, 242, 254, 0.4);
+}
+
+.pill-count-rose {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.4);
+}
+
+/* Notification Cards */
 .notif-card {
-  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(12, 21, 44, 0.95) 0%, rgba(8, 14, 28, 0.98) 100%);
+  border: 1px solid rgba(0, 242, 254, 0.18);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.notif-card-unread {
+  background: linear-gradient(135deg, rgba(14, 27, 56, 0.98) 0%, rgba(9, 17, 36, 0.98) 100%);
+  border-color: rgba(0, 242, 254, 0.32);
+  box-shadow: 0 0 14px rgba(0, 242, 254, 0.08);
+}
+
+.notif-card-read {
+  opacity: 0.82;
 }
 
 .notif-card:hover {
-  transform: translateX(-2px);
-  border-color: rgba(0, 242, 254, 0.4);
+  transform: translateY(-1px);
+  border-color: rgba(0, 242, 254, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  opacity: 1;
 }
 
+.icon-action-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Footer */
+.notif-drawer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #040813;
+  border-top: 1px solid rgba(0, 242, 254, 0.18);
+  box-sizing: border-box;
+}
+
+.footer-pill-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 11px;
+  font-family: monospace;
+  padding: 4px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.footer-pill-btn:hover:not(:disabled) {
+  background: rgba(0, 242, 254, 0.1);
+  border-color: rgba(0, 242, 254, 0.35);
+  color: #00f2fe;
+}
+
+.footer-pill-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Scrollbar */
 .custom-scroll::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 
 .custom-scroll::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.4);
+  background: rgba(8, 14, 28, 0.6);
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+  background: rgba(0, 242, 254, 0.25);
   border-radius: 4px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 242, 254, 0.4);
+  background: rgba(0, 242, 254, 0.5);
 }
 </style>
