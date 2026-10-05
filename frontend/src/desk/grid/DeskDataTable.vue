@@ -11,7 +11,7 @@
     <div class="desk-grid-toolbar row items-center justify-between no-wrap q-gutter-x-sm">
       <!-- Left: Title & Quick Search -->
       <div class="row items-center q-gutter-x-sm no-wrap">
-        <div v-if="title" class="text-weight-bold text-subtitle2 text-white font-mono no-wrap tracking-wide">
+        <div v-if="title" class="text-weight-bold text-subtitle2 text-slate-800 font-mono no-wrap tracking-wide">
           {{ title }}
         </div>
         <q-input
@@ -76,13 +76,13 @@
           dense
           round
           icon="refresh"
-          color="cyan"
+          color="primary"
           class="desk-grid-refresh-btn"
           :loading="isLoading"
           @click="handleRefresh"
         >
           <template #loading>
-            <q-spinner color="cyan" size="16px" />
+            <q-spinner color="primary" size="16px" />
           </template>
           <q-tooltip>Refresh Grid</q-tooltip>
         </q-btn>
@@ -114,7 +114,7 @@
           <div class="q-mb-sm flex flex-center" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.15);">
             <q-icon name="search_off" size="28px" class="text-slate-400" />
           </div>
-          <div class="text-subtitle1 text-weight-bold text-slate-200">No matching records found</div>
+          <div class="text-subtitle1 text-weight-bold text-slate-800">No matching records found</div>
           <div class="text-caption text-slate-500 q-mt-xs">Try adjusting your search terms or clearing active filters.</div>
         </div>
       </template>
@@ -163,12 +163,25 @@
             :class="{
               'desk-col-num': col.align === 'right',
               'desk-col-center': col.align === 'center',
+              'desk-cell-active': props.pageIndex === activeRow && Number(cIdx) === activeCol,
+              'desk-cell-editing': props.pageIndex === activeRow && Number(cIdx) === activeCol && isEditing,
             }"
             @click.stop="onCellClick(props.pageIndex, Number(cIdx))"
           >
-            <slot :name="`body-cell-${col.name}`" :props="props" :value="props.row[col.field]">
-              {{ col.format ? col.format(props.row[col.field], props.row) : props.row[col.field] }}
-            </slot>
+            <!-- High-Contrast Inline Cell Editor -->
+            <input
+              v-if="props.pageIndex === activeRow && Number(cIdx) === activeCol && isEditing"
+              ref="inlineInputRef"
+              v-model="inlineEditValue"
+              class="desk-cell-inline-input"
+              @keydown.stop="onInlineInputKey"
+              @blur="onInlineInputBlur"
+            />
+            <template v-else>
+              <slot :name="`body-cell-${col.name}`" :props="props" :value="props.row[col.field]">
+                {{ col.format ? col.format(props.row[col.field], props.row) : props.row[col.field] }}
+              </slot>
+            </template>
           </q-td>
         </q-tr>
       </template>
@@ -200,7 +213,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, toRef } from 'vue';
+import { ref, computed, toRef, onMounted, onBeforeUnmount } from 'vue';
 import { exportFile } from 'quasar';
 import { useGridKeyboard } from './useGridKeyboard';
 import { GridColumn } from './types';
@@ -245,6 +258,7 @@ const emit = defineEmits<{
   (e: 'row-click', row: any): void;
   (e: 'row-dblclick', row: any): void;
   (e: 'selection', selected: any[]): void;
+  (e: 'cell-change', payload: { row: any; rowIndex: number; colIndex: number; field: string; oldValue: any; newValue: any }): void;
 }>();
 
 const gridRootRef = ref<HTMLElement | null>(null);
@@ -253,6 +267,9 @@ const searchRef = ref<any>(null);
 const isFocused = ref(false);
 const filterText = ref('');
 const selectedRows = ref<any[]>([]);
+
+const inlineEditValue = ref('');
+const inlineInputRef = ref<HTMLInputElement | null>(null);
 
 const pagination = ref({ ...props.initialPagination });
 
@@ -276,16 +293,108 @@ const rowCount = computed(() => props.rows.length);
 const colCount = computed(() => props.columns.length);
 const pageSizeRef = computed(() => pagination.value.rowsPerPage);
 
+function isCellEditable(rIdx: number, cIdx: number): boolean {
+  const col = props.columns[cIdx];
+  if (!col) return false;
+  if (col.editable === false || col.name === 'actions' || col.name === 'select') return false;
+  return true;
+}
+
+function handleCellCommit() {
+  const row = props.rows[activeRow.value];
+  const col = props.columns[activeCol.value];
+  if (!row || !col) return;
+
+  const field = typeof col.field === 'string' ? col.field : col.name;
+  const oldValue = row[field];
+  const newValue = inlineEditValue.value;
+  if (oldValue !== newValue) {
+    row[field] = newValue;
+    emit('cell-change', {
+      row,
+      rowIndex: activeRow.value,
+      colIndex: activeCol.value,
+      field,
+      oldValue,
+      newValue,
+    });
+  }
+}
+
+function onInlineInputKey(event: KeyboardEvent) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    event.stopPropagation();
+    handleCellCommit();
+    stopEdit();
+    moveRight();
+    return;
+  }
+  if (event.key === 'Tab') {
+    event.preventDefault();
+    event.stopPropagation();
+    handleCellCommit();
+    stopEdit();
+    if (event.shiftKey) {
+      moveLeft();
+    } else {
+      moveRight();
+    }
+    return;
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    event.stopPropagation();
+    stopEdit();
+    return;
+  }
+}
+
+function onInlineInputBlur() {
+  if (isEditing.value) {
+    handleCellCommit();
+    stopEdit();
+  }
+}
+
 const {
   activeRow,
   activeCol,
+  activeRowIndex,
+  activeColIndex,
+  isEditing,
   setFocus,
+  moveRight,
+  moveLeft,
+  startEdit,
+  stopEdit,
   handleKeyDown: handleGridKey,
 } = useGridKeyboard({
   rowCount,
   colCount,
   pageSize: pageSizeRef,
+  gridRootRef,
+  isCellEditable,
+  onEdit: (rIdx, cIdx, initialChar) => {
+    const row = props.rows[rIdx];
+    const col = props.columns[cIdx];
+    if (row && col) {
+      const field = typeof col.field === 'string' ? col.field : col.name;
+      inlineEditValue.value = initialChar !== undefined ? initialChar : String(row[field] ?? '');
+      import('vue').then(({ nextTick }) => {
+        nextTick(() => {
+          if (inlineInputRef.value) {
+            inlineInputRef.value.focus();
+            if (initialChar === undefined) {
+              inlineInputRef.value.select();
+            }
+          }
+        });
+      });
+    }
+  },
   onEnter: (rIdx) => {
+    // When Enter is pressed on non-editable cell, trigger edit modal
     const row = props.rows[rIdx];
     if (row) {
       emit('row-dblclick', row);
@@ -395,8 +504,12 @@ function onKeyDown(event: KeyboardEvent) {
     return;
   }
 
-  // Ctrl+N to create
-  if (event.ctrlKey && event.key.toLowerCase() === 'n') {
+  // Alt+C, Ctrl+N, or Insert to create new record (Tally standard)
+  if (
+    (event.altKey && event.key.toLowerCase() === 'c') ||
+    (event.ctrlKey && event.key.toLowerCase() === 'n') ||
+    event.key === 'Insert'
+  ) {
     event.preventDefault();
     emit('create');
     return;
@@ -434,6 +547,26 @@ function onRowClick(rowIndex: number, row: any) {
 function onCellClick(rowIndex: number, colIndex: number | string) {
   setFocus(rowIndex, Number(colIndex) || 0);
   gridRootRef.value?.focus();
+}
+
+onMounted(() => {
+  window.addEventListener('desk:new-record', onGlobalNewRecord);
+  window.addEventListener('desk:focus-search', onGlobalFocusSearch);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('desk:new-record', onGlobalNewRecord);
+  window.removeEventListener('desk:focus-search', onGlobalFocusSearch);
+});
+
+function onGlobalNewRecord() {
+  if (props.allowCreate) {
+    emit('create');
+  }
+}
+
+function onGlobalFocusSearch() {
+  focusSearch();
 }
 
 function exportCsv() {

@@ -6,14 +6,14 @@
       subtitle="Shipper inquiry resolution, delivery delay monitoring, exception handling, and carrier escalation"
     >
       <template #badge>
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-pink-950 text-pink-300 border border-pink-800">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-pink-50 text-pink-700 border border-pink-300 font-bold">
           <q-icon name="support_agent" size="14px" />
           CUSTOMER SUPPORT
         </span>
       </template>
       <template #actions>
         <q-btn
-          color="cyan-8"
+          color="primary"
           text-color="white"
           icon="my_location"
           label="Live Telematics Radar"
@@ -30,7 +30,7 @@
         title="Open Support Tickets"
         value="6 Tickets"
         icon="confirmation_number"
-        icon-color="cyan"
+        icon-color="primary"
         subtitle="3 Priority • 3 Normal"
       />
       <AppStatCard
@@ -62,34 +62,34 @@
       <!-- Active Inquiries Feed -->
       <div class="lg:col-span-8">
         <div class="cyber-card p-5">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
             <div>
-              <div class="text-base font-bold text-white">Active Shipper Inquiries & Delay Alerts</div>
-              <div class="text-xs text-slate-400">Live ticket stream and status updates</div>
+              <div class="text-base font-bold text-slate-900">Active Shipper Inquiries & Delay Alerts</div>
+              <div class="text-xs text-slate-500">Live ticket stream and status updates</div>
             </div>
-            <q-badge color="cyan-9" text-color="cyan-2" rounded>{{ tickets.length }} Active</q-badge>
+            <q-badge color="primary" text-color="white" rounded>{{ tickets.length }} Active</q-badge>
           </div>
 
           <div class="space-y-3">
             <div
               v-for="ticket in tickets"
               :key="ticket.id"
-              class="ticket-item p-3.5 rounded-lg flex items-center justify-between transition-all"
+              class="ticket-item p-3.5 rounded-lg flex items-center justify-between bg-white"
             >
               <div>
                 <div class="flex items-center gap-2 mb-1">
-                  <span class="font-mono font-bold text-sm text-cyan-4">{{ ticket.ticketNumber }}</span>
+                  <span class="font-mono font-bold text-sm text-sky-700">{{ ticket.ticketNumber }}</span>
                   <span
                     class="text-[11px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider font-mono"
-                    :class="ticket.priority === 'HIGH' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-blue-950 text-blue-300 border border-blue-800'"
+                    :class="ticket.priority === 'HIGH' ? 'bg-rose-50 text-rose-700 border border-rose-300 font-bold' : 'bg-sky-50 text-sky-700 border border-sky-300 font-bold'"
                   >
                     {{ ticket.priority }}
                   </span>
-                  <span class="text-xs text-slate-300 font-semibold">{{ ticket.customer }}</span>
+                  <span class="text-xs text-slate-800 font-bold">{{ ticket.customer }}</span>
                 </div>
-                <div class="text-xs text-slate-200 font-medium">{{ ticket.subject }}</div>
-                <div class="text-[11px] text-slate-400 mt-1">
-                  Associated Shipment: <strong class="text-cyan-3">{{ ticket.shipment }}</strong> &bull; Logged {{ ticket.time }}
+                <div class="text-xs text-slate-700 font-medium">{{ ticket.subject }}</div>
+                <div class="text-[11px] text-slate-500 mt-1">
+                  Associated Shipment: <strong class="text-sky-700">{{ ticket.shipment }}</strong> &bull; Logged {{ ticket.time }}
                 </div>
               </div>
               <q-btn
@@ -97,7 +97,7 @@
                 dense
                 no-caps
                 size="sm"
-                color="cyan-8"
+                color="primary"
                 text-color="white"
                 label="Resolve Ticket"
                 to="/tracking"
@@ -111,8 +111,8 @@
       <!-- Quick Search & Actions Sidebar -->
       <div class="lg:col-span-4 space-y-4">
         <div class="cyber-card p-5">
-          <div class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-            <q-icon name="bolt" color="cyan" size="18px" />
+          <div class="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+            <q-icon name="bolt" color="primary" size="18px" />
             <span>Quick Operations Lookup</span>
           </div>
           <div class="space-y-2 text-xs">
@@ -120,7 +120,7 @@
               flat
               dense
               no-caps
-              color="cyan"
+              color="primary"
               icon="search"
               label="Search Transport Orders"
               to="/orders"
@@ -130,7 +130,7 @@
               flat
               dense
               no-caps
-              color="cyan"
+              color="primary"
               icon="local_shipping"
               label="Search Shipments Feed"
               to="/shipments"
@@ -140,7 +140,7 @@
               flat
               dense
               no-caps
-              color="cyan"
+              color="primary"
               icon="draw"
               label="Verify Delivery Receipts (POD)"
               to="/pod"
@@ -150,7 +150,7 @@
               flat
               dense
               no-caps
-              color="cyan"
+              color="primary"
               icon="receipt"
               label="Check Customer Invoices"
               to="/billing"
@@ -160,16 +160,16 @@
         </div>
 
         <div class="cyber-card p-5">
-          <div class="text-sm font-semibold text-white mb-2">Escalation Matrix</div>
-          <div class="text-xs text-slate-400 mb-3">On-call dispatch managers for high priority transit incidents</div>
+          <div class="text-sm font-semibold text-slate-900 mb-2">Escalation Matrix</div>
+          <div class="text-xs text-slate-500 mb-3">On-call dispatch managers for high priority transit incidents</div>
           <div class="text-xs space-y-2">
-            <div class="flex justify-between items-center py-1 border-b border-slate-800">
-              <span class="text-slate-300">Western Corridor (AHD-MUM)</span>
-              <span class="font-mono text-cyan-4">Kishore B.</span>
+            <div class="flex justify-between items-center py-1 border-b border-slate-200">
+              <span class="text-slate-700">Western Corridor (AHD-MUM)</span>
+              <span class="font-mono text-sky-700 font-bold">Kishore B.</span>
             </div>
-            <div class="flex justify-between items-center py-1 border-b border-slate-800">
-              <span class="text-slate-300">Northern Corridor (DEL-JPR)</span>
-              <span class="font-mono text-cyan-4">Suresh P.</span>
+            <div class="flex justify-between items-center py-1 border-b border-slate-200">
+              <span class="text-slate-700">Northern Corridor (DEL-JPR)</span>
+              <span class="font-mono text-sky-700 font-bold">Suresh P.</span>
             </div>
           </div>
         </div>
@@ -192,31 +192,32 @@ const tickets = ref([
 
 <style scoped>
 .cyber-card {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .ticket-item {
-  background: #111a33;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
 }
 
 .ticket-item:hover {
-  border-color: rgba(0, 242, 254, 0.3);
-  background: #14203e;
+  border-color: #0284c7;
+  background: #ffffff;
 }
 
 .quick-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
   padding: 6px 12px;
+  transition: all 0.2s ease;
 }
 
 .quick-btn:hover {
-  background: rgba(0, 242, 254, 0.08);
-  border-color: rgba(0, 242, 254, 0.3);
+  background: #ffffff;
+  border-color: #0284c7;
 }
 </style>

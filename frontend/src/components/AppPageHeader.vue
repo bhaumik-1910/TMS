@@ -14,14 +14,14 @@
       <div>
         <div class="flex items-center gap-2.5 flex-wrap">
           <h1
-            class="text-xl sm:text-2xl font-bold tracking-tight text-white m-0 leading-tight font-sans"
-            style="font-size: 1.35rem; line-height: 1.3; font-weight: 700; margin: 0; color: #ffffff !important;"
+            class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 m-0 leading-tight font-sans"
+            style="font-size: 1.35rem; line-height: 1.3; font-weight: 700; margin: 0; color: #0f172a !important;"
           >
             {{ title }}
           </h1>
           <slot name="badge" />
         </div>
-        <p v-if="subtitle" class="mt-1 text-xs sm:text-sm text-slate-400 m-0 leading-relaxed font-sans">
+        <p v-if="subtitle" class="mt-1 text-xs sm:text-sm text-slate-500 m-0 leading-relaxed font-sans">
           {{ subtitle }}
         </p>
       </div>

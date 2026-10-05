@@ -2,7 +2,7 @@
   <q-select
     ref="selectRef"
     v-model="modelValueComputed"
-    :options="options"
+    :options="filteredOptions"
     :option-value="(opt: any) => (isObjectOptions && opt ? (opt[resolvedOptionValue] ?? opt.value ?? opt.id) : opt)"
     :option-label="(opt: any) => (isObjectOptions && opt ? (opt[resolvedOptionLabel] ?? opt.label ?? opt.name) : opt)"
     :emit-value="isObjectOptions ? emitValue : false"
@@ -11,6 +11,10 @@
     :display-value="displayLabel"
     :disable="disable"
     :loading="loading"
+    use-input
+    fill-input
+    hide-selected
+    input-debounce="0"
     dropdown-icon="keyboard_arrow_down"
     dense
     outlined
@@ -19,6 +23,8 @@
     tabindex="0"
     class="desk-combo text-body2 font-sans"
     popup-content-class="desk-select-menu"
+    @filter="onFilter"
+    @input-value="onInputValue"
     @update:model-value="onModelUpdate"
     @popup-show="onPopupShow"
     @popup-hide="onPopupHide"
@@ -35,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, nextTick, watch } from 'vue';
 import { useDeskFocus } from '../focus/useDeskFocus';
 
 const props = withDefaults(
@@ -67,7 +73,8 @@ const emit = defineEmits<{
 
 const selectRef = ref<any>(null);
 const isPopupOpen = ref(false);
-let valueJustSelected = false;
+const filterText = ref('');
+let shouldAdvanceOnClose = false;
 
 const { focusNextInput, focusPreviousInput } = useDeskFocus();
 
@@ -101,7 +108,7 @@ function getOptionValue(opt: any) {
     : (opt.value ?? opt.id ?? opt);
 }
 
-function getOptionLabel(opt: any) {
+function getOptionLabel(opt: any): string {
   if (!opt) return '';
   if (!isObjectOptions.value) return String(opt);
   return opt[resolvedOptionLabel.value] !== undefined
@@ -109,10 +116,28 @@ function getOptionLabel(opt: any) {
     : String(opt.label ?? opt.name ?? opt);
 }
 
+const filteredOptions = computed(() => {
+  if (!filterText.value) return props.options || [];
+  const needle = filterText.value.toLowerCase().trim();
+  return (props.options || []).filter((opt) => {
+    const lbl = getOptionLabel(opt).toLowerCase();
+    return lbl.includes(needle);
+  });
+});
+
+function onFilter(val: string, update: (fn: () => void) => void) {
+  update(() => {
+    filterText.value = val;
+  });
+}
+
+function onInputValue(val: string) {
+  filterText.value = val;
+}
+
 const modelValueComputed = computed({
   get: () => props.modelValue,
   set: (val) => {
-    valueJustSelected = true;
     emit('update:modelValue', val);
   },
 });
@@ -129,21 +154,21 @@ const displayLabel = computed(() => {
 });
 
 function onModelUpdate(val: any) {
-  valueJustSelected = true;
   emit('update:modelValue', val);
 }
 
 function getInitialTargetIndex(): number {
-  if (!props.options || props.options.length === 0) return 0;
+  const currentList = filteredOptions.value;
+  if (!currentList || currentList.length === 0) return 0;
 
   const currentVal = props.modelValue;
   if (currentVal !== undefined && currentVal !== null && currentVal !== '— Select —') {
-    const found = props.options.findIndex((opt) => getOptionValue(opt) === currentVal);
+    const found = currentList.findIndex((opt) => getOptionValue(opt) === currentVal);
     if (found >= 0) return found;
   }
 
   // If first item is placeholder '— Select —' and there are more options, highlight the first real option!
-  if (props.options[0] === '— Select —' && props.options.length > 1) {
+  if (currentList[0] === '— Select —' && currentList.length > 1) {
     return 1;
   }
 
@@ -179,18 +204,36 @@ function advanceFocus(direction: 1 | -1 = 1) {
   const rootEl = selectRef.value?.$el as HTMLElement | undefined;
   if (!rootEl) return;
 
-  // 1. If inside a form (e.g. modal/drawer)
-  const form = rootEl.closest('form');
-  if (form) {
-    if (direction === 1) focusNextInput(form);
-    else focusPreviousInput(form);
+  // 1. If inside a form, dialog, or drawer
+  const container = (rootEl.closest('form') ||
+    rootEl.closest('.desk-dialog') ||
+    rootEl.closest('.q-dialog') ||
+    rootEl.closest('.desk-form') ||
+    rootEl.closest('.q-card')) as HTMLElement | null;
+
+  if (container) {
+    if (direction === 1) {
+      const advanced = focusNextInput(container);
+      if (!advanced) {
+        // Last field: trigger accept / confirm / save!
+        const confirmBtn = container.querySelector<HTMLButtonElement>(
+          '.modal-btn-confirm, button[type="submit"], .btn-save, [data-desk-accept]'
+        );
+        if (confirmBtn) {
+          confirmBtn.click();
+        } else {
+          container.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+      }
+    } else {
+      focusPreviousInput(container);
+    }
     return;
   }
 
   // 2. If inside table toolbar (.desk-grid-toolbar)
   const toolbar = rootEl.closest('.desk-grid-toolbar') as HTMLElement | null;
   if (toolbar) {
-    // Build ordered list: [search input, combo1-native, combo2-native, combo3-native]
     const focusableList: HTMLElement[] = [];
 
     // Search input first
@@ -212,7 +255,6 @@ function advanceFocus(direction: 1 | -1 = 1) {
       }
     }
 
-    // Find which focusable is currently active
     const activeEl = document.activeElement as HTMLElement | null;
     const currentIdx = focusableList.findIndex(
       (el) => el === activeEl || el.contains(activeEl) || (activeEl && activeEl.contains(el))
@@ -223,7 +265,6 @@ function advanceFocus(direction: 1 | -1 = 1) {
         focusableList[currentIdx + 1].focus();
         return;
       } else {
-        // Past last filter → jump to table grid
         const grid = toolbar.closest('.desk-grid') as HTMLElement | null;
         if (grid) { grid.focus(); return; }
       }
@@ -231,11 +272,9 @@ function advanceFocus(direction: 1 | -1 = 1) {
       if (currentIdx > 0) {
         focusableList[currentIdx - 1].focus();
         return;
-      } else if (currentIdx === 0) {
-        // Before search input → nothing to go back to, keep focus
-        return;
       }
     }
+    return;
   }
 
   // Fallback
@@ -245,19 +284,19 @@ function advanceFocus(direction: 1 | -1 = 1) {
 
 function onPopupHide() {
   isPopupOpen.value = false;
-  if (valueJustSelected) {
-    valueJustSelected = false;
-    // Delay slightly so Quasar can finish cleanup before we move focus
+  filterText.value = '';
+  if (shouldAdvanceOnClose) {
+    shouldAdvanceOnClose = false;
     nextTick(() => {
       setTimeout(() => {
         advanceFocus(1);
-      }, 60);
+      }, 50);
     });
   }
 }
 
 function handleKeyDown(e: KeyboardEvent) {
-  // 1. Shift + Enter -> go backwards
+  // 1. Shift + Enter -> go backwards immediately
   if (e.key === 'Enter' && e.shiftKey) {
     e.preventDefault();
     e.stopPropagation();
@@ -268,20 +307,19 @@ function handleKeyDown(e: KeyboardEvent) {
     return;
   }
 
-  // 2. Tab key
+  // 2. Tab key -> advance cleanly
   if (e.key === 'Tab') {
     if (isPopupOpen.value) {
-      // Close popup first, pick highlighted option
       let idx = typeof selectRef.value?.getOptionIndex === 'function' ? selectRef.value.getOptionIndex() : -1;
       if (idx < 0) idx = getInitialTargetIndex();
-      if (idx >= 0 && props.options && props.options[idx] !== undefined) {
-        const val = getOptionValue(props.options[idx]);
+      const currentList = filteredOptions.value;
+      if (idx >= 0 && currentList && currentList[idx] !== undefined) {
+        const val = getOptionValue(currentList[idx]);
         emit('update:modelValue', val);
       }
       selectRef.value?.hidePopup();
     }
 
-    // Inside toolbar: manually advance focus so Tab reliably hits next combo/grid
     const rootEl = selectRef.value?.$el as HTMLElement | undefined;
     const inToolbar = !!rootEl?.closest('.desk-grid-toolbar');
     if (inToolbar) {
@@ -290,11 +328,10 @@ function handleKeyDown(e: KeyboardEvent) {
       advanceFocus(e.shiftKey ? -1 : 1);
       return;
     }
-    // Inside form: let natural Tab work (trap.ts handles cycling)
     return;
   }
 
-  // 3. Escape key
+  // 3. Escape key -> close popup without advancing
   if (e.key === 'Escape') {
     if (isPopupOpen.value) {
       e.preventDefault();
@@ -304,28 +341,28 @@ function handleKeyDown(e: KeyboardEvent) {
     }
   }
 
-  // 4. Enter key
+  // 4. Enter key -> Tally rapid data entry
   if (e.key === 'Enter') {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!isPopupOpen.value) {
-      // First Enter → open dropdown and highlight current/first item
-      selectRef.value?.showPopup();
-    } else {
-      // Second Enter → select highlighted option then move to next field
+    if (isPopupOpen.value) {
+      // Popup open: pick highlighted item, close and advance!
       let idx = typeof selectRef.value?.getOptionIndex === 'function'
         ? selectRef.value.getOptionIndex()
         : -1;
       if (idx < 0) idx = getInitialTargetIndex();
 
-      if (idx >= 0 && props.options && props.options[idx] !== undefined) {
-        const val = getOptionValue(props.options[idx]);
-        valueJustSelected = true;
+      const currentList = filteredOptions.value;
+      if (idx >= 0 && currentList && currentList[idx] !== undefined) {
+        const val = getOptionValue(currentList[idx]);
         emit('update:modelValue', val);
       }
-      // Hide popup — onPopupHide will call advanceFocus(1)
+      shouldAdvanceOnClose = true;
       selectRef.value?.hidePopup();
+    } else {
+      // Popup closed: user hit Enter to accept current value and move to next field!
+      advanceFocus(1);
     }
     return;
   }
@@ -338,8 +375,8 @@ function handleKeyDown(e: KeyboardEvent) {
     return;
   }
 
-  // 6. ArrowDown or Space when closed -> open dropdown
-  if ((e.key === 'ArrowDown' || e.key === ' ') && !isPopupOpen.value) {
+  // 6. ArrowDown or Alt+ArrowDown or Space when closed -> open dropdown
+  if ((e.key === 'ArrowDown' || (e.key === 'ArrowDown' && e.altKey) || e.key === ' ') && !isPopupOpen.value) {
     e.preventDefault();
     selectRef.value?.showPopup();
     return;
@@ -347,55 +384,34 @@ function handleKeyDown(e: KeyboardEvent) {
 
   // 7. Left / Right Arrow when closed -> cycle options immediately
   if (!isPopupOpen.value && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
-    if (props.options && props.options.length > 0) {
+    const list = props.options;
+    if (list && list.length > 0) {
       e.preventDefault();
       const currentVal = props.modelValue;
-      let curIdx = props.options.findIndex((opt) => getOptionValue(opt) === currentVal);
+      let curIdx = list.findIndex((opt) => getOptionValue(opt) === currentVal);
       if (curIdx < 0) curIdx = 0;
       const nextIdx = e.key === 'ArrowRight'
-        ? Math.min(props.options.length - 1, curIdx + 1)
+        ? Math.min(list.length - 1, curIdx + 1)
         : Math.max(0, curIdx - 1);
-      const val = getOptionValue(props.options[nextIdx]);
+      const val = getOptionValue(list[nextIdx]);
       emit('update:modelValue', val);
       return;
-    }
-  }
-
-  // 8. Typeahead support: typing alphanumeric character jumps to matching option!
-  if (!e.ctrlKey && !e.altKey && !e.metaKey && e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
-    const char = e.key.toLowerCase();
-    const matchIdx = props.options.findIndex((opt) => {
-      const lbl = getOptionLabel(opt).toLowerCase().trim();
-      return lbl.startsWith(char);
-    });
-    if (matchIdx >= 0) {
-      if (!isPopupOpen.value) {
-        const val = getOptionValue(props.options[matchIdx]);
-        emit('update:modelValue', val);
-      } else {
-        if (typeof selectRef.value?.setOptionIndex === 'function') {
-          selectRef.value.setOptionIndex(matchIdx);
-        }
-        highlightPopupItem(matchIdx);
-      }
     }
   }
 }
 
 function focus(andOpen = false) {
-  // Quasar q-select exposes its own focus() natively
   if (selectRef.value && typeof selectRef.value.focus === 'function') {
     selectRef.value.focus();
   } else {
-    // Fallback: locate focusable element inside q-select DOM
+    const root = selectRef.value?.$el as HTMLElement | undefined;
     const el =
-      selectRef.value?.$el?.querySelector<HTMLElement>(
+      (root?.querySelector(
         '.q-field__native[tabindex], .q-field__control[tabindex], input:not([type="hidden"])'
-      ) ?? (selectRef.value?.$el as HTMLElement | undefined);
+      ) as HTMLElement | null) ?? root;
     el?.focus();
   }
   if (andOpen) {
-    // Small delay so browser registers focus before popup opens
     setTimeout(() => selectRef.value?.showPopup(), 60);
   }
 }
@@ -411,16 +427,15 @@ defineExpose({
 
 <style scoped>
 .desk-combo :deep(.q-field__control) {
-  height: 40px !important;
-  min-height: 40px !important;
-  background: #0d172b !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 8px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
   padding: 0 10px !important;
   transition: all 0.15s ease;
 }
 
-/* Remove Quasar default pseudo borders to completely eliminate double borders */
 .desk-combo :deep(.q-field__control:before),
 .desk-combo :deep(.q-field__control:after) {
   display: none !important;
@@ -429,25 +444,25 @@ defineExpose({
 }
 
 .desk-combo :deep(.q-field__control:hover) {
-  border-color: rgba(0, 242, 254, 0.4) !important;
+  border-color: #0284c7 !important;
 }
 
 .desk-combo :deep(.q-field--focused .q-field__control),
 .desk-combo :deep(.q-field:focus-within .q-field__control),
 .desk-combo :deep(.q-field.q-field--focused .q-field__control) {
-  border: 1.5px solid #00f2fe !important;
-  border-color: #00f2fe !important;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25) !important;
+  border: 1.5px solid #0284c7 !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
   outline: none !important;
 }
 
 .desk-combo :deep(.q-field__native),
 .desk-combo :deep(.q-field__input),
 .desk-combo :deep(input) {
-  color: #ffffff !important;
+  color: #0f172a !important;
   font-size: 0.85rem !important;
-  height: 40px !important;
-  min-height: 40px !important;
+  height: 38px !important;
+  min-height: 38px !important;
   display: flex !important;
   align-items: center !important;
   outline: none !important;
@@ -467,21 +482,34 @@ defineExpose({
 }
 
 .desk-combo :deep(.q-field__marginal) {
-  height: 40px !important;
+  height: 38px !important;
 }
 
 .desk-combo :deep(.q-field__append .q-icon) {
-  color: #ffffff !important;
+  color: #64748b !important;
   font-size: 20px !important;
   transition: transform 0.2s ease !important;
+}
+
+:global(.desk-select-menu) {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+:global(.desk-select-menu .q-item) {
+  color: #1e293b !important;
+  min-height: 30px;
+  font-size: 0.82rem;
 }
 
 :global(.desk-select-menu .q-item.q-manual-focus--is-focused),
 :global(.desk-select-menu .q-item.q-item--active),
 :global(.desk-select-menu .q-item:hover),
 :global(.desk-select-menu .q-item.desk-option-active) {
-  background: rgba(0, 242, 254, 0.25) !important;
-  color: #00f2fe !important;
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
   font-weight: 700 !important;
 }
 </style>

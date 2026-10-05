@@ -7,8 +7,8 @@
       subtitle="Unit: TRK-101 (Volvo VNL 860) • Driver: Marcus Vance • Apex Global Logistics"
     >
       <template #badge>
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
           DRIVER ONLINE
         </span>
       </template>
@@ -31,7 +31,7 @@
         title="Active Assignment"
         value="TRIP #4820"
         icon="local_shipping"
-        icon-color="cyan"
+        icon-color="primary"
         subtitle="Ahmedabad Hub → Mumbai Central DC"
       />
       <AppStatCard
@@ -47,7 +47,7 @@
         title="Distance Progress"
         value="380 / 540 km"
         icon="straighten"
-        icon-color="cyan"
+        icon-color="primary"
         subtitle="70% Completed • ETA: 08:30 PM"
       />
       <AppStatCard
@@ -66,15 +66,15 @@
       <!-- Left: Active Route Execution Card -->
       <div class="lg:col-span-8">
         <div class="cyber-card p-5">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
             <div>
               <div class="flex items-center gap-2">
-                <span class="text-base font-bold text-white">Today's Assigned Route Execution</span>
-                <span class="px-2 py-0.5 rounded text-xs font-mono font-semibold" :class="tripStatus === 'COMPLETED' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-blue-950 text-blue-300 border border-blue-800'">
+                <span class="text-base font-bold text-slate-900">Today's Assigned Route Execution</span>
+                <span class="px-2 py-0.5 rounded text-xs font-mono font-semibold" :class="tripStatus === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-300' : 'bg-sky-50 text-sky-700 border border-sky-300'">
                   {{ tripStatus }}
                 </span>
               </div>
-              <div class="text-xs text-slate-400 mt-0.5 font-mono">Consignment: LR-89104 &bull; Seal: #SL-99382 &bull; Temp: Ambient</div>
+              <div class="text-xs text-slate-500 mt-0.5 font-mono">Consignment: LR-89104 &bull; Seal: #SL-99382 &bull; Temp: Ambient</div>
             </div>
             <div class="flex items-center gap-2">
               <q-btn
@@ -89,7 +89,7 @@
               />
               <q-btn
                 v-else-if="tripStatus === 'ASSIGNED'"
-                color="cyan-8"
+                color="primary"
                 text-color="white"
                 icon="play_arrow"
                 label="Start Linehaul Trip"
@@ -98,7 +98,7 @@
                 class="text-weight-bold"
                 @click="tripStatus = 'IN_TRANSIT'"
               />
-              <span v-else class="text-xs font-semibold text-emerald-400 flex items-center gap-1">
+              <span v-else class="text-xs font-semibold text-emerald-700 flex items-center gap-1">
                 <q-icon name="task_alt" size="16px" />
                 Trip Completed
               </span>
@@ -107,13 +107,13 @@
 
           <!-- Route Progress Bar -->
           <div class="mb-5">
-            <div class="flex justify-between text-xs text-slate-300 mb-1">
+            <div class="flex justify-between text-xs text-slate-600 mb-1">
               <span>Ahmedabad Hub (Origin)</span>
-              <span class="text-cyan-4 font-mono font-bold">70% Distance Completed</span>
+              <span class="text-sky-700 font-mono font-bold">70% Distance Completed</span>
               <span>Mumbai Central DC (Destination)</span>
             </div>
-            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-              <div class="bg-gradient-to-r from-cyan-500 to-blue-600 h-2 rounded-full" style="width: 70%"></div>
+            <div class="w-full bg-slate-100 border border-slate-200 rounded-full h-2 overflow-hidden">
+              <div class="bg-sky-600 h-2 rounded-full" style="width: 70%"></div>
             </div>
           </div>
 
@@ -122,27 +122,27 @@
             <div
               v-for="(cp, idx) in checkpoints"
               :key="idx"
-              class="ticket-item p-3 rounded-lg flex items-center justify-between text-xs transition-all"
+              class="ticket-item p-3 rounded-lg flex items-center justify-between text-xs bg-white"
             >
               <div class="flex items-center gap-3">
                 <div
                   class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[11px]"
-                  :class="cp.status === 'DONE' ? 'bg-emerald-950 border border-emerald-800 text-emerald-400' : cp.status === 'CURRENT' ? 'bg-cyan-950 border border-cyan-800 text-cyan-400' : 'bg-slate-800 text-slate-400'"
+                  :class="cp.status === 'DONE' ? 'bg-emerald-50 border border-emerald-300 text-emerald-700' : cp.status === 'CURRENT' ? 'bg-sky-50 border border-sky-300 text-sky-700' : 'bg-slate-100 border border-slate-200 text-slate-500'"
                 >
                   <q-icon v-if="cp.status === 'DONE'" name="check" size="14px" />
                   <span v-else>{{ idx + 1 }}</span>
                 </div>
                 <div>
-                  <div class="font-semibold text-white">{{ cp.name }}</div>
-                  <div class="text-[11px] text-slate-400">{{ cp.type }} &bull; Target: {{ cp.time }}</div>
+                  <div class="font-semibold text-slate-900">{{ cp.name }}</div>
+                  <div class="text-[11px] text-slate-500">{{ cp.type }} &bull; Target: {{ cp.time }}</div>
                 </div>
               </div>
 
               <div class="flex items-center gap-3">
-                <span class="font-mono text-cyan-4">{{ cp.recordedTime || 'Pending' }}</span>
+                <span class="font-mono text-sky-700 font-bold">{{ cp.recordedTime || 'Pending' }}</span>
                 <span
                   class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold"
-                  :class="cp.status === 'DONE' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : cp.status === 'CURRENT' ? 'bg-cyan-950 text-cyan-300 border border-cyan-800' : 'bg-slate-800 text-slate-400'"
+                  :class="cp.status === 'DONE' ? 'bg-emerald-50 text-emerald-700 border border-emerald-300' : cp.status === 'CURRENT' ? 'bg-sky-50 text-sky-700 border border-sky-300' : 'bg-slate-100 text-slate-600 border border-slate-200'"
                 >
                   {{ cp.status }}
                 </span>
@@ -156,43 +156,43 @@
       <div class="lg:col-span-4 space-y-4">
         <!-- Vehicle & License Card -->
         <div class="cyber-card p-5">
-          <div class="text-sm font-semibold text-white mb-3">Vehicle & Driver Profile</div>
+          <div class="text-sm font-semibold text-slate-900 mb-3">Vehicle & Driver Profile</div>
           
           <div class="space-y-2 text-xs">
-            <div class="flex justify-between py-1.5 border-b border-slate-800">
-              <span class="text-slate-400">Assigned Tractor</span>
-              <span class="font-mono font-semibold text-white">TRK-101 (2024 Volvo VNL)</span>
+            <div class="flex justify-between py-1.5 border-b border-slate-200">
+              <span class="text-slate-500">Assigned Tractor</span>
+              <span class="font-mono font-semibold text-slate-900">TRK-101 (2024 Volvo VNL)</span>
             </div>
-            <div class="flex justify-between py-1.5 border-b border-slate-800">
-              <span class="text-slate-400">Trailer Assigned</span>
-              <span class="font-mono font-semibold text-white">TRL-5520 (53ft Dry Van)</span>
+            <div class="flex justify-between py-1.5 border-b border-slate-200">
+              <span class="text-slate-500">Trailer Assigned</span>
+              <span class="font-mono font-semibold text-slate-900">TRL-5520 (53ft Dry Van)</span>
             </div>
-            <div class="flex justify-between py-1.5 border-b border-slate-800">
-              <span class="text-slate-400">Commercial License</span>
-              <span class="font-mono font-semibold text-emerald-400">CDL Class A &bull; Valid</span>
+            <div class="flex justify-between py-1.5 border-b border-slate-200">
+              <span class="text-slate-500">Commercial License</span>
+              <span class="font-mono font-semibold text-emerald-700">CDL Class A &bull; Valid</span>
             </div>
-            <div class="flex justify-between py-1.5 border-b border-slate-800">
-              <span class="text-slate-400">DOT Medical Card</span>
-              <span class="font-mono font-semibold text-emerald-400">Expires in 184 days</span>
+            <div class="flex justify-between py-1.5 border-b border-slate-200">
+              <span class="text-slate-500">DOT Medical Card</span>
+              <span class="font-mono font-semibold text-emerald-700">Expires in 184 days</span>
             </div>
             <div class="flex justify-between py-1.5">
-              <span class="text-slate-400">Current Odometer</span>
-              <span class="font-mono font-semibold text-cyan-4">142,850 km</span>
+              <span class="text-slate-500">Current Odometer</span>
+              <span class="font-mono font-semibold text-sky-700">142,850 km</span>
             </div>
           </div>
         </div>
 
         <!-- Quick Emergency Contacts -->
         <div class="cyber-card p-4 text-xs">
-          <div class="font-semibold text-white mb-2">Operational Assistance</div>
-          <div class="space-y-1.5 text-slate-300">
+          <div class="font-semibold text-slate-900 mb-2">Operational Assistance</div>
+          <div class="space-y-1.5 text-slate-600">
             <div class="flex justify-between">
               <span>Central Dispatch Desk:</span>
-              <span class="font-mono font-bold text-cyan-4">+91 (800) 555-0199</span>
+              <span class="font-mono font-bold text-sky-700">+91 (800) 555-0199</span>
             </div>
             <div class="flex justify-between">
               <span>Roadside Breakdown 24/7:</span>
-              <span class="font-mono font-bold text-rose-400">+91 (800) 555-9911</span>
+              <span class="font-mono font-bold text-rose-600">+91 (800) 555-9911</span>
             </div>
           </div>
         </div>
@@ -246,19 +246,19 @@ function handlePodSubmitted() {
 
 <style scoped>
 .cyber-card {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .ticket-item {
-  background: #111a33;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
 }
 
 .ticket-item:hover {
-  border-color: rgba(0, 242, 254, 0.3);
-  background: #14203e;
+  border-color: #0284c7;
+  background: #ffffff;
 }
 </style>

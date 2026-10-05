@@ -1,5 +1,5 @@
 <template>
-  <q-page>
+  <q-page class="q-pa-lg bg-slate-50 text-slate-800">
     <AppPageHeader
       breadcrumb="Administration / Platform Governance"
       title="Super Admin System Console"
@@ -16,19 +16,19 @@
           <q-tooltip>Refresh Platform Telemetry</q-tooltip>
         </q-btn>
         <q-btn
-          color="slate-900"
-          text-color="white"
+          outline
+          color="slate-700"
           icon="tune"
           label="Context: All Organizations"
           size="sm"
           no-caps
-          class="text-weight-bold"
+          class="text-weight-bold bg-white"
           @click="authStore.setOrganizationContext('SYSTEM')"
         />
       </template>
     </AppPageHeader>
 
-    <!-- Platform Overview KPIs (Tailwind Responsive Grid) -->
+    <!-- Platform Overview KPIs -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <AppStatCard
         title="Tenants / Organizations"
@@ -61,57 +61,57 @@
     </div>
 
     <!-- Infrastructure Health Observability Card -->
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 shadow-sm mb-6">
+    <div class="bg-white border border-slate-200 rounded-lg p-5 shadow-sm mb-6">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">Infrastructure & Microservice Health</div>
-          <div class="text-xs text-slate-500 dark:text-slate-400">Real-time service heartbeat, database latency, and telemetry pipeline</div>
+          <div class="text-sm font-semibold text-slate-900">Infrastructure & Microservice Health</div>
+          <div class="text-xs text-slate-500">Real-time service heartbeat, database latency, and telemetry pipeline</div>
         </div>
-        <span class="px-2.5 py-0.5 rounded text-[11px] font-mono font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800">
+        <span class="px-2.5 py-0.5 rounded text-[11px] font-mono font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
           ALL SERVICES OPERATIONAL
         </span>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div class="p-3 rounded-md bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800">
+        <div class="p-3 rounded-md bg-slate-50 border border-slate-200">
           <div class="flex items-center justify-between text-xs font-semibold">
-            <span class="text-slate-800 dark:text-slate-200">REST API Gateway</span>
-            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300">HEALTHY</span>
+            <span class="text-slate-800">REST API Gateway</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700">HEALTHY</span>
           </div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono text-[11px]">Latency: 2ms • NestJS 10</div>
+          <div class="text-xs text-slate-500 mt-1 font-mono text-[11px]">Latency: 2ms • NestJS 10</div>
         </div>
-        <div class="p-3 rounded-md bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800">
+        <div class="p-3 rounded-md bg-slate-50 border border-slate-200">
           <div class="flex items-center justify-between text-xs font-semibold">
-            <span class="text-slate-800 dark:text-slate-200">PostgreSQL Engine</span>
-            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300">CONNECTED</span>
+            <span class="text-slate-800">PostgreSQL Engine</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700">CONNECTED</span>
           </div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono text-[11px]">Latency: {{ health.services?.database?.latencyMs || 3 }}ms • Prisma ORM</div>
+          <div class="text-xs text-slate-500 mt-1 font-mono text-[11px]">Latency: {{ health.services?.database?.latencyMs || 3 }}ms • Prisma ORM</div>
         </div>
-        <div class="p-3 rounded-md bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800">
+        <div class="p-3 rounded-md bg-slate-50 border border-slate-200">
           <div class="flex items-center justify-between text-xs font-semibold">
-            <span class="text-slate-800 dark:text-slate-200">WebSocket Telemetry</span>
-            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300">ONLINE</span>
+            <span class="text-slate-800">WebSocket Telemetry</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700">ONLINE</span>
           </div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono text-[11px]">Socket.IO WSS Pipeline</div>
+          <div class="text-xs text-slate-500 mt-1 font-mono text-[11px]">Socket.IO WSS Pipeline</div>
         </div>
-        <div class="p-3 rounded-md bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800">
+        <div class="p-3 rounded-md bg-slate-50 border border-slate-200">
           <div class="flex items-center justify-between text-xs font-semibold">
-            <span class="text-slate-800 dark:text-slate-200">Memory & Workers</span>
-            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300">ACTIVE</span>
+            <span class="text-slate-800">Memory & Workers</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-700">ACTIVE</span>
           </div>
-          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono text-[11px]">{{ health.system?.memoryUsageMb || 148 }} MB Heap • 4 Workers</div>
+          <div class="text-xs text-slate-500 mt-1 font-mono text-[11px]">{{ health.system?.memoryUsageMb || 148 }} MB Heap • 4 Workers</div>
         </div>
       </div>
     </div>
 
     <!-- Multi-Tenant Organizations Directory -->
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 shadow-sm mb-6">
+    <div class="bg-white border border-slate-200 rounded-lg p-5 shadow-sm mb-6">
       <div class="row items-center justify-between q-mb-md">
         <div>
           <div class="text-subtitle2 text-weight-bold text-slate-900">Tenant Organizations Directory</div>
-          <div class="text-caption text-grey-6" style="font-size: 0.75rem;">Manage active operating companies, data segregation, and context switching</div>
+          <div class="text-caption text-slate-500" style="font-size: 0.75rem;">Manage active operating companies, data segregation, and context switching</div>
         </div>
-        <q-btn outline color="primary" size="sm" no-caps label="+ Add Tenant Organization" @click="addOrgDialog = true" />
+        <q-btn outline color="primary" size="sm" no-caps label="+ Add Tenant Organization" class="bg-white" @click="addOrgDialog = true" />
       </div>
 
       <q-table
@@ -127,12 +127,12 @@
         <template #body-cell-name="props">
           <q-td :props="props">
             <div class="row items-center q-gutter-x-sm">
-              <q-avatar size="24px" color="slate-800" text-color="white" class="text-weight-bold" style="font-size: 0.7rem;">
+              <q-avatar size="24px" color="slate-200" text-color="slate-800" class="text-weight-bold" style="font-size: 0.7rem;">
                 {{ props.row.name[0] }}
               </q-avatar>
               <div>
                 <span class="text-weight-bold text-slate-900">{{ props.row.name }}</span>
-                <span class="text-caption text-grey-5 font-mono q-ml-xs">({{ props.row.code }})</span>
+                <span class="text-caption text-slate-400 font-mono q-ml-xs">({{ props.row.code }})</span>
               </div>
             </div>
           </q-td>
@@ -163,14 +163,14 @@
     </div>
 
     <!-- Security & RBAC Audit Stream -->
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 shadow-sm">
+    <div class="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">Platform Security & Audit Trail</div>
-          <div class="text-xs text-slate-500 dark:text-slate-400">System-wide records of role modifications, credential events, and tenant access</div>
+          <div class="text-sm font-semibold text-slate-900">Platform Security & Audit Trail</div>
+          <div class="text-xs text-slate-500">System-wide records of role modifications, credential events, and tenant access</div>
         </div>
-        <router-link to="/audit-logs" class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
-          View Full Audit Log
+        <router-link to="/audit-logs" class="text-xs font-semibold text-sky-700 hover:underline">
+          View Full Audit Log →
         </router-link>
       </div>
 
@@ -187,7 +187,9 @@
       >
         <template #body-cell-action="props">
           <q-td :props="props">
-            <span class="tms-code-badge font-mono text-weight-bold">{{ props.value }}</span>
+            <span class="inline-block px-2 py-0.5 rounded text-xs font-mono font-bold bg-sky-50 text-sky-800 border border-sky-200">
+              {{ props.value }}
+            </span>
           </q-td>
         </template>
       </q-table>

@@ -53,7 +53,7 @@ const cleanLabel = computed(() => {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #38bdf8;
+  color: #334155;
   margin: 0;
   user-select: none;
   font-family: var(--tms-font-sans, inherit);
@@ -62,19 +62,20 @@ const cleanLabel = computed(() => {
 .desk-field-kbd {
   font-size: 10px;
   font-family: var(--desk-font-mono, monospace);
-  color: #00f2fe;
-  background: #111a33;
+  color: #0284c7;
+  background: #f1f5f9;
   padding: 1px 5px;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid #cbd5e1;
+  font-weight: 700;
 }
 
 .desk-field-control :deep(.q-field__control) {
-  background: #0d172b !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 8px !important;
-  min-height: 40px !important;
-  height: 40px !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  min-height: 38px !important;
+  height: 38px !important;
   padding: 0 10px !important;
   transition: all 0.15s ease;
 }
@@ -88,25 +89,25 @@ const cleanLabel = computed(() => {
 }
 
 .desk-field-control :deep(.q-field__control:hover) {
-  border-color: rgba(0, 242, 254, 0.4) !important;
+  border-color: #0284c7 !important;
 }
 
 .desk-field-control :deep(.q-field--focused .q-field__control),
 .desk-field-control :deep(.q-field:focus-within .q-field__control),
 .desk-field-control :deep(.q-field.q-field--focused .q-field__control) {
-  border: 1.5px solid #00f2fe !important;
-  border-color: #00f2fe !important;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25) !important;
+  border: 1.5px solid #0284c7 !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
   outline: none !important;
 }
 
 .desk-field-control :deep(.q-field__native),
 .desk-field-control :deep(.q-field__input),
 .desk-field-control :deep(input) {
-  color: #ffffff !important;
+  color: #0f172a !important;
   font-size: 0.85rem !important;
-  min-height: 40px !important;
-  height: 40px !important;
+  min-height: 38px !important;
+  height: 38px !important;
   display: flex !important;
   align-items: center !important;
   outline: none !important;
@@ -126,16 +127,16 @@ const cleanLabel = computed(() => {
 }
 
 .desk-field-control :deep(input::placeholder) {
-  color: #64748b !important;
+  color: #94a3b8 !important;
   font-size: 0.82rem !important;
 }
 
 .desk-field-control :deep(.q-field__marginal) {
-  height: 40px !important;
+  height: 38px !important;
 }
 
 .desk-field-error :deep(.q-field__control) {
   border-color: #ef4444 !important;
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
 }
 </style>

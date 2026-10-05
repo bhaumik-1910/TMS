@@ -1,9 +1,9 @@
 <template>
-  <div class="settlements-container min-h-screen text-slate-100 p-6">
+  <div class="settlements-container min-h-screen text-slate-800 p-6 overflow-y-auto">
     <!-- Top Header matching Image 1 -->
     <div class="flex items-center justify-between mb-6">
       <div class="page-title-wrap">
-        <h1 class="text-2xl font-bold tracking-tight text-white mb-1">Settlements</h1>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900 mb-1">Settlements</h1>
         <div class="page-underline"></div>
       </div>
 
@@ -67,38 +67,39 @@
           </svg>
         </span>
         <input
+          ref="searchInputRef"
           v-model="searchQuery"
           type="text"
-          placeholder="Search party / trip..."
+          placeholder="Search party / trip... (Alt+F)"
           class="search-input w-full pl-9 pr-4 py-2 rounded-full text-sm placeholder-slate-500 focus:outline-none"
         />
       </div>
     </div>
 
     <!-- Settlements Table matching Image 1 -->
-    <div class="table-container rounded-xl border border-slate-800 bg-[#091224] overflow-hidden">
+    <div class="table-container rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-sm">
           <thead>
-            <tr class="border-b border-slate-800 bg-[#060d1a]">
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider">SETTLEMENT ID</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider">PARTY</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider">TRIP REF</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider">GROSS AMT</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider">ADVANCE</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider">TDS</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider">SHORTAGE</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider">NET PAYABLE</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider">DATE</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider">STATUS</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-cyan-400 tracking-wider text-center"></th>
+            <tr class="border-b border-slate-200 bg-slate-50">
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">SETTLEMENT ID</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">PARTY</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">TRIP REF</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">GROSS AMT</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">ADVANCE</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">TDS</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">SHORTAGE</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">NET PAYABLE</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">DATE</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">STATUS</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider text-center"></th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800/60 font-sans">
+          <tbody class="divide-y divide-slate-200 font-sans">
             <tr
               v-for="item in filteredSettlements"
               :key="item.id"
-              class="hover:bg-slate-800/30 transition-colors"
+              class="hover:bg-slate-50 transition-colors"
             >
               <!-- Settlement ID -->
               <td class="py-4 px-4 font-mono font-medium text-cyan-400">
@@ -375,6 +376,7 @@ import { ref, computed, onMounted } from 'vue';
 import api from '../../api/client';
 import { useAppNotify } from '../../composables/useAppNotify';
 import { DeskDialog, DeskField, DeskCombo } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 export interface SettlementItem {
   id: string;
@@ -394,6 +396,7 @@ export interface SettlementItem {
 const notify = useAppNotify();
 
 // Search & Filter State
+const searchInputRef = ref();
 const searchQuery = ref('');
 const activeTab = ref('Owner');
 
@@ -874,11 +877,27 @@ function getStatusBadgeClass(status: string) {
       return 'badge-draft';
   }
 }
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  searchInputRef,
+  onNewRecord: openAddDrawer,
+  filters: [
+    () => { activeTab.value = 'Owner'; },
+    () => { activeTab.value = 'Driver'; },
+    () => { activeTab.value = 'Customer'; },
+  ],
+  isModalOpen: () => showDrawer.value,
+  onSave: saveSettlement,
+  onEscape: () => {
+    showDrawer.value = false;
+  },
+});
 </script>
 
 <style scoped>
 .settlements-container {
-  background-color: #050b18;
+  background-color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -891,21 +910,21 @@ function getStatusBadgeClass(status: string) {
 .page-underline {
   height: 3px;
   width: 38px;
-  background-color: #00e5ff;
+  background-color: #0284c7;
   border-radius: 2px;
   margin-top: 4px;
 }
 
 /* Header Button matching Image 1: "+ Settlement" */
 .btn-primary-cyan {
-  background-color: #00e5ff;
-  color: #000000;
-  border: none;
+  background-color: #0284c7;
+  color: #ffffff;
+  border: 1px solid #0369a1;
   font-size: 13px;
   font-weight: 700;
-  height: 36px;
+  height: 34px;
   padding: 0 16px;
-  border-radius: 8px;
+  border-radius: 4px;
   transition: all 0.2s ease;
   cursor: pointer;
   display: inline-flex;
@@ -916,20 +935,21 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-primary-cyan:hover {
-  background-color: #33ebff;
-  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+  background-color: #0369a1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* KPI Box Cards matching Image 1 */
 .kpi-box {
-  background: #091224;
-  border: 1px solid #162540;
-  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 110px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .kpi-title {
@@ -946,6 +966,7 @@ function getStatusBadgeClass(status: string) {
   font-family: monospace, -apple-system;
   line-height: 1.2;
   margin: 6px 0 2px 0;
+  color: #0f172a;
 }
 
 .kpi-subtext {
@@ -959,51 +980,52 @@ function getStatusBadgeClass(status: string) {
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 600;
-  background-color: #0b1728;
-  color: #94a3b8;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .tab-pill:hover {
-  color: #ffffff;
-  background-color: #12223a;
+  color: #0284c7;
+  background-color: #e0f2fe;
+  border-color: #0284c7;
 }
 
 .tab-pill--active {
-  background-color: #00e5ff !important;
-  color: #050b18 !important;
-  border-color: #00e5ff !important;
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #0369a1 !important;
 }
 
 /* Search input matching Image 1 */
 .search-input {
-  background-color: #0b1728;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
   outline: none;
   transition: border-color 0.2s ease;
 }
 
 .search-input:focus {
-  border-color: #00e5ff;
+  border-color: #0284c7;
 }
 
 .search-input::placeholder {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 /* Table styling matching Image 1 */
 .table-container {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 /* Row Action Edit Button matching Image 1 */
 .btn-table-action {
-  background-color: transparent;
-  color: #00e5ff;
-  border: 1px solid rgba(0, 229, 255, 0.5);
+  background-color: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
   font-size: 12px;
   font-weight: 600;
   padding: 4px 12px;
@@ -1014,9 +1036,8 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-table-action:hover {
-  background-color: rgba(0, 229, 255, 0.15);
-  border-color: #00e5ff;
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+  background-color: #bae6fd;
+  border-color: #0284c7;
 }
 
 /* Status Badges */
@@ -1030,26 +1051,26 @@ function getStatusBadgeClass(status: string) {
 }
 
 .badge-paid {
-  background-color: rgba(16, 185, 129, 0.12);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background-color: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #86efac;
 }
 
 .badge-pending {
-  background-color: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background-color: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fde047;
 }
 
 .badge-draft {
-  background-color: rgba(148, 163, 184, 0.12);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  background-color: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
 }
 
 .badge-cancelled {
-  background-color: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
 }
 </style>

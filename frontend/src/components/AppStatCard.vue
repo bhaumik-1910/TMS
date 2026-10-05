@@ -1,25 +1,25 @@
 <template>
   <div class="tms-stat-card rounded-lg p-4 transition-all duration-150 relative overflow-hidden">
     <div class="flex items-center justify-between">
-      <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">
+      <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
         {{ title }}
       </span>
-      <div class="w-7 h-7 rounded-md bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-cyan-400">
-        <q-icon :name="icon" size="16px" :color="iconColor || 'cyan'" />
+      <div class="w-7 h-7 rounded-md bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600">
+        <q-icon :name="icon" size="16px" :color="iconColor || 'primary'" />
       </div>
     </div>
 
     <div class="mt-2 flex items-baseline justify-between">
-      <div class="text-2xl font-bold tracking-tight text-white font-mono">
+      <div class="text-2xl font-bold tracking-tight text-slate-900 font-mono">
         {{ value }}
       </div>
-      <div v-if="change" class="flex items-center text-xs font-medium" :class="isPositive ? 'text-emerald-400' : 'text-rose-400'">
+      <div v-if="change" class="flex items-center text-xs font-medium" :class="isPositive ? 'text-emerald-600' : 'text-rose-600'">
         <q-icon :name="isPositive ? 'arrow_upward' : 'arrow_downward'" size="12px" class="mr-0.5" />
         <span>{{ change }}</span>
       </div>
     </div>
 
-    <div v-if="subtitle" class="mt-1 text-xs text-slate-400 truncate">
+    <div v-if="subtitle" class="mt-1 text-xs text-slate-500 truncate">
       {{ subtitle }}
     </div>
 
@@ -41,14 +41,14 @@ defineProps<{
 
 <style scoped>
 .tms-stat-card {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .tms-stat-card:hover {
-  border-color: rgba(0, 242, 254, 0.3);
-  box-shadow: 0 6px 20px rgba(0, 242, 254, 0.12);
+  border-color: #0284c7;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
 }
 
 .stat-accent-bar {
@@ -57,6 +57,6 @@ defineProps<{
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, rgba(0, 242, 254, 0.4) 0%, transparent 100%);
+  background: linear-gradient(90deg, #0284c7 0%, transparent 100%);
 }
 </style>

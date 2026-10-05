@@ -38,6 +38,9 @@
 
 <script setup lang="ts">
 import { ref, inject, onMounted, onBeforeUnmount } from 'vue';
+import { useDeskFocus } from '../focus/useDeskFocus';
+
+const { focusNextInput, focusPreviousInput } = useDeskFocus();
 
 const props = withDefaults(
   defineProps<{
@@ -98,16 +101,63 @@ function handleBlur() {
 }
 
 function handleKeyDown(e: KeyboardEvent) {
-  if (e.key === 'Enter') {
+  if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
     emit('enter');
-    formContext?.nextField?.(fieldId);
-  } else if (e.key === 'ArrowUp' && (e.shiftKey || inputRef.value?.selectionStart === 0)) {
-    e.preventDefault();
-    formContext?.prevField?.(fieldId);
+    if (formContext?.nextField) {
+      formContext.nextField(fieldId);
+    } else {
+      const container = (inputRef.value?.closest('form') ||
+        inputRef.value?.closest('.desk-dialog') ||
+        inputRef.value?.closest('.q-dialog') ||
+        inputRef.value?.closest('.desk-form') ||
+        inputRef.value?.closest('.q-card')) as HTMLElement | null;
+      if (container) {
+        const advanced = focusNextInput(container);
+        if (!advanced) {
+          const confirmBtn = container.querySelector<HTMLButtonElement>(
+            '.modal-btn-confirm, button[type="submit"], .btn-save, [data-desk-accept]'
+          );
+          if (confirmBtn) {
+            confirmBtn.click();
+          } else {
+            container.dispatchEvent(new Event('submit', { cancelable: true }));
+          }
+        }
+      } else {
+        focusNextInput(document.body);
+      }
+    }
   } else if (e.key === 'Enter' && e.shiftKey) {
     e.preventDefault();
-    formContext?.prevField?.(fieldId);
+    if (formContext?.prevField) {
+      formContext.prevField(fieldId);
+    } else {
+      const container = (inputRef.value?.closest('form') ||
+        inputRef.value?.closest('.desk-dialog') ||
+        inputRef.value?.closest('.q-dialog') ||
+        inputRef.value?.closest('.desk-form') ||
+        inputRef.value?.closest('.q-card')) as HTMLElement | null;
+      if (container) {
+        focusPreviousInput(container);
+      } else {
+        focusPreviousInput(document.body);
+      }
+    }
+  } else if (e.key === 'ArrowUp' && (e.shiftKey || inputRef.value?.selectionStart === 0)) {
+    e.preventDefault();
+    if (formContext?.prevField) {
+      formContext.prevField(fieldId);
+    } else {
+      const container = (inputRef.value?.closest('form') ||
+        inputRef.value?.closest('.desk-dialog') ||
+        inputRef.value?.closest('.q-dialog') ||
+        inputRef.value?.closest('.desk-form') ||
+        inputRef.value?.closest('.q-card')) as HTMLElement | null;
+      if (container) {
+        focusPreviousInput(container);
+      }
+    }
   }
 }
 
@@ -158,41 +208,41 @@ defineExpose({
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: #94a3b8;
+  color: #334155;
   text-transform: uppercase;
 }
 
 .required-star {
-  color: #f43f5e;
+  color: #dc2626;
   margin-left: 2px;
 }
 
 .desk-input-error-msg {
   font-size: 0.7rem;
-  color: #f43f5e;
+  color: #dc2626;
   font-weight: 600;
 }
 
 .desk-input-control {
   display: flex;
   align-items: center;
-  background: #091322;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 6px;
-  height: 38px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  height: 36px;
   padding: 0 10px;
   transition: all 0.15s ease;
   cursor: text;
 }
 
 .desk-input-wrapper.is-focused .desk-input-control {
-  border-color: #00f2fe;
-  background: #0c1a30;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.35);
+  border-color: #0284c7;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
 }
 
 .desk-input-wrapper.has-error .desk-input-control {
-  border-color: #f43f5e;
+  border-color: #dc2626;
 }
 
 .desk-native-input {
@@ -200,14 +250,14 @@ defineExpose({
   background: transparent;
   border: none;
   outline: none;
-  color: #ffffff;
+  color: #0f172a;
   font-size: 0.88rem;
   width: 100%;
   font-family: inherit;
 }
 
 .desk-native-input::placeholder {
-  color: #475569;
+  color: #94a3b8;
 }
 
 .desk-input-affix {

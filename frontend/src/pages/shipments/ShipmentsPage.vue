@@ -3,11 +3,11 @@
     <!-- Header with Title & Summary Metrics -->
     <div class="row items-center justify-between q-mb-md">
       <div>
-        <div class="text-h6 text-weight-bold text-white row items-center q-gutter-x-sm">
-          <q-icon name="local_shipping" color="cyan" size="24px" />
+        <div class="text-h6 text-weight-bold text-slate-900 row items-center q-gutter-x-sm">
+          <q-icon name="local_shipping" color="primary" size="24px" />
           <span>Shipments Management</span>
         </div>
-        <div class="text-caption text-grey-5">
+        <div class="text-caption text-slate-500">
           Execution of transportation contracts, fleet assignments, and live transit milestones &bull; Press <kbd class="desk-kbd">Alt+F</kbd> to filter
         </div>
       </div>
@@ -50,6 +50,7 @@
     <div class="relative min-h-[400px]">
       <!-- Desk Keyboard Data Table -->
       <DeskDataTable
+      ref="gridRef"
       title="Shipments Register"
       :rows="filteredShipments"
       :columns="columns"
@@ -85,7 +86,7 @@
           class="text-cyan-4 text-weight-bold font-mono cursor-pointer hover:underline"
           @click.stop="openShipmentDetail(props.row)"
         >
-          {{ props.value }}
+          {{ props.row?.shipmentNumber }}
         </span>
       </template>
 
@@ -389,7 +390,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import api from '../../api/client';
 import { useAppNotify } from '../../composables/useAppNotify';
 import { exportToCsv } from '../../utils/exportCsv';
@@ -399,8 +400,9 @@ import AppWorkflowTimeline from '../../components/AppWorkflowTimeline.vue';
 import AppAssignmentPanel from '../../components/AppAssignmentPanel.vue';
 import AppDocumentPreviewDialog from '../../components/AppDocumentPreviewDialog.vue';
 import AppSignatureCaptureDialog from '../../components/AppSignatureCaptureDialog.vue';
-import { DeskDataTable, DeskDialog, DeskField } from '../../framework';
+import { DeskDataTable, DeskDialog, DeskField } from '../../desk';
 
+const gridRef = ref<any>(null);
 const notify = useAppNotify();
 const loading = ref(false);
 const assigning = ref(false);
@@ -665,42 +667,70 @@ async function updateStatus(shipmentId: string, status: string) {
 
 onMounted(() => {
   loadShipments();
+  window.addEventListener('keydown', onKeyDown);
 });
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeyDown);
+});
+
+function onKeyDown(e: KeyboardEvent) {
+  const key = e.key.toLowerCase();
+
+  // Escape to close detail dialog
+  if (key === 'escape' && (detailDialog.value || assignDialog.value)) {
+    e.preventDefault();
+    detailDialog.value = false;
+    assignDialog.value = false;
+    return;
+  }
+
+  // Filter shortcut: Ctrl+F, F3, or '/'
+  if (
+    e.key === 'F3' ||
+    ((e.ctrlKey || e.metaKey) && key === 'f') ||
+    (!e.altKey && !e.ctrlKey && e.key === '/' && (document.activeElement as HTMLElement)?.tagName !== 'INPUT')
+  ) {
+    e.preventDefault();
+    gridRef.value?.focusSearch?.();
+    return;
+  }
+}
 </script>
 
 <style scoped>
 .shipments-page {
-  background-color: #070c18;
+  background-color: #f8fafc;
   min-height: calc(100vh - 88px);
 }
 
 .desk-kbd {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1px 4px;
+  background: #f1f5f9;
+  padding: 1px 5px;
   border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #00f2fe;
+  border: 1px solid #cbd5e1;
+  color: #0284c7;
   font-family: var(--desk-font-mono, monospace);
   font-size: 10px;
+  font-weight: 700;
 }
 
 /* Consignment Overview Strip */
 .shipment-overview-bar {
-  background: rgba(13, 23, 48, 0.6);
-  border: 1px solid rgba(0, 242, 254, 0.18);
-  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
 }
 
 /* Milestones Container */
 .milestones-card {
-  background: linear-gradient(135deg, rgba(11, 20, 44, 0.95) 0%, rgba(7, 13, 29, 0.98) 100%);
-  border: 1px solid rgba(0, 242, 254, 0.22);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(16px);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .border-cyan-500-15 {
-  border-bottom: 1px solid rgba(0, 242, 254, 0.15);
+  border-bottom: 1px solid #e2e8f0;
 }
 </style>

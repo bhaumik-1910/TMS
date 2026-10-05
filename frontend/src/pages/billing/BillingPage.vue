@@ -1,9 +1,9 @@
 <template>
-  <div class="billing-page-container min-h-screen text-slate-100 p-6">
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
     <!-- Header matching Image 1: 'Billing' with cyan underline, GST Export & + Invoice buttons -->
     <div class="flex items-center justify-between mb-6">
       <div class="billing-title-wrap">
-        <h1 class="text-2xl font-bold text-white tracking-wide">Billing</h1>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Billing</h1>
         <div class="billing-underline"></div>
       </div>
 
@@ -31,29 +31,29 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <!-- Card 1: THIS MONTH REVENUE (Active cyan glowing border) -->
       <div class="kpi-box kpi-box--active">
-        <div class="kpi-title text-cyan-400">THIS MONTH REVENUE</div>
-        <div class="kpi-amount text-cyan-400">₹{{ monthRevenue }}</div>
+        <div class="kpi-title text-sky-600">THIS MONTH REVENUE</div>
+        <div class="kpi-amount text-sky-700">₹{{ monthRevenue }}</div>
         <div class="kpi-subtext">Billed Oct 2026</div>
       </div>
 
       <!-- Card 2: OUTSTANDING -->
       <div class="kpi-box">
         <div class="kpi-title">OUTSTANDING</div>
-        <div class="kpi-amount text-white">₹{{ outstandingRevenue }}</div>
+        <div class="kpi-amount text-slate-800">₹{{ outstandingRevenue }}</div>
         <div class="kpi-subtext">Pending invoices</div>
       </div>
 
       <!-- Card 3: OVERDUE -->
       <div class="kpi-box">
         <div class="kpi-title">OVERDUE</div>
-        <div class="kpi-amount text-amber-400">{{ overdueCount }}</div>
+        <div class="kpi-amount text-amber-600">{{ overdueCount }}</div>
         <div class="kpi-subtext">Past due date</div>
       </div>
 
       <!-- Card 4: E-INVOICE (IRN) -->
       <div class="kpi-box">
         <div class="kpi-title">E-INVOICE (IRN)</div>
-        <div class="kpi-amount text-white">{{ irnCount }}</div>
+        <div class="kpi-amount text-slate-800">{{ irnCount }}</div>
         <div class="kpi-subtext">Generated this month</div>
       </div>
     </div>
@@ -65,6 +65,7 @@
           <q-icon name="search" size="18px" />
         </span>
         <input
+          ref="searchInputRef"
           v-model="searchQuery"
           type="text"
           class="search-input w-full pl-9 pr-4 py-2 text-sm rounded-lg"
@@ -81,57 +82,57 @@
     </div>
 
     <!-- Table matching Image 1 -->
-    <div class="table-container rounded-xl overflow-hidden border border-[#1e293b] bg-[#091122]">
+    <div class="table-container rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm border-collapse">
           <thead>
-            <tr class="table-head-row text-[12px] uppercase tracking-wider text-cyan-400 border-b border-[#1e293b]">
-              <th class="py-3.5 px-4 font-bold">INVOICE NO</th>
-              <th class="py-3.5 px-4 font-bold">LR REF</th>
-              <th class="py-3.5 px-4 font-bold">CUSTOMER</th>
-              <th class="py-3.5 px-4 font-bold">BASE AMT</th>
-              <th class="py-3.5 px-4 font-bold">GST</th>
-              <th class="py-3.5 px-4 font-bold">TOTAL</th>
-              <th class="py-3.5 px-4 font-bold">GST TYPE</th>
-              <th class="py-3.5 px-4 font-bold">IRN</th>
-              <th class="py-3.5 px-4 font-bold">DUE DATE</th>
-              <th class="py-3.5 px-4 font-bold">STATUS</th>
-              <th class="py-3.5 px-4 font-bold text-center">ACTION</th>
+            <tr class="table-head-row text-[12px] uppercase tracking-wider text-slate-700 border-b border-slate-200 bg-slate-50">
+              <th class="py-3 px-4 font-bold">INVOICE NO</th>
+              <th class="py-3 px-4 font-bold">LR REF</th>
+              <th class="py-3 px-4 font-bold">CUSTOMER</th>
+              <th class="py-3 px-4 font-bold">BASE AMT</th>
+              <th class="py-3 px-4 font-bold">GST</th>
+              <th class="py-3 px-4 font-bold">TOTAL</th>
+              <th class="py-3 px-4 font-bold">GST TYPE</th>
+              <th class="py-3 px-4 font-bold">IRN</th>
+              <th class="py-3 px-4 font-bold">DUE DATE</th>
+              <th class="py-3 px-4 font-bold">STATUS</th>
+              <th class="py-3 px-4 font-bold text-center">ACTION</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#162238]">
+          <tbody class="divide-y divide-slate-200">
             <tr
               v-for="inv in filteredInvoices"
               :key="inv.id"
-              class="hover:bg-[#0f1d38] transition-colors"
+              class="hover:bg-slate-50 transition-colors"
             >
               <!-- Invoice No (Cyan font-bold) -->
-              <td class="py-4 px-4 font-semibold text-cyan-400 font-mono">
+              <td class="py-4 px-4 font-semibold text-sky-700 font-mono">
                 {{ inv.invoiceNo }}
               </td>
 
               <!-- LR Ref (Light blue/slate font-mono) -->
-              <td class="py-4 px-4 font-mono text-slate-300">
+              <td class="py-4 px-4 font-mono text-slate-600">
                 {{ inv.lrRef }}
               </td>
 
               <!-- Customer (White) -->
-              <td class="py-4 px-4 font-medium text-white">
+              <td class="py-4 px-4 font-medium text-slate-900">
                 {{ inv.customer }}
               </td>
 
               <!-- Base Amt -->
-              <td class="py-4 px-4 font-mono text-slate-200">
+              <td class="py-4 px-4 font-mono text-slate-700">
                 {{ inv.baseAmt }}
               </td>
 
               <!-- GST -->
-              <td class="py-4 px-4 font-mono text-slate-300">
+              <td class="py-4 px-4 font-mono text-slate-600">
                 {{ inv.gst }}
               </td>
 
               <!-- Total -->
-              <td class="py-4 px-4 font-mono font-medium text-slate-100">
+              <td class="py-4 px-4 font-mono font-medium text-slate-800">
                 {{ inv.total }}
               </td>
 
@@ -146,12 +147,12 @@
               </td>
 
               <!-- IRN -->
-              <td class="py-4 px-4 text-slate-400 text-xs font-mono max-w-[140px] truncate" :title="inv.irn">
+              <td class="py-4 px-4 text-slate-500 text-xs font-mono max-w-[140px] truncate" :title="inv.irn">
                 {{ inv.irn || '—' }}
               </td>
 
               <!-- Due Date -->
-              <td class="py-4 px-4 text-slate-300 font-mono text-xs">
+              <td class="py-4 px-4 text-slate-600 font-mono text-xs">
                 {{ inv.dueDate }}
               </td>
 
@@ -411,6 +412,7 @@ import {
   DeskField,
   DeskCombo,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 export interface BillingInvoice {
   id: string;
@@ -429,6 +431,7 @@ export interface BillingInvoice {
 const notify = useAppNotify();
 
 // Search & Drawer States
+const searchInputRef = ref();
 const searchQuery = ref('');
 const showDrawer = ref(false);
 const isEditing = ref(false);
@@ -941,11 +944,24 @@ function getStatusBadgeClass(status: string) {
       return 'badge-draft';
   }
 }
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  searchInputRef,
+  onNewRecord: openAddDrawer,
+  isModalOpen: () => showDrawer.value || showDeleteDialog.value || showPreviewDialog.value,
+  onSave: saveInvoice,
+  onEscape: () => {
+    showDrawer.value = false;
+    showDeleteDialog.value = false;
+    showPreviewDialog.value = false;
+  },
+});
 </script>
 
 <style scoped>
 .billing-page-container {
-  background-color: #050b18;
+  background-color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -965,11 +981,11 @@ function getStatusBadgeClass(status: string) {
 
 /* Header Action Buttons matching user screenshot */
 .btn-secondary-action {
-  background-color: transparent;
-  color: #00e5ff;
-  border: 1px solid #00e5ff;
+  background-color: #ffffff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   height: 38px;
   padding: 0 18px;
   border-radius: 8px;
@@ -982,13 +998,13 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-secondary-action:hover {
-  background-color: rgba(0, 229, 255, 0.12);
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+  background-color: #e0f2fe;
+  border-color: #0284c7;
 }
 
 .btn-primary-cyan {
-  background-color: #00e5ff;
-  color: #000000;
+  background-color: #0284c7;
+  color: #ffffff;
   border: none;
   font-size: 13px;
   font-weight: 700;
@@ -1005,25 +1021,27 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-primary-cyan:hover {
-  background-color: #33ebff;
-  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+  background-color: #0369a1;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
 }
 
 /* KPI Box Cards */
 .kpi-box {
-  background: #091224;
-  border: 1px solid #162540;
-  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 110px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .kpi-box--active {
-  border-color: #00e5ff;
-  box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+  border-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12);
+  background-color: #f0f9ff;
 }
 
 .kpi-title {
@@ -1040,6 +1058,7 @@ function getStatusBadgeClass(status: string) {
   font-family: monospace, -apple-system;
   line-height: 1.2;
   margin: 6px 0 2px 0;
+  color: #0f172a;
 }
 
 .kpi-subtext {
@@ -1049,31 +1068,32 @@ function getStatusBadgeClass(status: string) {
 
 /* Search input */
 .search-input {
-  background-color: #091527;
-  border: 1px solid #1e293b;
-  color: #f8fafc;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
   outline: none;
   transition: border-color 0.2s ease;
 }
 
 .search-input:focus {
-  border-color: #00e5ff;
+  border-color: #0284c7;
 }
 
 .search-input::placeholder {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 /* Table styling */
 .table-head-row th {
-  background-color: #081122;
+  background-color: #f1f5f9;
+  color: #334155;
 }
 
 /* Table Action Buttons matching standard TMS design */
 .btn-table-action {
-  background: rgba(0, 242, 254, 0.1);
-  color: #00f2fe;
-  border: 1px solid rgba(0, 242, 254, 0.3);
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
   padding: 3px 10px;
   border-radius: 4px;
   font-size: 12px;
@@ -1083,14 +1103,13 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-table-action:hover {
-  background: rgba(0, 242, 254, 0.25);
-  border-color: #00f2fe;
+  background: #bae6fd;
 }
 
 .btn-table-icon {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
   height: 28px;
   width: 28px;
   border-radius: 6px;
@@ -1104,8 +1123,8 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-table-icon:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: #e2e8f0;
+  color: #334155;
 }
 
 .btn-table-icon--danger {
@@ -1113,9 +1132,9 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-table-icon--danger:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #f87171;
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 
 /* Badges */
@@ -1132,52 +1151,52 @@ function getStatusBadgeClass(status: string) {
 
 /* GST Type Badges */
 .badge-rcm {
-  background-color: rgba(6, 78, 59, 0.4);
-  color: #22d3ee;
-  border: 1px solid rgba(34, 211, 238, 0.35);
+  background-color: #ecfeff;
+  color: #0e7490;
+  border: 1px solid #a5f3fc;
 }
 
 .badge-forward {
-  background-color: rgba(30, 27, 75, 0.6);
-  color: #818cf8;
-  border: 1px solid rgba(129, 140, 248, 0.35);
+  background-color: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
 }
 
 .badge-exempt {
-  background-color: rgba(30, 41, 59, 0.6);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
 }
 
 /* Status Badges */
 .badge-paid {
-  background-color: rgba(6, 78, 59, 0.4);
-  color: #4ade80;
-  border: 1px solid rgba(74, 222, 128, 0.35);
+  background-color: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #86efac;
 }
 
 .badge-pending {
-  background-color: rgba(69, 26, 3, 0.5);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.35);
+  background-color: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fde047;
 }
 
 .badge-overdue {
-  background-color: rgba(69, 10, 10, 0.5);
-  color: #f87171;
-  border: 1px solid rgba(248, 113, 113, 0.35);
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
 }
 
 .badge-draft {
-  background-color: rgba(39, 39, 42, 0.5);
-  color: #cbd5e1;
-  border: 1px solid rgba(203, 213, 225, 0.35);
+  background-color: #f8fafc;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
 }
 
 .badge-cancelled {
-  background-color: rgba(24, 24, 27, 0.5);
+  background-color: #f4f4f5;
   color: #71717a;
-  border: 1px solid rgba(113, 113, 122, 0.35);
+  border: 1px solid #d4d4d8;
 }
 
 </style>

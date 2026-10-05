@@ -1,6 +1,6 @@
 # APEX Enterprise Transportation Management System (TMS)
 
-A production-grade, multi-tenant, high-concurrency **Enterprise Transportation Management System (TMS)** built with **NestJS**, **PostgreSQL 17**, **Prisma ORM**, **Vue.js 3**, **Quasar Framework**, and **Socket.IO** real-time telematics.
+A production-grade, multi-tenant, high-concurrency **Enterprise Transportation Management System (TMS)** built with **NestJS**, **PostgreSQL 17**, **Sequelize ORM**, **Vue.js 3**, **Quasar Framework**, and **Socket.IO** real-time telematics.
 
 ---
 
@@ -82,9 +82,8 @@ All demo accounts are pre-seeded in the database with the default password: **`T
 ```bash
 cd backend
 npm install
-npx prisma generate
-npx prisma db push
-npx ts-node src/database/seed.ts
+npm run db:sync
+npm run db:seed
 npm run start:dev
 ```
 Backend API will start on: **`http://localhost:3000`**

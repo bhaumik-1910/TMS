@@ -1,9 +1,9 @@
 <template>
-  <div class="tyre-operations-page p-3 sm:p-4 text-slate-100 font-sans">
+  <div class="tyre-operations-page p-3 sm:p-4 text-slate-800 font-sans">
     <!-- Header matching Image 1 & Image 2 -->
     <div class="row items-center justify-between q-mb-md">
       <div>
-        <div class="text-h5 text-weight-bold text-white relative inline-block">
+        <div class="text-h5 text-weight-bold text-slate-900 relative inline-block">
           Tyre Operations
           <div class="title-underline"></div>
         </div>
@@ -280,6 +280,7 @@ import {
   DeskForm,
   DeskField,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 export interface TyreInventoryItem {
   id?: string;
@@ -643,30 +644,44 @@ async function saveEvent() {
 
   showEventDialog.value = false;
 }
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  onNewRecord: openAddEventDialog,
+  filters: [
+    () => { activeTab.value = 'register'; },
+    () => { activeTab.value = 'events'; },
+  ],
+  isModalOpen: () => showEventDialog.value,
+  onSave: saveEvent,
+  onEscape: () => {
+    showEventDialog.value = false;
+  },
+});
 </script>
 
 <style scoped>
 .tyre-operations-page {
-  background-color: #070c18;
+  background-color: #f8fafc;
   min-height: calc(100vh - 88px);
 }
 
 .title-underline {
   height: 3px;
-  background: #00e5ff;
+  background: #0284c7;
   width: 32px;
   margin-top: 5px;
   border-radius: 2px;
 }
 
 .desk-btn-cyan-action {
-  background: #00e5ff;
-  color: #020617;
+  background: #0284c7;
+  color: #ffffff;
   font-weight: 700;
   font-size: 13px;
   padding: 8px 16px;
-  border-radius: 8px;
-  border: none;
+  border-radius: 4px;
+  border: 1px solid #0369a1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -675,24 +690,34 @@ async function saveEvent() {
 }
 
 .desk-btn-cyan-action:hover {
-  background: #33ebff;
-  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+  background: #0369a1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .tyre-tab-btn {
-  padding: 8px 18px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: #0d172b;
-  color: #94a3b8;
-  font-size: 0.85rem;
+  padding: 6px 16px;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   outline: none;
 }
 
 .tyre-tab-btn:hover {
+  background: #f1f5f9;
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.tyre-tab-btn.active {
+  background: #0284c7;
+  border-color: #0369a1;
+  color: #ffffff;
+}
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.25);
 }

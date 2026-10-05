@@ -1,8 +1,8 @@
 <template>
-  <div class="exception-page min-h-screen text-slate-100 p-6">
-    <!-- Header with cyan underline bar matching user screenshot -->
+  <div class="exception-page min-h-screen text-slate-800 p-6 bg-slate-50">
+    <!-- Header with underline bar -->
     <div class="page-title-wrap mb-6">
-      <h1 class="text-2xl font-bold tracking-tight text-white mb-1">Exception Inbox</h1>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900 mb-1">Exception Inbox</h1>
       <div class="page-underline"></div>
     </div>
 
@@ -11,26 +11,26 @@
       <!-- 1. OPEN EXCEPTIONS -->
       <div class="kpi-box">
         <span class="kpi-title">OPEN EXCEPTIONS</span>
-        <div class="kpi-amount text-amber-400">{{ openCount }}</div>
+        <div class="kpi-amount text-amber-600">{{ openCount }}</div>
         <span class="kpi-subtext">Requires action</span>
       </div>
 
       <!-- 2. HIGH SEVERITY -->
       <div class="kpi-box">
         <span class="kpi-title">HIGH SEVERITY</span>
-        <div class="kpi-amount text-amber-400">{{ highSeverityCount }}</div>
+        <div class="kpi-amount text-rose-600">{{ highSeverityCount }}</div>
         <span class="kpi-subtext">Fuel, compliance, overdue</span>
       </div>
 
       <!-- 3. RESOLVED TODAY -->
       <div class="kpi-box">
         <span class="kpi-title">RESOLVED TODAY</span>
-        <div class="kpi-amount text-white">{{ resolvedTodayCount }}</div>
+        <div class="kpi-amount text-slate-900">{{ resolvedTodayCount }}</div>
         <span class="kpi-subtext">Cleared exceptions</span>
       </div>
     </div>
 
-    <!-- Filter Pills matching user screenshot -->
+    <!-- Filter Pills -->
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <!-- Status Filters: All, Open, Resolved -->
       <div class="flex items-center gap-1.5">
@@ -45,7 +45,7 @@
         </button>
       </div>
 
-      <!-- Category / Type Filters: All Types, Fuel Anomaly, Compliance, etc. -->
+      <!-- Category / Type Filters -->
       <div class="flex flex-wrap items-center gap-1.5">
         <button
           v-for="tp in typeFilters"
@@ -59,7 +59,7 @@
       </div>
     </div>
 
-    <!-- Exceptions Feed List matching user screenshot -->
+    <!-- Exceptions Feed List -->
     <div class="flex flex-col gap-3.5">
       <div
         v-for="item in filteredExceptions"
@@ -69,8 +69,7 @@
       >
         <!-- Left Column: Siren / Alarm Icon Box -->
         <div class="siren-box flex-shrink-0">
-          <svg class="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="currentColor">
-            <!-- Siren / Alarm beacon SVG matching user screenshot -->
+          <svg class="w-5 h-5 text-rose-600" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4zm-2 5V6a2 2 0 1 1 4 0v1h-4zm-4 7v1a5 5 0 0 0 5 5h2a5 5 0 0 0 5-5v-1H6zm6 7a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2z" />
           </svg>
         </div>
@@ -96,7 +95,7 @@
             </span>
 
             <!-- Date -->
-            <span class="font-mono text-xs text-slate-400">
+            <span class="font-mono text-xs text-slate-500">
               {{ item.date }}
             </span>
 
@@ -106,22 +105,22 @@
           </div>
 
           <!-- Exception Title -->
-          <h3 class="text-sm font-bold text-white mb-1 tracking-tight">
+          <h3 class="text-sm font-bold text-slate-900 mb-1 tracking-tight">
             {{ item.title }}
           </h3>
 
           <!-- Exception Description -->
-          <p class="text-xs text-slate-400 mb-1.5 leading-relaxed">
+          <p class="text-xs text-slate-600 mb-1.5 leading-relaxed">
             {{ item.description }}
           </p>
 
           <!-- Reference Link -->
-          <div class="text-[11px] font-mono text-slate-500">
+          <div class="text-[11px] font-mono text-slate-400">
             {{ item.ref }}
           </div>
         </div>
 
-        <!-- Right Column: Action Buttons matching user screenshot -->
+        <!-- Right Column: Action Buttons -->
         <div class="flex items-center gap-2 flex-shrink-0">
           <button class="btn-action-review" @click="reviewException(item)">
             Review
@@ -137,8 +136,8 @@
       </div>
 
       <!-- Empty State -->
-      <div v-if="filteredExceptions.length === 0" class="py-12 text-center text-slate-400 bg-[#091224] rounded-xl border border-slate-800">
-        <svg class="w-12 h-12 mx-auto mb-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div v-if="filteredExceptions.length === 0" class="py-12 text-center text-slate-500 bg-white rounded-lg border border-slate-200 shadow-sm">
+        <svg class="w-12 h-12 mx-auto mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <p class="text-sm">No exceptions matching the selected criteria.</p>
@@ -156,10 +155,10 @@
       @cancel="showReviewModal = false"
     >
       <div v-if="selectedItem" class="flex flex-col gap-4 text-sm font-sans">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
           <div>
-            <div class="font-bold text-white text-base">{{ selectedItem.title }}</div>
-            <div class="text-xs text-slate-400 font-mono mt-0.5">{{ selectedItem.ref }} • Reported {{ selectedItem.date }}</div>
+            <div class="font-bold text-slate-900 text-base">{{ selectedItem.title }}</div>
+            <div class="text-xs text-slate-500 font-mono mt-0.5">{{ selectedItem.ref }} • Reported {{ selectedItem.date }}</div>
           </div>
           <span
             class="badge-severity"
@@ -169,18 +168,18 @@
           </span>
         </div>
 
-        <div class="p-3.5 rounded-lg bg-[#060c18] border border-slate-800/80 text-slate-300 text-xs leading-relaxed font-mono">
+        <div class="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs leading-relaxed font-mono">
           {{ selectedItem.description }}
         </div>
 
         <div class="grid grid-cols-2 gap-3 text-xs">
-          <div class="p-2.5 rounded bg-slate-900/60 border border-slate-800">
-            <span class="text-slate-400 block mb-1">INCIDENT CATEGORY</span>
-            <span class="font-bold text-white">{{ selectedItem.category }}</span>
+          <div class="p-2.5 rounded bg-white border border-slate-200 shadow-sm">
+            <span class="text-slate-500 block mb-1 font-semibold">INCIDENT CATEGORY</span>
+            <span class="font-bold text-slate-900">{{ selectedItem.category }}</span>
           </div>
-          <div class="p-2.5 rounded bg-slate-900/60 border border-slate-800">
-            <span class="text-slate-400 block mb-1">AUDIT STATUS</span>
-            <span :class="selectedItem.resolved ? 'text-emerald-400' : 'text-amber-400'" class="font-bold">
+          <div class="p-2.5 rounded bg-white border border-slate-200 shadow-sm">
+            <span class="text-slate-500 block mb-1 font-semibold">AUDIT STATUS</span>
+            <span :class="selectedItem.resolved ? 'text-emerald-600' : 'text-amber-600'" class="font-bold">
               {{ selectedItem.resolved ? 'Resolved' : 'Requires Investigation' }}
             </span>
           </div>
@@ -194,6 +193,7 @@
 import { ref, computed } from 'vue';
 import { useAppNotify } from '../../composables/useAppNotify';
 import { DeskDialog } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 interface ExceptionItem {
   id: string;
@@ -225,7 +225,7 @@ const selectedType = ref('All Types');
 const showReviewModal = ref(false);
 const selectedItem = ref<ExceptionItem | null>(null);
 
-// Initial exception records matching user screenshot
+// Initial exception records
 const exceptions = ref<ExceptionItem[]>([
   {
     id: '1',
@@ -251,123 +251,82 @@ const exceptions = ref<ExceptionItem[]>([
     id: '3',
     category: 'Compliance',
     severity: 'HIGH',
-    date: '2026-10-24',
-    title: 'Fitness certificate expired — GJ-01-AC-3444',
-    description: 'Fitness expired 2023-11-02 (overdue by 700+ days). Vehicle blocked for trip allocation until renewed.',
-    ref: 'Ref: VEH/GJ-01-AC-3444',
+    date: '2026-10-20',
+    title: 'Insurance expired — GJ-01-AB-1122',
+    description: 'National Insurance policy #48100 expired on 2025-01-10. Vehicle is currently on active trip TR/240081.',
+    ref: 'Ref: VAHAN-2218',
     resolved: false,
   },
   {
     id: '4',
     category: 'Compliance',
     severity: 'HIGH',
-    date: '2026-10-24',
-    title: 'Insurance expired — GJ-01-AB-1122',
-    description: 'Insurance expired 2025-01-10. Vehicle is currently In Transit on TR/240078. Renewal required immediately.',
-    ref: 'Ref: VEH/GJ-01-AB-1122',
+    date: '2026-10-18',
+    title: 'Fitness expired — GJ-01-AC-3444',
+    description: 'RTO Fitness expired on 2023-11-02. Penalties accruing at ₹50/day. Immediate renewal inspection required.',
+    ref: 'Ref: VAHAN-1102',
     resolved: false,
   },
   {
     id: '5',
     category: 'Credit Limit',
-    severity: 'MEDIUM',
-    date: '2026-10-23',
-    title: 'Credit limit 94% utilised — Pidilite Industries',
-    description: 'Outstanding ₹4,70,000 against ₹5,00,000 sanctioned limit. New LR dispatch holds enabled until clearance.',
-    ref: 'Ref: CUST/PIDILITE',
+    severity: 'HIGH',
+    date: '2026-10-22',
+    title: 'Credit limit breach: Adani Wilmar ₹12.4L / ₹10L',
+    description: 'Outstanding exceeds credit limit by ₹2.40L (24% over limit). 3 invoices overdue >45 days.',
+    ref: 'Ref: CUST-ADANI',
     resolved: false,
   },
   {
     id: '6',
     category: 'Overdue Invoice',
     severity: 'MEDIUM',
-    date: '2026-10-22',
-    title: 'Invoice overdue by 45 days — Marico Ltd',
-    description: 'INV/24/1045 for ₹62,000 pending payment since due date 08 Sep 2026. Follow-up reminder dispatched.',
-    ref: 'Ref: INV/24/1045',
+    date: '2026-10-23',
+    title: 'Invoice INV/2400041 overdue by 38 days — Nirma Ltd',
+    description: 'Amount ₹88,500 due on 15 Sep 2026. Payment reminder sent via WhatsApp on 5 Oct; no response recorded.',
+    ref: 'Ref: INV/2400041',
     resolved: false,
   },
   {
     id: '7',
     category: 'Advance Limit',
     severity: 'MEDIUM',
-    date: '2026-10-21',
-    title: 'Driver cash advance exceeded limit — TR/240075',
-    description: 'Total advance requested ₹18,000 exceeds maximum route advance policy ₹15,000 for driver Ramesh Alumar.',
-    ref: 'Ref: ADV/240092',
+    date: '2026-10-20',
+    title: 'Driver advance breach — Ramesh Alumar ₹18,000 / ₹15,000',
+    description: 'Unsettled advance balance ₹18,000 across trips TR/240076 and TR/240080. Max per-driver advance is ₹15,000.',
+    ref: 'Ref: DRV-RAMESH',
     resolved: false,
   },
   {
     id: '8',
     category: 'POD',
     severity: 'MEDIUM',
-    date: '2026-10-20',
-    title: 'POD delivery document missing — LR/240040',
-    description: 'Trip completed 4 days ago. Consignee signed physical or digital proof of delivery not uploaded.',
-    ref: 'Ref: LR/240040',
+    date: '2026-10-19',
+    title: 'POD overdue >7 days — LR/2400088 (Tata Steel)',
+    description: 'Trip completed on 12 Oct at Sanand hub. Physical signed bilty or digital upload pending for 7 days.',
+    ref: 'Ref: LR/2400088',
     resolved: false,
-  },
-  {
-    id: '9',
-    category: 'Compliance',
-    severity: 'HIGH',
-    date: '2026-10-24',
-    title: 'Speed telemetry violation on NH-48 toll corridor',
-    description: 'Speed recorded 88 km/h in 60 km/h speed zone near Bharuch. Driver acknowledged warning.',
-    ref: 'Ref: TEL/99482',
-    resolved: true,
   },
 ]);
 
-// KPI Computations matching Image 1
-const openCount = computed(() => {
-  return exceptions.value.filter((e) => !e.resolved).length;
-});
+// Computed Counts
+const openCount = computed(() => exceptions.value.filter((e) => !e.resolved).length);
+const highSeverityCount = computed(() => exceptions.value.filter((e) => !e.resolved && e.severity === 'HIGH').length);
+const resolvedTodayCount = computed(() => exceptions.value.filter((e) => e.resolved).length);
 
-const highSeverityCount = computed(() => {
-  return exceptions.value.filter((e) => !e.resolved && e.severity === 'HIGH').length;
-});
-
-const resolvedTodayCount = computed(() => {
-  return exceptions.value.filter((e) => e.resolved).length;
-});
-
-// Filtered exceptions by status and type
+// Filtered List
 const filteredExceptions = computed(() => {
-  return exceptions.value.filter((e) => {
+  return exceptions.value.filter((item) => {
     // Status Filter
-    if (selectedStatus.value === 'Open' && e.resolved) return false;
-    if (selectedStatus.value === 'Resolved' && !e.resolved) return false;
+    if (selectedStatus.value === 'Open' && item.resolved) return false;
+    if (selectedStatus.value === 'Resolved' && !item.resolved) return false;
 
     // Type Filter
-    if (selectedType.value !== 'All Types' && e.category !== selectedType.value) {
-      return false;
-    }
+    if (selectedType.value !== 'All Types' && item.category !== selectedType.value) return false;
 
     return true;
   });
 });
-
-function toggleResolve(item: ExceptionItem) {
-  item.resolved = !item.resolved;
-  if (item.resolved) {
-    notify.notifySuccess(`Exception [${item.ref}] marked as resolved.`);
-  } else {
-    notify.notifyInfo(`Exception [${item.ref}] reopened.`);
-  }
-}
-
-function reviewException(item: ExceptionItem) {
-  selectedItem.value = item;
-  showReviewModal.value = true;
-}
-
-function resolveFromModal() {
-  if (selectedItem.value) {
-    toggleResolve(selectedItem.value);
-    showReviewModal.value = false;
-  }
-}
 
 function getCategoryBadgeClass(category: string) {
   switch (category) {
@@ -387,15 +346,45 @@ function getCategoryBadgeClass(category: string) {
       return 'badge-category--fuel';
   }
 }
+
+function toggleResolve(item: ExceptionItem) {
+  item.resolved = !item.resolved;
+  if (item.resolved) {
+    notify.success(`Exception "${item.title}" marked as resolved.`);
+  } else {
+    notify.info(`Exception "${item.title}" reopened.`);
+  }
+}
+
+function reviewException(item: ExceptionItem) {
+  selectedItem.value = item;
+  showReviewModal.value = true;
+}
+
+function resolveFromModal() {
+  if (selectedItem.value) {
+    toggleResolve(selectedItem.value);
+    showReviewModal.value = false;
+  }
+}
+
+// Keyboard shortcuts for Tally experience
+useDeskPageShortcuts({
+  isModalOpen: () => showReviewModal.value,
+  onEscape: () => {
+    showReviewModal.value = false;
+  },
+  onSave: resolveFromModal,
+});
 </script>
 
 <style scoped>
 .exception-page {
-  background-color: #050b18;
+  background-color: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Header with cyan underline bar */
+/* Header */
 .page-title-wrap {
   display: flex;
   flex-direction: column;
@@ -404,21 +393,22 @@ function getCategoryBadgeClass(category: string) {
 .page-underline {
   height: 3px;
   width: 38px;
-  background-color: #00e5ff;
+  background-color: #0284c7;
   border-radius: 2px;
   margin-top: 4px;
 }
 
 /* KPI Box Cards */
 .kpi-box {
-  background: #091224;
-  border: 1px solid #162540;
-  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 110px;
+  min-height: 100px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .kpi-title {
@@ -448,48 +438,49 @@ function getCategoryBadgeClass(category: string) {
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 600;
-  background-color: #0b1728;
-  color: #94a3b8;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .tab-pill:hover {
-  color: #ffffff;
-  background-color: #12223a;
+  color: #0f172a;
+  background-color: #f1f5f9;
 }
 
 .tab-pill--active {
-  background-color: #00e5ff !important;
-  color: #050b18 !important;
-  border-color: #00e5ff !important;
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #0284c7 !important;
 }
 
 .tab-pill--cyan-active {
-  background-color: rgba(0, 229, 255, 0.12) !important;
-  color: #00e5ff !important;
-  border-color: #00e5ff !important;
+  background-color: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-color: #0284c7 !important;
 }
 
 /* Exception Row Card */
 .exception-row-card {
-  background: #091224;
-  border: 1px solid #162540;
-  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   padding: 16px 20px;
   display: flex;
   align-items: center;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .exception-row-card:hover {
-  border-color: #1e3a66;
+  border-color: #0284c7;
 }
 
 .exception-row-card--resolved {
   opacity: 0.65;
-  background: #070e1c;
+  background: #f8fafc;
 }
 
 /* Siren Alarm Icon Box */
@@ -497,8 +488,8 @@ function getCategoryBadgeClass(category: string) {
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  background-color: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -515,33 +506,39 @@ function getCategoryBadgeClass(category: string) {
 }
 
 .badge-category--fuel {
-  background-color: #381a1f;
-  color: #f87171;
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
 }
 
 .badge-category--compliance {
-  background-color: #372813;
-  color: #f59e0b;
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
 }
 
 .badge-category--credit {
-  background-color: #241c38;
-  color: #a78bfa;
+  background-color: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
 }
 
 .badge-category--overdue {
-  background-color: #361d2a;
-  color: #f472b6;
+  background-color: #fdf2f8;
+  color: #be185d;
+  border: 1px solid #fbcfe8;
 }
 
 .badge-category--advance {
-  background-color: #162a38;
-  color: #38bdf8;
+  background-color: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
 }
 
 .badge-category--pod {
-  background-color: #1a2e28;
-  color: #34d399;
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
 .badge-severity {
@@ -568,16 +565,16 @@ function getCategoryBadgeClass(category: string) {
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
-/* Right Action Buttons matching user screenshot */
+/* Right Action Buttons */
 .btn-action-review {
-  background-color: transparent;
-  color: #00e5ff;
-  border: 1px solid rgba(0, 229, 255, 0.5);
+  background-color: #ffffff;
+  color: #0284c7;
+  border: 1px solid #0284c7;
   font-size: 12px;
   font-weight: 600;
   padding: 6px 14px;
@@ -588,15 +585,14 @@ function getCategoryBadgeClass(category: string) {
 }
 
 .btn-action-review:hover {
-  background-color: rgba(0, 229, 255, 0.15);
-  border-color: #00e5ff;
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+  background-color: #f0f9ff;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.15);
 }
 
 .btn-action-resolve {
-  background-color: transparent;
-  color: #cbd5e1;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
   font-size: 12px;
   font-weight: 500;
   padding: 6px 14px;
@@ -609,11 +605,12 @@ function getCategoryBadgeClass(category: string) {
 .btn-action-resolve:hover {
   border-color: #10b981;
   color: #10b981;
-  background-color: rgba(16, 185, 129, 0.1);
+  background-color: #f0fdf4;
 }
 
 .btn-action-resolve--done {
   border-color: #f59e0b;
   color: #f59e0b;
+  background-color: #fffbeb;
 }
 </style>

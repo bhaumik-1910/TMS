@@ -385,9 +385,9 @@ function handleClose() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #060d1a;
-  border: 1px solid rgba(0, 242, 254, 0.2);
-  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
   padding: 8px 12px;
   margin-bottom: 14px;
 }
@@ -409,17 +409,17 @@ function handleClose() {
 
 .desk-topbar-instruction {
   font-size: 0.74rem;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .desk-topbar-instruction strong {
-  color: #00f2fe;
+  color: #0284c7;
 }
 
 .desk-btn-save-top {
-  background: #00f2fe;
-  color: #070c18;
-  border: none;
+  background: #0284c7;
+  color: #ffffff;
+  border: 1px solid #0369a1;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.78rem;
   font-weight: 800;
@@ -430,8 +430,8 @@ function handleClose() {
 }
 
 .desk-btn-save-top:hover {
-  background: #38bdf8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+  background: #0369a1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .key-underline {
@@ -450,25 +450,25 @@ function handleClose() {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.7rem;
   font-weight: 900;
-  color: #00f2fe;
-  background: rgba(0, 242, 254, 0.12);
+  color: #0284c7;
+  background: #e0f2fe;
   padding: 1px 6px;
   border-radius: 4px;
-  border: 1px solid rgba(0, 242, 254, 0.3);
+  border: 1px solid #bae6fd;
 }
 
 .desk-section-title {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.75rem;
   font-weight: 800;
-  color: #e2e8f0;
+  color: #0f172a;
   letter-spacing: 0.06em;
 }
 
 .desk-section-line {
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #e2e8f0;
 }
 
 .desk-form-bottom-actions {
@@ -477,42 +477,42 @@ function handleClose() {
   justify-content: flex-end;
   gap: 12px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #cbd5e1;
 }
 
 .desk-btn-bottom-cancel {
-  background: #1e293b;
-  color: #94a3b8;
-  border: 1px solid #334155;
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.8rem;
   font-weight: 700;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .desk-btn-bottom-cancel:hover {
-  background: #334155;
-  color: #ffffff;
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 .desk-btn-bottom-save {
-  background: #00f2fe;
-  color: #070c18;
-  border: 1px solid #38bdf8;
+  background: #0284c7;
+  color: #ffffff;
+  border: 1px solid #0369a1;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.85rem;
   font-weight: 800;
   padding: 8px 20px;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .desk-btn-bottom-save:hover {
-  background: #38bdf8;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+  background: #0369a1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>

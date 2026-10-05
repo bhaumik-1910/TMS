@@ -1,9 +1,9 @@
 <template>
-  <div class="purchase-bills-container min-h-screen text-slate-100 p-6">
+  <div class="purchase-bills-container min-h-screen text-slate-800 p-6 overflow-y-auto">
     <!-- Header matching Image 1: 'Purchase Bills' with cyan underline, GST ITC Export & + Purchase Bill buttons -->
     <div class="flex items-center justify-between mb-6">
       <div class="page-title-wrap">
-        <h1 class="text-2xl font-bold text-white tracking-wide">Purchase Bills</h1>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Purchase Bills</h1>
         <div class="page-underline"></div>
       </div>
 
@@ -31,22 +31,22 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       <!-- Card 1: THIS MONTH PURCHASES (Active cyan glowing border) -->
       <div class="kpi-box kpi-box--active">
-        <div class="kpi-title text-cyan-400">THIS MONTH PURCHASES</div>
-        <div class="kpi-amount text-cyan-400">₹{{ monthPurchases }}</div>
+        <div class="kpi-title text-sky-600">THIS MONTH PURCHASES</div>
+        <div class="kpi-amount text-sky-700">₹{{ monthPurchases }}</div>
         <div class="kpi-subtext">Oct 2026</div>
       </div>
 
       <!-- Card 2: PENDING APPROVAL -->
       <div class="kpi-box">
         <div class="kpi-title">PENDING APPROVAL</div>
-        <div class="kpi-amount text-amber-400">{{ pendingCount }}</div>
+        <div class="kpi-amount text-amber-600">{{ pendingCount }}</div>
         <div class="kpi-subtext">Bills to approve</div>
       </div>
 
       <!-- Card 3: ITC ELIGIBLE -->
       <div class="kpi-box">
         <div class="kpi-title">ITC ELIGIBLE</div>
-        <div class="kpi-amount text-white">₹{{ itcEligibleAmount }}</div>
+        <div class="kpi-amount text-slate-800">₹{{ itcEligibleAmount }}</div>
         <div class="kpi-subtext">GST input credit</div>
       </div>
     </div>
@@ -58,6 +58,7 @@
           <q-icon name="search" size="18px" />
         </span>
         <input
+          ref="searchInputRef"
           v-model="searchQuery"
           type="text"
           class="search-input w-full pl-9 pr-4 py-2 text-sm rounded-lg"
@@ -74,30 +75,30 @@
     </div>
 
     <!-- Table matching Image 1 -->
-    <div class="table-container rounded-xl overflow-hidden border border-[#1e293b] bg-[#091122]">
+    <div class="table-container rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm border-collapse">
           <thead>
-            <tr class="table-head-row text-[12px] uppercase tracking-wider text-cyan-400 border-b border-[#1e293b]">
-              <th class="py-3.5 px-4 font-bold">BILL ID</th>
-              <th class="py-3.5 px-4 font-bold">SUPPLIER</th>
-              <th class="py-3.5 px-4 font-bold">TYPE</th>
-              <th class="py-3.5 px-4 font-bold">BILL NO</th>
-              <th class="py-3.5 px-4 font-bold">DATE</th>
-              <th class="py-3.5 px-4 font-bold">BASE AMT</th>
-              <th class="py-3.5 px-4 font-bold">GST</th>
-              <th class="py-3.5 px-4 font-bold">TOTAL</th>
-              <th class="py-3.5 px-4 font-bold">TDS</th>
-              <th class="py-3.5 px-4 font-bold">LINKED TO</th>
-              <th class="py-3.5 px-4 font-bold">STATUS</th>
-              <th class="py-3.5 px-4 font-bold text-center">ACTION</th>
+            <tr class="table-head-row text-[12px] uppercase tracking-wider text-slate-700 border-b border-slate-200 bg-slate-50">
+              <th class="py-3 px-4 font-bold">BILL ID</th>
+              <th class="py-3 px-4 font-bold">SUPPLIER</th>
+              <th class="py-3 px-4 font-bold">TYPE</th>
+              <th class="py-3 px-4 font-bold">BILL NO</th>
+              <th class="py-3 px-4 font-bold">DATE</th>
+              <th class="py-3 px-4 font-bold">BASE AMT</th>
+              <th class="py-3 px-4 font-bold">GST</th>
+              <th class="py-3 px-4 font-bold">TOTAL</th>
+              <th class="py-3 px-4 font-bold">TDS</th>
+              <th class="py-3 px-4 font-bold">LINKED TO</th>
+              <th class="py-3 px-4 font-bold">STATUS</th>
+              <th class="py-3 px-4 font-bold text-center">ACTION</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#162238]">
+          <tbody class="divide-y divide-slate-200">
             <tr
               v-for="bill in filteredBills"
               :key="bill.id"
-              class="hover:bg-[#0f1d38] transition-colors"
+              class="hover:bg-slate-50 transition-colors"
             >
               <!-- Bill ID (Cyan font-bold) -->
               <td class="py-4 px-4 font-semibold text-cyan-400 font-mono">
@@ -394,6 +395,7 @@ import {
   DeskField,
   DeskCombo,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 export interface PurchaseBillItem {
   id: string;
@@ -413,6 +415,7 @@ export interface PurchaseBillItem {
 const notify = useAppNotify();
 
 // Search & Drawer States
+const searchInputRef = ref();
 const searchQuery = ref('');
 const showDrawer = ref(false);
 const isEditing = ref(false);
@@ -928,11 +931,23 @@ function getStatusBadgeClass(status: string) {
       return 'badge-pending';
   }
 }
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  searchInputRef,
+  onNewRecord: openAddDrawer,
+  isModalOpen: () => showDrawer.value || showDeleteDialog.value,
+  onSave: saveBill,
+  onEscape: () => {
+    showDrawer.value = false;
+    showDeleteDialog.value = false;
+  },
+});
 </script>
 
 <style scoped>
 .purchase-bills-container {
-  background-color: #050b18;
+  background-color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -945,18 +960,18 @@ function getStatusBadgeClass(status: string) {
 .page-underline {
   height: 3px;
   width: 38px;
-  background-color: #00e5ff;
+  background-color: #0284c7;
   border-radius: 2px;
   margin-top: 4px;
 }
 
 /* Header Action Buttons matching user screenshot */
 .btn-secondary-action {
-  background-color: transparent;
-  color: #00e5ff;
-  border: 1px solid #00e5ff;
+  background-color: #ffffff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   height: 38px;
   padding: 0 18px;
   border-radius: 8px;
@@ -969,13 +984,13 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-secondary-action:hover {
-  background-color: rgba(0, 229, 255, 0.12);
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+  background-color: #e0f2fe;
+  border-color: #0284c7;
 }
 
 .btn-primary-cyan {
-  background-color: #00e5ff;
-  color: #000000;
+  background-color: #0284c7;
+  color: #ffffff;
   border: none;
   font-size: 13px;
   font-weight: 700;
@@ -992,25 +1007,26 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-primary-cyan:hover {
-  background-color: #33ebff;
-  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+  background-color: #0369a1;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
 }
 
 /* KPI Box Cards matching Image 1 */
 .kpi-box {
-  background: #091224;
-  border: 1px solid #162540;
-  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 110px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .kpi-box--active {
-  border-color: #00e5ff;
-  box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+  border-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
 }
 
 .kpi-title {
@@ -1027,6 +1043,7 @@ function getStatusBadgeClass(status: string) {
   font-family: monospace, -apple-system;
   line-height: 1.2;
   margin: 6px 0 2px 0;
+  color: #0f172a;
 }
 
 .kpi-subtext {
@@ -1036,31 +1053,32 @@ function getStatusBadgeClass(status: string) {
 
 /* Search input */
 .search-input {
-  background-color: #091527;
-  border: 1px solid #1e293b;
-  color: #f8fafc;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
   outline: none;
   transition: border-color 0.2s ease;
 }
 
 .search-input:focus {
-  border-color: #00e5ff;
+  border-color: #0284c7;
 }
 
 .search-input::placeholder {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 /* Table styling */
 .table-head-row th {
-  background-color: #081122;
+  background-color: #f1f5f9;
+  color: #334155;
 }
 
 /* Table Action Buttons matching standard TMS design */
 .btn-table-action {
-  background: rgba(0, 242, 254, 0.1);
-  color: #00f2fe;
-  border: 1px solid rgba(0, 242, 254, 0.3);
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
   padding: 3px 12px;
   border-radius: 4px;
   font-size: 12px;
@@ -1070,14 +1088,13 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-table-action:hover {
-  background: rgba(0, 242, 254, 0.25);
-  border-color: #00f2fe;
+  background: #bae6fd;
 }
 
 .btn-table-icon {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
   height: 28px;
   width: 28px;
   border-radius: 6px;
@@ -1091,8 +1108,8 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-table-icon:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: #e2e8f0;
+  color: #334155;
 }
 
 .btn-table-icon--danger {
@@ -1100,9 +1117,9 @@ function getStatusBadgeClass(status: string) {
 }
 
 .btn-table-icon--danger:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #f87171;
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 
 /* Badges */
@@ -1119,51 +1136,51 @@ function getStatusBadgeClass(status: string) {
 
 /* Type Badges */
 .badge-fuel {
-  background-color: rgba(6, 78, 59, 0.4);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.35);
+  background-color: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #86efac;
 }
 
 .badge-service {
-  background-color: rgba(30, 27, 75, 0.6);
-  color: #818cf8;
-  border: 1px solid rgba(129, 140, 248, 0.35);
+  background-color: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
 }
 
 .badge-tyre {
-  background-color: rgba(69, 26, 3, 0.5);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.35);
+  background-color: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fde047;
 }
 
 .badge-other {
-  background-color: rgba(30, 41, 59, 0.6);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
 }
 
 /* Status Badges */
 .badge-approved {
-  background-color: rgba(6, 78, 59, 0.4);
-  color: #4ade80;
-  border: 1px solid rgba(74, 222, 128, 0.35);
+  background-color: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #86efac;
 }
 
 .badge-pending {
-  background-color: rgba(69, 26, 3, 0.5);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.35);
+  background-color: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fde047;
 }
 
 .badge-paid {
-  background-color: rgba(8, 51, 68, 0.5);
-  color: #22d3ee;
-  border: 1px solid rgba(34, 211, 238, 0.35);
+  background-color: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
 }
 
 .badge-rejected {
-  background-color: rgba(69, 10, 10, 0.5);
-  color: #f87171;
-  border: 1px solid rgba(248, 113, 113, 0.35);
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
 }
 </style>

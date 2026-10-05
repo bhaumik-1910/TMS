@@ -46,8 +46,8 @@
               </div>
             </div>
             <div class="row items-center q-gutter-x-xs">
-              <q-badge v-if="item.badge" :color="item.badgeColor || 'grey-2'" :text-color="item.badgeTextColor || 'grey-8'" size="xs">
-                {{ item.badge }}
+              <q-badge v-if="'badge' in item && (item as any).badge" :color="(item as any).badgeColor || 'grey-2'" :text-color="(item as any).badgeTextColor || 'grey-8'" size="xs">
+                {{ (item as any).badge }}
               </q-badge>
               <q-icon name="subdirectory_arrow_left" size="14px" color="grey-4" />
             </div>

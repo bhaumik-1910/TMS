@@ -50,8 +50,8 @@
             :disabled="notifStore.isRefreshing"
             @click="refreshFeed"
           >
-            <q-spinner v-if="notifStore.isRefreshing" size="14px" color="cyan" />
-            <q-icon v-else name="refresh" size="16px" class="text-cyan-300" />
+            <q-spinner v-if="notifStore.isRefreshing" size="14px" color="primary" />
+            <q-icon v-else name="refresh" size="16px" class="text-sky-700" />
           </button>
 
           <!-- Close Drawer -->

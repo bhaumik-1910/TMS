@@ -145,7 +145,7 @@ const displayValue = computed(() => {
 });
 
 const filteredOptions = computed(() => {
-  if (!props.searchQuery && !searchQuery.value) return props.options;
+  if (!searchQuery.value) return props.options;
   const q = searchQuery.value.toLowerCase();
   return props.options.filter((opt) => getOptionLabel(opt).toLowerCase().includes(q));
 });

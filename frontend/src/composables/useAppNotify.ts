@@ -59,5 +59,9 @@ export function useAppNotify() {
     error,
     warning,
     info,
+    notifySuccess: success,
+    notifyError: error,
+    notifyWarning: warning,
+    notifyInfo: info,
   };
 }

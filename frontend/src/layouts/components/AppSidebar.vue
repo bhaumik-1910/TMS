@@ -3,7 +3,7 @@
     :model-value="modelValue"
     show-if-above
     :mini="mini"
-    :width="250"
+    :width="280"
     :mini-width="72"
     class="tms-sidebar column justify-between bg-black text-white"
     style="border-right: 1px solid rgba(255, 255, 255, 0.08);"
@@ -38,17 +38,21 @@
                 <q-icon :name="item.icon" size="18px" />
               </q-item-section>
               <q-item-section v-if="!mini">
-                <span>{{ item.label }}</span>
-              </q-item-section>
-              <q-item-section v-if="!mini && item.badge" side>
-                <q-badge
-                  :color="item.badgeColor || 'primary'"
-                  text-color="white"
-                  class="font-mono q-px-xs q-py-none rounded-borders"
-                  style="font-size: 0.65rem;"
-                >
-                  {{ item.badge }}
-                </q-badge>
+                <div class="row items-center justify-between full-width no-wrap">
+                  <span class="ellipsis q-pr-xs">{{ item.label }}</span>
+                  <div class="row items-center q-gutter-x-xs no-wrap flex-shrink-0">
+                    <kbd v-if="item.shortcut" class="desk-nav-kbd flex-shrink-0">{{ item.shortcut }}</kbd>
+                    <q-badge
+                      v-if="item.badge"
+                      :color="item.badgeColor || 'primary'"
+                      text-color="white"
+                      class="font-mono q-px-xs q-py-none rounded-borders flex-shrink-0"
+                      style="font-size: 0.65rem;"
+                    >
+                      {{ item.badge }}
+                    </q-badge>
+                  </div>
+                </div>
               </q-item-section>
 
               <q-tooltip v-if="mini" anchor="center right" self="center left" :offset="[10, 10]">
@@ -76,8 +80,9 @@
                 active-class="tms-nav-item--active"
               >
                 <q-item-section>{{ child.label }}</q-item-section>
-                <q-item-section v-if="child.badge" side>
-                  <q-badge :color="child.badgeColor || 'primary'" size="xs">{{ child.badge }}</q-badge>
+                <q-item-section v-if="child.shortcut || child.badge" side>
+                  <kbd v-if="child.shortcut" class="desk-nav-kbd">{{ child.shortcut }}</kbd>
+                  <q-badge v-else-if="child.badge" :color="child.badgeColor || 'primary'" size="xs">{{ child.badge }}</q-badge>
                 </q-item-section>
               </q-item>
             </q-expansion-item>
@@ -156,5 +161,25 @@ const filteredSidebarGroups = computed(() => {
   margin-left: 20px;
   border-radius: 6px;
   font-size: 0.8rem;
+}
+.desk-nav-kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #0f1c2e;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+  transition: all 0.15s ease;
+}
+.tms-nav-item:hover .desk-nav-kbd,
+.tms-nav-item--active .desk-nav-kbd {
+  border-color: #00f2fe;
+  color: #00f2fe;
+  box-shadow: 0 0 6px rgba(0, 242, 254, 0.4);
+  opacity: 1;
 }
 </style>

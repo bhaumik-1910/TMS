@@ -1,13 +1,13 @@
 <template>
-  <div class="fuel-entry-page p-3 sm:p-4 text-slate-100 font-sans">
+  <div class="fuel-entry-page p-3 sm:p-4 text-slate-800 font-sans">
     <!-- Header -->
     <div class="row items-center justify-between q-mb-md">
       <div>
-        <div class="text-h6 text-weight-bold text-white row items-center q-gutter-x-sm">
-          <q-icon name="local_gas_station" color="cyan" size="24px" />
+        <div class="text-h6 text-weight-bold text-slate-900 row items-center q-gutter-x-sm">
+          <q-icon name="local_gas_station" color="primary" size="24px" />
           <span>Fuel Entry & Fleet Consumption</span>
         </div>
-        <div class="text-caption text-grey-5">
+        <div class="text-caption text-slate-500">
           Diesel dispense logging, mileage KM/L verification, variance tracking &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> for fuel entry
         </div>
       </div>
@@ -63,6 +63,7 @@
         <div class="row items-center justify-between no-wrap">
           <div class="row items-center q-gutter-x-sm no-wrap">
             <q-input
+              ref="searchInputRef"
               v-model="search"
               dense
               outlined
@@ -386,6 +387,7 @@ import {
   DeskField,
   DeskNumberInput,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 export interface FuelEntry {
   id: string;
@@ -403,6 +405,7 @@ export interface FuelEntry {
 }
 
 const notify = useAppNotify();
+const searchInputRef = ref();
 const search = ref('');
 const stationFilter = ref('ALL');
 const isRefreshing = ref(false);
@@ -731,11 +734,23 @@ async function executeDeleteEntry() {
   notify.notifySuccess(`Fuel entry ${targetId} deleted from database.`);
   deletingItem.value = null;
 }
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  searchInputRef,
+  onNewRecord: openAddDialog,
+  isModalOpen: () => showDialog.value || showDeleteDialog.value,
+  onSave: saveFuelEntry,
+  onEscape: () => {
+    showDialog.value = false;
+    showDeleteDialog.value = false;
+  },
+});
 </script>
 
 <style scoped>
 .fuel-entry-page {
-  background-color: #070c18;
+  background-color: #f8fafc;
   min-height: calc(100vh - 88px);
 }
 
@@ -745,7 +760,7 @@ async function executeDeleteEntry() {
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: #00f2fe;
+  border-color: #0284c7;
 }
 
 .accent-bar {
@@ -757,8 +772,8 @@ async function executeDeleteEntry() {
 }
 
 .cyber-card {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
 }
 

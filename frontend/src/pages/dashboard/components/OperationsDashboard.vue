@@ -1,5 +1,5 @@
 <template>
-  <div class="operations-console-wrapper p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto text-white">
+  <div class="operations-console-wrapper p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto text-slate-800">
     <!-- Page Header -->
     <AppPageHeader
       breadcrumb="Logistics Control Tower / Overview"
@@ -8,12 +8,12 @@
     >
       <template #badge>
         <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-cyan-950/70 text-cyan-300 border border-cyan-500/30">
-            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-sky-50 text-sky-700 border border-sky-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
             {{ authStore.currentRole }}
           </span>
-          <span class="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-500/20">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span class="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
             LIVE TELEMETRY
           </span>
         </div>
@@ -25,14 +25,14 @@
           dense
           round
           icon="refresh"
-          color="cyan"
+          color="primary"
           size="sm"
           class="q-mr-xs"
           @click="loadDashboard"
           :loading="loading"
         >
           <template #loading>
-            <q-spinner color="cyan" size="16px" />
+            <q-spinner color="primary" size="16px" />
           </template>
           <q-tooltip>Refresh Live Telemetry</q-tooltip>
         </q-btn>
@@ -94,21 +94,21 @@
     <div v-if="authStore.hasPermission('tracking:view') || authStore.hasPermission('exception:view')" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
       <!-- Live Fleet Map Container -->
       <div v-if="authStore.hasPermission('tracking:view')" :class="authStore.hasPermission('exception:view') ? 'lg:col-span-8' : 'lg:col-span-12'">
-        <div class="cyber-card p-5 h-full flex flex-col justify-between">
+        <div class="cyber-card p-5 h-full flex flex-col justify-between border border-slate-200 bg-white">
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2.5">
-              <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></div>
-              <span class="text-sm font-bold text-white tracking-wide">Live Fleet Radar & GPS Telematics</span>
-              <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
+              <div class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping"></div>
+              <span class="text-sm font-bold text-slate-900 tracking-wide">Live Fleet Radar & GPS Telematics</span>
+              <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-sky-50 text-sky-700 border border-sky-200">
                 {{ vehicles.length }} UNITS ACTIVE
               </span>
             </div>
-            <router-link to="/tracking" class="text-xs font-mono font-semibold text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1">
+            <router-link to="/tracking" class="text-xs font-mono font-semibold text-sky-700 hover:text-sky-800 transition-colors flex items-center gap-1">
               Full Screen Radar
               <q-icon name="open_in_new" size="13px" />
             </router-link>
           </div>
-          <div class="h-[400px] rounded-lg overflow-hidden border border-slate-800/80 bg-slate-950 relative">
+          <div class="h-[400px] rounded-lg overflow-hidden border border-slate-200 bg-slate-50 relative">
             <LiveMap :vehicles="vehicles" :geofences="geofences" />
           </div>
         </div>
@@ -116,18 +116,18 @@
 
       <!-- Operational Exceptions & Activity Stream -->
       <div v-if="authStore.hasPermission('exception:view')" :class="authStore.hasPermission('tracking:view') ? 'lg:col-span-4' : 'lg:col-span-12'">
-        <div class="cyber-card p-5 h-full flex flex-col justify-between">
+        <div class="cyber-card p-5 h-full flex flex-col justify-between border border-slate-200 bg-white">
           <div>
             <div class="flex items-center justify-between mb-1">
-              <span class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                <q-icon name="warning" color="amber" size="18px" />
+              <span class="text-sm font-bold text-slate-900 tracking-wide flex items-center gap-2">
+                <q-icon name="warning" color="amber-8" size="18px" />
                 Operational Exceptions
               </span>
-              <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-red-950/70 text-red-300 border border-red-500/30">
+              <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200">
                 {{ exceptions.length }} ACTIVE
               </span>
             </div>
-            <p class="text-xs text-slate-400 mb-3">
+            <p class="text-xs text-slate-500 mb-3">
               Route deviations, dwell timeouts, and telematics alerts
             </p>
 
@@ -135,30 +135,30 @@
               <div
                 v-for="exc in exceptions"
                 :key="exc.id"
-                class="p-3 rounded-lg border border-slate-800 bg-slate-900/70 hover:border-slate-700 transition-colors"
+                class="p-3 rounded-lg border border-slate-200 bg-slate-50/70 hover:border-slate-300 transition-colors"
               >
                 <div class="flex items-center justify-between mb-1.5">
                   <span
                     class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border"
-                    :class="exc.severity === 'CRITICAL' ? 'bg-red-950 text-red-300 border-red-500/40 shadow-[0_0_8px_rgba(239,68,68,0.3)]' : exc.severity === 'HIGH' ? 'bg-amber-950 text-amber-300 border-amber-500/40' : 'bg-cyan-950 text-cyan-300 border-cyan-500/40'"
+                    :class="exc.severity === 'CRITICAL' ? 'bg-rose-50 text-rose-700 border-rose-300' : exc.severity === 'HIGH' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'bg-sky-50 text-sky-700 border-sky-300'"
                   >
                     {{ exc.severity }}
                   </span>
-                  <span class="text-[11px] font-mono text-slate-400">{{ exc.time }}</span>
+                  <span class="text-[11px] font-mono text-slate-500">{{ exc.time }}</span>
                 </div>
-                <div class="text-xs text-slate-200 leading-relaxed">
-                  <span class="font-mono font-bold text-cyan-300">{{ exc.asset }}</span>: {{ exc.message }}
+                <div class="text-xs text-slate-700 leading-relaxed">
+                  <span class="font-mono font-bold text-sky-800">{{ exc.asset }}</span>: {{ exc.message }}
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="mt-4 p-2.5 bg-slate-950/60 rounded-lg border border-slate-800 flex items-center justify-between text-xs font-mono">
-            <span class="text-slate-400 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div class="mt-4 p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-600 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               Auto-Tender Dispatch Engine
             </span>
-            <span class="text-[11px] font-bold text-emerald-400">ONLINE</span>
+            <span class="text-[11px] font-bold text-emerald-700">ONLINE</span>
           </div>
         </div>
       </div>
@@ -168,25 +168,25 @@
     <div v-if="authStore.hasPermission('analytics:view') || authStore.hasPermission('carrier:view')" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
       <!-- Shipment Volume & On-Time Performance Trend Chart -->
       <div v-if="authStore.hasPermission('analytics:view')" :class="authStore.hasPermission('carrier:view') ? 'lg:col-span-7' : 'lg:col-span-12'">
-        <div class="cyber-card p-5 h-full">
+        <div class="cyber-card p-5 h-full border border-slate-200 bg-white">
           <div class="flex items-center justify-between mb-3">
             <div>
-              <div class="text-sm font-bold text-white tracking-wide">Weekly Linehaul Volume & SLA Trend</div>
-              <div class="text-xs text-slate-400">Daily dispatched freight tonnage and on-time reliability curve</div>
+              <div class="text-sm font-bold text-slate-900 tracking-wide">Weekly Linehaul Volume & SLA Trend</div>
+              <div class="text-xs text-slate-500">Daily dispatched freight tonnage and on-time reliability curve</div>
             </div>
-            <span class="px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-cyan-950 text-cyan-300 border border-cyan-500/30">
+            <span class="px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-sky-50 text-sky-700 border border-sky-200">
               7-DAY ROLLING
             </span>
           </div>
 
           <div class="h-[250px] flex flex-col justify-between pt-2">
             <!-- Chart Area with Horizontal Background Grid Lines & Bars -->
-            <div class="relative h-[165px] w-full border-b border-slate-800">
+            <div class="relative h-[165px] w-full border-b border-slate-200">
               <!-- Horizontal Guideline marks -->
-              <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-25">
-                <div class="border-b border-dashed border-cyan-400/40 w-full flex justify-between text-[9px] font-mono text-slate-400"><span>60T</span></div>
-                <div class="border-b border-dashed border-cyan-400/40 w-full flex justify-between text-[9px] font-mono text-slate-400"><span>40T</span></div>
-                <div class="border-b border-dashed border-cyan-400/40 w-full flex justify-between text-[9px] font-mono text-slate-400"><span>20T</span></div>
+              <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-40">
+                <div class="border-b border-dashed border-slate-200 w-full flex justify-between text-[9px] font-mono text-slate-500"><span>60T</span></div>
+                <div class="border-b border-dashed border-slate-200 w-full flex justify-between text-[9px] font-mono text-slate-500"><span>40T</span></div>
+                <div class="border-b border-dashed border-slate-200 w-full flex justify-between text-[9px] font-mono text-slate-500"><span>20T</span></div>
               </div>
 
               <!-- 7 Day Equal Columns Grid with Generous Spacing -->
@@ -197,14 +197,14 @@
                   class="flex flex-col items-center h-full justify-end group cursor-pointer"
                 >
                   <!-- Value Tooltip / Badge on Hover -->
-                  <div class="text-[10px] font-mono text-cyan-300 opacity-0 group-hover:opacity-100 transition-all transform -translate-y-1 mb-1 font-bold whitespace-nowrap bg-slate-900/90 px-1.5 py-0.5 rounded border border-cyan-500/40 shadow-[0_0_8px_rgba(0,242,254,0.4)]">
+                  <div class="text-[10px] font-mono text-slate-900 opacity-0 group-hover:opacity-100 transition-all transform -translate-y-1 mb-1 font-bold whitespace-nowrap bg-white px-1.5 py-0.5 rounded border border-slate-300 shadow-md">
                     {{ item.count }}T ({{ item.sla }}%)
                   </div>
 
                   <!-- Pillar Track with Distinct Spacing & Rounded Cap -->
-                  <div class="w-6 sm:w-8 md:w-9 h-[125px] bg-slate-950/70 rounded-t-lg border border-slate-800/80 p-0.5 flex flex-col justify-end group-hover:border-cyan-500/50 transition-colors">
+                  <div class="w-6 sm:w-8 md:w-9 h-[125px] bg-slate-100 rounded-t-lg border border-slate-200 p-0.5 flex flex-col justify-end group-hover:border-sky-500 transition-colors">
                     <div
-                      class="w-full bg-gradient-to-t from-blue-700 via-cyan-500 to-cyan-300 group-hover:from-blue-600 group-hover:to-cyan-200 rounded-t-md transition-all shadow-[0_0_10px_rgba(0,242,254,0.25)]"
+                      class="w-full bg-gradient-to-t from-sky-600 to-sky-400 group-hover:from-sky-700 group-hover:to-sky-500 rounded-t-md transition-all shadow-sm"
                       :style="{ height: item.height }"
                     ></div>
                   </div>
@@ -217,20 +217,19 @@
               <div
                 v-for="item in weeklyVolumeData"
                 :key="item.day"
-                class="text-center text-xs font-mono font-medium text-slate-400 hover:text-cyan-300 transition-colors"
+                class="text-center text-xs font-mono font-medium text-slate-600 hover:text-sky-700 transition-colors"
               >
                 {{ item.day }}
               </div>
             </div>
 
             <!-- Footer Legend -->
-            <div class="flex items-center justify-between text-xs text-slate-400 pt-2 font-mono">
+            <div class="flex items-center justify-between text-xs text-slate-600 pt-2 font-mono">
               <span class="flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded bg-gradient-to-r from-blue-600 to-cyan-400 shadow-[0_0_6px_rgba(0,242,254,0.4)]"></span>
+                <span class="w-2.5 h-2.5 rounded bg-sky-600"></span>
                 <span>Dispatched Volume (Tons)</span>
               </span>
-              <span class="text-emerald-400 font-semibold flex items-center gap-1 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-emerald-700 font-semibold flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                 <span>95.6% Network SLA</span>
               </span>
             </div>
@@ -240,30 +239,30 @@
 
       <!-- Carrier Performance Rankings -->
       <div v-if="authStore.hasPermission('carrier:view')" :class="authStore.hasPermission('analytics:view') ? 'lg:col-span-5' : 'lg:col-span-12'">
-        <div class="cyber-card p-5 h-full flex flex-col justify-between">
+        <div class="cyber-card p-5 h-full flex flex-col justify-between border border-slate-200 bg-white">
           <div>
             <div class="flex items-center justify-between mb-3">
               <div>
-                <div class="text-sm font-bold text-white tracking-wide">Top Carrier Scorecards</div>
-                <div class="text-xs text-slate-400">Scored on OTD percentage, claims ratio, and tender acceptance</div>
+                <div class="text-sm font-bold text-slate-900 tracking-wide">Top Carrier Scorecards</div>
+                <div class="text-xs text-slate-500">Scored on OTD percentage, claims ratio, and tender acceptance</div>
               </div>
-              <router-link to="/carriers" class="text-xs font-mono font-semibold text-cyan-400 hover:text-cyan-300">
+              <router-link to="/carriers" class="text-xs font-mono font-semibold text-sky-700 hover:text-sky-800">
                 View All &rarr;
               </router-link>
             </div>
 
-            <div class="divide-y divide-slate-800/80">
+            <div class="divide-y divide-slate-200">
               <div v-for="(carrier, i) in carriers" :key="i" class="py-2.5 flex items-center justify-between group">
                 <div class="flex items-center gap-3">
-                  <div class="w-6 h-6 rounded bg-slate-800 text-cyan-300 font-mono text-xs font-bold flex items-center justify-center border border-slate-700">
+                  <div class="w-6 h-6 rounded bg-slate-100 text-slate-700 font-mono text-xs font-bold flex items-center justify-center border border-slate-300">
                     #{{ i + 1 }}
                   </div>
                   <div>
-                    <div class="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">{{ carrier.companyName }}</div>
-                    <div class="text-xs text-slate-400 font-mono">{{ carrier._count?.shipments || 12 }} completed linehauls</div>
+                    <div class="text-sm font-bold text-slate-900 group-hover:text-sky-700 transition-colors">{{ carrier.companyName }}</div>
+                    <div class="text-xs text-slate-500 font-mono">{{ carrier._count?.shipments || 12 }} completed linehauls</div>
                   </div>
                 </div>
-                <div class="flex items-center gap-1 text-xs font-bold text-amber-400 font-mono bg-amber-950/40 px-2 py-0.5 rounded border border-amber-500/20">
+                <div class="flex items-center gap-1 text-xs font-bold text-amber-700 font-mono bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                   <span>★</span>
                   <span>{{ carrier.rating }}</span>
                 </div>
@@ -275,16 +274,16 @@
     </div>
 
     <!-- 6-Stage "OPERATION WORKFLOW" Continuous Pipeline -->
-    <div class="cyber-card p-5">
+    <div class="cyber-card p-5 border border-slate-200 bg-white">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <div class="text-sm font-bold text-white flex items-center gap-2 tracking-wide uppercase">
-            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f2fe]"></span>
+          <div class="text-sm font-bold text-slate-900 flex items-center gap-2 tracking-wide uppercase">
+            <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
             Continuous Operation Workflow Pipeline
           </div>
-          <div class="text-xs text-slate-400">Enterprise Transportation Lifecycle: Booking &rarr; Planning &rarr; Dispatch &rarr; In-Transit &rarr; ePOD &rarr; Settlement</div>
+          <div class="text-xs text-slate-500">Enterprise Transportation Lifecycle: Booking &rarr; Planning &rarr; Dispatch &rarr; In-Transit &rarr; ePOD &rarr; Settlement</div>
         </div>
-        <span class="text-xs font-mono text-cyan-300 bg-cyan-950 px-2.5 py-0.5 rounded border border-cyan-500/30">
+        <span class="text-xs font-mono text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded border border-sky-200 font-semibold">
           6 STAGES SYNCHRONIZED
         </span>
       </div>
@@ -293,102 +292,102 @@
         <!-- Stage 1: Booking -->
         <router-link
           to="/orders"
-          class="group p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-400/60 hover:bg-slate-850 transition-all text-center flex flex-col items-center justify-between"
+          class="group p-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-sky-500 hover:bg-white transition-all text-center flex flex-col items-center justify-between"
         >
-          <div class="w-10 h-10 rounded-xl bg-blue-950/80 border border-blue-800/80 text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-[0_0_12px_rgba(59,130,246,0.2)]">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
             <q-icon name="receipt_long" size="20px" />
           </div>
-          <div class="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">Booking</div>
-          <div class="text-[10px] text-slate-400 font-mono mt-0.5">Freight Orders</div>
-          <div class="w-full mt-2 pt-1 border-t border-slate-800 text-[10px] font-mono text-cyan-400 font-bold">Stage 1</div>
+          <div class="text-xs font-bold text-slate-800 group-hover:text-sky-600 transition-colors">Booking</div>
+          <div class="text-[10px] text-slate-500 font-mono mt-0.5">Freight Orders</div>
+          <div class="w-full mt-2 pt-1 border-t border-slate-200 text-[10px] font-mono text-sky-700 font-bold">Stage 1</div>
         </router-link>
 
         <!-- Stage 2: Planning -->
         <router-link
           to="/planning"
-          class="group p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-400/60 hover:bg-slate-850 transition-all text-center flex flex-col items-center justify-between"
+          class="group p-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-sky-500 hover:bg-white transition-all text-center flex flex-col items-center justify-between"
         >
-          <div class="w-10 h-10 rounded-xl bg-indigo-950/80 border border-indigo-800/80 text-indigo-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-[0_0_12px_rgba(99,102,241,0.2)]">
+          <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
             <q-icon name="alt_route" size="20px" />
           </div>
-          <div class="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">Planning</div>
-          <div class="text-[10px] text-slate-400 font-mono mt-0.5">Load Filling</div>
-          <div class="w-full mt-2 pt-1 border-t border-slate-800 text-[10px] font-mono text-indigo-400 font-bold">Stage 2</div>
+          <div class="text-xs font-bold text-slate-800 group-hover:text-sky-600 transition-colors">Planning</div>
+          <div class="text-[10px] text-slate-500 font-mono mt-0.5">Load Filling</div>
+          <div class="w-full mt-2 pt-1 border-t border-slate-200 text-[10px] font-mono text-indigo-700 font-bold">Stage 2</div>
         </router-link>
 
         <!-- Stage 3: Dispatch -->
         <router-link
           to="/dispatch"
-          class="group p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-400/60 hover:bg-slate-850 transition-all text-center flex flex-col items-center justify-between"
+          class="group p-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-sky-500 hover:bg-white transition-all text-center flex flex-col items-center justify-between"
         >
-          <div class="w-10 h-10 rounded-xl bg-amber-950/80 border border-amber-800/80 text-amber-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-[0_0_12px_rgba(245,158,11,0.2)]">
+          <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
             <q-icon name="view_kanban" size="20px" />
           </div>
-          <div class="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">Dispatch</div>
-          <div class="text-[10px] text-slate-400 font-mono mt-0.5">Trip Release</div>
-          <div class="w-full mt-2 pt-1 border-t border-slate-800 text-[10px] font-mono text-amber-400 font-bold">Stage 3</div>
+          <div class="text-xs font-bold text-slate-800 group-hover:text-sky-600 transition-colors">Dispatch</div>
+          <div class="text-[10px] text-slate-500 font-mono mt-0.5">Trip Release</div>
+          <div class="w-full mt-2 pt-1 border-t border-slate-200 text-[10px] font-mono text-amber-700 font-bold">Stage 3</div>
         </router-link>
 
         <!-- Stage 4: In-Transit -->
         <router-link
           to="/tracking"
-          class="group p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-400/60 hover:bg-slate-850 transition-all text-center flex flex-col items-center justify-between"
+          class="group p-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-sky-500 hover:bg-white transition-all text-center flex flex-col items-center justify-between"
         >
-          <div class="w-10 h-10 rounded-xl bg-cyan-950/80 border border-cyan-800/80 text-cyan-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-[0_0_12px_rgba(0,242,254,0.3)]">
+          <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 text-sky-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
             <q-icon name="my_location" size="20px" />
           </div>
-          <div class="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">In-Transit</div>
-          <div class="text-[10px] text-slate-400 font-mono mt-0.5">GPS Radar</div>
-          <div class="w-full mt-2 pt-1 border-t border-slate-800 text-[10px] font-mono text-cyan-400 font-bold">Stage 4</div>
+          <div class="text-xs font-bold text-slate-800 group-hover:text-sky-600 transition-colors">In-Transit</div>
+          <div class="text-[10px] text-slate-500 font-mono mt-0.5">GPS Radar</div>
+          <div class="w-full mt-2 pt-1 border-t border-slate-200 text-[10px] font-mono text-sky-700 font-bold">Stage 4</div>
         </router-link>
 
         <!-- Stage 5: Delivery / POD -->
         <router-link
           to="/pod"
-          class="group p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-400/60 hover:bg-slate-850 transition-all text-center flex flex-col items-center justify-between"
+          class="group p-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-sky-500 hover:bg-white transition-all text-center flex flex-col items-center justify-between"
         >
-          <div class="w-10 h-10 rounded-xl bg-emerald-950/80 border border-emerald-800/80 text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
             <q-icon name="draw" size="20px" />
           </div>
-          <div class="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">ePOD</div>
-          <div class="text-[10px] text-slate-400 font-mono mt-0.5">Signature Proof</div>
-          <div class="w-full mt-2 pt-1 border-t border-slate-800 text-[10px] font-mono text-emerald-400 font-bold">Stage 5</div>
+          <div class="text-xs font-bold text-slate-800 group-hover:text-sky-600 transition-colors">ePOD</div>
+          <div class="text-[10px] text-slate-500 font-mono mt-0.5">Signature Proof</div>
+          <div class="w-full mt-2 pt-1 border-t border-slate-200 text-[10px] font-mono text-emerald-700 font-bold">Stage 5</div>
         </router-link>
 
         <!-- Stage 6: Settlement -->
         <router-link
           to="/billing"
-          class="group p-3 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-400/60 hover:bg-slate-850 transition-all text-center flex flex-col items-center justify-between"
+          class="group p-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:border-sky-500 hover:bg-white transition-all text-center flex flex-col items-center justify-between"
         >
-          <div class="w-10 h-10 rounded-xl bg-purple-950/80 border border-purple-800/80 text-purple-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-[0_0_12px_rgba(168,85,247,0.2)]">
+          <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
             <q-icon name="account_balance_wallet" size="20px" />
           </div>
-          <div class="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">Settlement</div>
-          <div class="text-[10px] text-slate-400 font-mono mt-0.5">Tax Invoicing</div>
-          <div class="w-full mt-2 pt-1 border-t border-slate-800 text-[10px] font-mono text-purple-400 font-bold">Stage 6</div>
+          <div class="text-xs font-bold text-slate-800 group-hover:text-sky-600 transition-colors">Settlement</div>
+          <div class="text-[10px] text-slate-500 font-mono mt-0.5">Tax Invoicing</div>
+          <div class="w-full mt-2 pt-1 border-t border-slate-200 text-[10px] font-mono text-purple-700 font-bold">Stage 6</div>
         </router-link>
       </div>
     </div>
 
     <!-- Bottom Section: Active Shipment Tracking Feed -->
-    <div v-if="authStore.hasPermission('shipment:view')" class="cyber-card p-5">
+    <div v-if="authStore.hasPermission('shipment:view')" class="cyber-card p-5 border border-slate-200 bg-white">
       <div class="row items-center justify-between q-mb-md">
         <div>
-          <div class="text-subtitle2 text-weight-bold text-white flex items-center gap-2">
-            <q-icon name="local_shipping" color="cyan" size="18px" />
+          <div class="text-subtitle2 text-weight-bold text-slate-900 flex items-center gap-2">
+            <q-icon name="local_shipping" color="primary" size="18px" />
             Active Shipment Tracking Feed
           </div>
-          <div class="text-caption text-slate-400" style="font-size: 0.75rem;">
+          <div class="text-caption text-slate-500" style="font-size: 0.75rem;">
             Real-time transit milestones, assigned tractors, and customer consignments
           </div>
         </div>
-        <q-btn flat dense no-caps color="cyan" label="View All Shipments" icon-right="arrow_forward" size="sm" to="/shipments" />
+        <q-btn flat dense no-caps color="primary" label="View All Shipments" icon-right="arrow_forward" size="sm" to="/shipments" />
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm border-collapse">
+        <table class="w-full text-left text-sm border-collapse bg-white">
           <thead>
-            <tr class="border-b border-slate-800 text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider bg-slate-950/40">
+            <tr class="border-b border-slate-200 text-xs font-mono font-bold text-slate-700 uppercase tracking-wider bg-slate-50">
               <th class="py-3 px-4">Shipment #</th>
               <th class="py-3 px-4">Status</th>
               <th class="py-3 px-4">Corridor Lane</th>
@@ -398,15 +397,15 @@
               <th class="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800/60 font-mono text-xs">
+          <tbody class="divide-y divide-slate-200 font-mono text-xs">
             <tr
               v-for="row in recentShipments"
               :key="row.id"
-              class="hover:bg-slate-850/60 transition-colors"
+              class="bg-white hover:bg-white transition-none"
             >
               <td class="py-3 px-4">
                 <span
-                  class="font-bold text-cyan-300 hover:underline cursor-pointer"
+                  class="font-bold text-sky-700 hover:underline cursor-pointer"
                   @click="$router.push(`/shipments?id=${row.id}`)"
                 >
                   {{ row.shipmentNumber }}
@@ -415,26 +414,26 @@
               <td class="py-3 px-4">
                 <AppStatusBadge :status="row.status" />
               </td>
-              <td class="py-3 px-4 font-sans text-slate-200">
+              <td class="py-3 px-4 font-sans text-slate-800">
                 <span>{{ row.transportOrder?.originLocation?.city || 'Origin DC' }}</span>
-                <q-icon name="arrow_forward" size="11px" class="q-mx-xs text-cyan-400" />
+                <q-icon name="arrow_forward" size="11px" class="q-mx-xs text-sky-600" />
                 <span>{{ row.transportOrder?.destinationLocation?.city || 'Dest Hub' }}</span>
               </td>
-              <td class="py-3 px-4 font-sans text-slate-300">
+              <td class="py-3 px-4 font-sans text-slate-600">
                 {{ row.carrier?.companyName || 'Apex Fleet Logistics' }}
               </td>
-              <td class="py-3 px-4 text-cyan-300 font-bold">
+              <td class="py-3 px-4 text-sky-800 font-bold">
                 {{ row.vehicle?.plateNumber || 'TRK-101' }}
               </td>
-              <td class="py-3 px-4 font-sans text-slate-200">
+              <td class="py-3 px-4 font-sans text-slate-800">
                 {{ row.driver ? `${row.driver.firstName} ${row.driver.lastName}` : 'Marcus Vance' }}
               </td>
               <td class="py-3 px-4 text-right">
                 <div class="flex items-center justify-end gap-1">
-                  <q-btn flat dense round size="xs" icon="visibility" color="cyan" :to="`/shipments?id=${row.id}`">
+                  <q-btn flat dense round size="xs" icon="visibility" color="primary" :to="`/shipments?id=${row.id}`">
                     <q-tooltip>View Details</q-tooltip>
                   </q-btn>
-                  <q-btn flat dense round size="xs" icon="my_location" color="teal-4" to="/tracking">
+                  <q-btn flat dense round size="xs" icon="my_location" color="teal-7" to="/tracking">
                     <q-tooltip>Track on Radar</q-tooltip>
                   </q-btn>
                 </div>
@@ -445,13 +444,12 @@
       </div>
     </div>
 
-      <!-- Inner Loading Overlay on Telematics Refresh -->
-      <AppLoadingOverlay
-        :showing="loading"
-        title="Syncing Live Telemetry & Control Tower..."
-        subtitle="Updating GPS pings, carrier performance & linehaul routes"
-      />
-    </div>
+    <!-- Inner Loading Overlay on Telematics Refresh -->
+    <AppLoadingOverlay
+      :showing="loading"
+      title="Syncing Live Telemetry & Control Tower..."
+      subtitle="Updating GPS pings, carrier performance & linehaul routes"
+    />
   </div>
 </template>
 

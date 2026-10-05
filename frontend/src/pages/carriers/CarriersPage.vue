@@ -55,10 +55,10 @@
 
     <!-- Create Carrier Dialog -->
     <q-dialog v-model="createDialog" position="right" full-height>
-      <div style="width: 480px; max-width: 95vw; height: 100vh; background: #091024; border-left: 1px solid rgba(0, 242, 254, 0.28); border-radius: 16px 0 0 16px;" class="column text-white">
-        <div class="row items-center justify-between q-pa-md" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: #070c18;">
-          <div class="text-subtitle1 text-weight-bold text-white">Add 3PL Carrier Partner</div>
-          <q-btn icon="close" flat round dense v-close-popup text-color="grey-5" />
+      <div style="width: 480px; max-width: 95vw; height: 100vh; background: #ffffff; border-left: 1px solid #cbd5e1; border-radius: 12px 0 0 12px;" class="column text-slate-900">
+        <div class="row items-center justify-between q-pa-md" style="border-bottom: 1px solid #cbd5e1; background: #f8fafc;">
+          <div class="text-subtitle1 text-weight-bold text-slate-900">Add 3PL Carrier Partner</div>
+          <q-btn icon="close" flat round dense v-close-popup text-color="grey-7" />
         </div>
 
         <div class="col scroll q-pa-md">
@@ -78,10 +78,10 @@
 
     <!-- Add Rate Dialog -->
     <q-dialog v-model="rateDialog" position="right" full-height>
-      <div style="width: 450px; max-width: 95vw; height: 100vh; background: #091024; border-left: 1px solid rgba(0, 242, 254, 0.28); border-radius: 16px 0 0 16px;" class="column text-white" v-if="selectedCarrier">
-        <div class="row items-center justify-between q-pa-md" style="border-bottom: 1px solid var(--surface-border);">
+      <div style="width: 450px; max-width: 95vw; height: 100vh; background: #ffffff; border-left: 1px solid #cbd5e1; border-radius: 12px 0 0 12px;" class="column text-slate-900" v-if="selectedCarrier">
+        <div class="row items-center justify-between q-pa-md" style="border-bottom: 1px solid #cbd5e1; background: #f8fafc;">
           <div class="text-subtitle1 text-weight-bold text-slate-900">Add Lane Contract Rate</div>
-          <q-btn icon="close" flat round dense v-close-popup />
+          <q-btn icon="close" flat round dense v-close-popup text-color="grey-7" />
         </div>
 
         <q-card-section class="q-pa-md q-gutter-y-md">

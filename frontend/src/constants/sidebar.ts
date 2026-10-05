@@ -11,6 +11,7 @@ export interface SidebarItem {
   roleLabels?: Record<string, string>;
   badge?: string;
   badgeColor?: string;
+  shortcut?: string;
   children?: SidebarItem[];
 }
 
@@ -31,6 +32,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Dashboard',
         icon: 'dashboard',
         route: '/dashboard',
+        shortcut: 'Alt+H',
         permission: PERMISSIONS.DASHBOARD_VIEW,
       },
     ],
@@ -46,6 +48,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Vehicle Master',
         icon: 'directions_car',
         route: '/fleet',
+        shortcut: 'Alt+V',
         permission: PERMISSIONS.FLEET_VIEW,
       },
       {
@@ -53,6 +56,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Party Master',
         icon: 'people',
         route: '/customers',
+        shortcut: 'Alt+P',
         permission: PERMISSIONS.SHIPMENT_VIEW,
       },
     ],
@@ -68,6 +72,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Booking / LR',
         icon: 'description',
         route: '/orders',
+        shortcut: 'Alt+B',
         permission: PERMISSIONS.SHIPMENT_VIEW,
       },
       {
@@ -75,6 +80,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Planner Workspace',
         icon: 'alt_route',
         route: '/planning',
+        shortcut: 'Alt+W',
         permission: PERMISSIONS.ROUTE_VIEW,
       },
       {
@@ -82,6 +88,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Trip & Allocation',
         icon: 'public',
         route: '/dispatch',
+        shortcut: 'Alt+T',
         permission: PERMISSIONS.DISPATCH_VIEW,
       },
       {
@@ -89,6 +96,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Fuel Entry',
         icon: 'local_gas_station',
         route: '/fuel',
+        shortcut: 'Alt+U',
         permission: PERMISSIONS.FLEET_VIEW,
       },
       {
@@ -96,6 +104,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Driver Advances',
         icon: 'payments',
         route: '/driver-advances',
+        shortcut: 'Alt+A',
         permission: PERMISSIONS.DISPATCH_VIEW,
       },
       {
@@ -103,6 +112,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Tyre Operations',
         icon: 'radio_button_checked',
         route: '/tyres',
+        shortcut: 'Alt+Y',
         permission: PERMISSIONS.FLEET_VIEW,
       },
       {
@@ -110,6 +120,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Maintenance',
         icon: 'build',
         route: '/maintenance',
+        shortcut: 'Alt+M',
         permission: PERMISSIONS.FLEET_VIEW,
       },
       {
@@ -117,6 +128,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'POD',
         icon: 'inventory_2',
         route: '/pod',
+        shortcut: 'Alt+D',
         permission: PERMISSIONS.POD_VIEW,
       },
     ],
@@ -132,6 +144,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Billing',
         icon: 'receipt',
         route: '/billing',
+        shortcut: 'Alt+I',
         permission: PERMISSIONS.BILLING_VIEW,
       },
       {
@@ -139,6 +152,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Purchase Bills',
         icon: 'shopping_cart',
         route: '/purchase-bills',
+        shortcut: 'Alt+K',
         permission: PERMISSIONS.BILLING_VIEW,
       },
       {
@@ -146,6 +160,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Settlements',
         icon: 'account_balance_wallet',
         route: '/settlements',
+        shortcut: 'Alt+S',
         permission: PERMISSIONS.BILLING_VIEW,
       },
     ],
@@ -161,6 +176,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Reports',
         icon: 'bar_chart',
         route: '/analytics',
+        shortcut: 'Alt+R',
         permission: PERMISSIONS.ANALYTICS_VIEW,
       },
       {
@@ -168,6 +184,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Exception Inbox',
         icon: 'warning',
         route: '/exceptions',
+        shortcut: 'Alt+X',
         permission: PERMISSIONS.EXCEPTION_VIEW,
       },
       {
@@ -175,6 +192,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Gati Copilot AI',
         icon: 'auto_awesome',
         route: '/copilot',
+        shortcut: 'Alt+G',
         permission: PERMISSIONS.DASHBOARD_VIEW,
       },
     ],
@@ -190,6 +208,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Access Management',
         icon: 'lock',
         route: '/admin/users',
+        shortcut: 'Alt+O',
         permission: PERMISSIONS.USER_VIEW,
       },
       {
@@ -197,6 +216,7 @@ export const SIDEBAR_STRUCTURE: SidebarGroup[] = [
         label: 'Organization & Settings',
         icon: 'settings_suggest',
         route: '/settings',
+        shortcut: 'Alt+E',
         permission: PERMISSIONS.SETTINGS_VIEW,
       },
     ],

@@ -1,13 +1,13 @@
 <template>
-  <div class="settings-page p-3 sm:p-4 text-slate-100 font-sans">
+  <div class="settings-page p-3 sm:p-4 text-slate-800 bg-slate-50 font-sans">
     <!-- Header with Title & Action Controls in Single Clean Row -->
     <div class="row items-center justify-between no-wrap q-mb-md">
       <div class="column q-gutter-y-xs">
-        <div class="text-h6 text-weight-bold text-white row items-center q-gutter-x-sm no-wrap">
-          <q-icon name="domain" color="cyan" size="26px" />
+        <div class="text-h6 text-weight-bold text-slate-900 row items-center q-gutter-x-sm no-wrap">
+          <q-icon name="domain" color="primary" size="26px" />
           <span>Organization & System Settings</span>
         </div>
-        <div class="text-caption text-grey-5">
+        <div class="text-caption text-slate-500">
           Enterprise multi-tenancy parameters, statutory tax compliance, document series & gateway integrations
         </div>
       </div>
@@ -48,32 +48,32 @@
 
     <!-- 4 KPI Status Metrics Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TENANT IDENTIFIER</div>
-        <div class="text-2xl font-extrabold font-mono text-cyan-400 my-1">{{ settings.orgCode }}</div>
-        <div class="text-xs text-slate-300 font-mono truncate">{{ settings.name }}</div>
-        <div class="accent-bar bg-cyan-400"></div>
+      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden shadow-sm">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">TENANT IDENTIFIER</div>
+        <div class="text-2xl font-extrabold font-mono text-sky-700 my-1">{{ settings.orgCode }}</div>
+        <div class="text-xs text-slate-600 font-mono truncate">{{ settings.name }}</div>
+        <div class="accent-bar bg-sky-600"></div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">STATUTORY COMPLIANCE</div>
-        <div class="text-2xl font-extrabold font-mono text-emerald-400 my-1">GSTIN ACTIVE</div>
-        <div class="text-xs text-emerald-300 font-mono">{{ settings.gstin }} (State 24)</div>
-        <div class="accent-bar bg-emerald-400"></div>
+      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden shadow-sm">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">STATUTORY COMPLIANCE</div>
+        <div class="text-2xl font-extrabold font-mono text-emerald-700 my-1">GSTIN ACTIVE</div>
+        <div class="text-xs text-emerald-600 font-mono">{{ settings.gstin }} (State 24)</div>
+        <div class="accent-bar bg-emerald-600"></div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">OPERATING JURISDICTION</div>
-        <div class="text-2xl font-extrabold font-mono text-white my-1">{{ settings.currency }}</div>
-        <div class="text-xs text-slate-400 font-mono">{{ settings.timezone }}</div>
-        <div class="accent-bar bg-cyan-400"></div>
+      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden shadow-sm">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">OPERATING JURISDICTION</div>
+        <div class="text-2xl font-extrabold font-mono text-slate-900 my-1">{{ settings.currency }}</div>
+        <div class="text-xs text-slate-500 font-mono">{{ settings.timezone }}</div>
+        <div class="accent-bar bg-sky-600"></div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">INTEGRATED GATEWAYS</div>
-        <div class="text-2xl font-extrabold font-mono text-amber-400 my-1">4 / 4 ONLINE</div>
-        <div class="text-xs text-amber-300 font-mono">Vahan • Fastag • GPS • SMS</div>
-        <div class="accent-bar bg-amber-400"></div>
+      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden shadow-sm">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">INTEGRATED GATEWAYS</div>
+        <div class="text-2xl font-extrabold font-mono text-amber-700 my-1">4 / 4 ONLINE</div>
+        <div class="text-xs text-amber-600 font-mono">Vahan • Fastag • GPS • SMS</div>
+        <div class="accent-bar bg-amber-600"></div>
       </div>
     </div>
 
@@ -1086,6 +1086,7 @@ import {
   DeskDialog,
   DeskNumberInput,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 const $q = useQuasar();
 const authStore = useAuthStore();
@@ -1259,15 +1260,31 @@ function confirmResetDefaults() {
     position: 'top-right',
   });
 }
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  onSave: saveAllSettings,
+  filters: [
+    () => { activeTab.value = 'profile'; },
+    () => { activeTab.value = 'statutory'; },
+    () => { activeTab.value = 'series'; },
+    () => { activeTab.value = 'telematics'; },
+    () => { activeTab.value = 'gateways'; },
+  ],
+  isModalOpen: () => showResetDialog.value,
+  onEscape: () => {
+    showResetDialog.value = false;
+  },
+});
 </script>
 
 <style scoped>
 .desk-kbd {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f1f5f9;
   padding: 1px 4px;
   border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #00f2fe;
+  border: 1px solid #cbd5e1;
+  color: #0284c7;
   font-family: var(--desk-font-mono, monospace);
   font-size: 10px;
 }
@@ -1275,13 +1292,14 @@ function confirmResetDefaults() {
 .view-mode-toggle {
   display: inline-flex;
   align-items: center;
-  background: #090f1d;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
   padding: 3px;
   gap: 3px;
   max-width: 100%;
   overflow-x: auto;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .view-mode-btn {
@@ -1292,7 +1310,7 @@ function confirmResetDefaults() {
   border-radius: 6px;
   border: 1px solid transparent;
   background: transparent;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -1302,15 +1320,15 @@ function confirmResetDefaults() {
 }
 
 .view-mode-btn:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.04);
+  color: #0f172a;
+  background: #f1f5f9;
 }
 
 .view-mode-btn.active {
-  background: rgba(0, 242, 254, 0.15);
-  color: #00f2fe;
-  border-color: rgba(0, 242, 254, 0.4);
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+  background: #f0f9ff;
+  color: #0284c7;
+  border-color: #0284c7;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.12);
 }
 
 .view-mode-btn .q-icon {

@@ -18,6 +18,10 @@ export * from './grid';
 // Keyboard Engine (Global Keymap, Hotkeys, Jump Shortcuts)
 export * from './keys';
 
+// Composables
+export * from './composables/useDeskKeyboard';
+export * from './composables/useDeskPageShortcuts';
+
 // Layout & Dialogs (Shell, Drawer/Dialog, Layer Manager, KeyStrip)
 export * from './layout';
 

@@ -6,14 +6,14 @@
       subtitle="Driver licensing, vehicle permits, cargo insurance certificates, and freight claim adjudications"
     >
       <template #badge>
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-300 font-bold">
           <q-icon name="verified_user" size="14px" />
           REGULATORY COMPLIANCE
         </span>
       </template>
       <template #actions>
         <q-btn
-          color="cyan-8"
+          color="primary"
           text-color="white"
           icon="folder_shared"
           label="Documents Vault"
@@ -46,14 +46,14 @@
         title="Open Freight Claims"
         value="2 Active"
         icon="fact_check"
-        icon-color="cyan"
+        icon-color="primary"
         subtitle="1 Under review • 1 Approved"
       />
       <AppStatCard
         title="Audit Event Logs"
         value="1,240 Events"
         icon="history"
-        icon-color="cyan"
+        icon-color="primary"
         subtitle="Immutable security trail"
       />
     </div>
@@ -61,29 +61,29 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-6">
       <div class="lg:col-span-8">
         <div class="cyber-card p-5">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
             <div>
-              <div class="text-base font-bold text-white">Regulatory Documents Awaiting Verification</div>
-              <div class="text-xs text-slate-400">Carrier certificates, commercial driver licenses, and vehicle safety passes</div>
+              <div class="text-base font-bold text-slate-900">Regulatory Documents Awaiting Verification</div>
+              <div class="text-xs text-slate-500">Carrier certificates, commercial driver licenses, and vehicle safety passes</div>
             </div>
-            <q-btn flat dense no-caps size="sm" color="cyan" label="Open Vault →" to="/documents" />
+            <q-btn flat dense no-caps size="sm" color="primary" label="Open Vault →" to="/documents" />
           </div>
 
           <div class="space-y-3">
             <div
               v-for="doc in expiringDocs"
               :key="doc.id"
-              class="ticket-item p-3.5 rounded-lg flex items-center justify-between transition-all"
+              class="ticket-item p-3.5 rounded-lg flex items-center justify-between bg-white"
             >
               <div>
-                <div class="font-bold text-sm text-white">{{ doc.title }}</div>
-                <div class="text-xs text-slate-400">{{ doc.party }} &bull; {{ doc.type }}</div>
+                <div class="font-bold text-sm text-slate-900">{{ doc.title }}</div>
+                <div class="text-xs text-slate-500">{{ doc.party }} &bull; {{ doc.type }}</div>
               </div>
               <div class="flex items-center gap-3">
-                <span class="text-xs font-mono font-bold" :class="doc.daysLeft <= 15 ? 'text-red-400' : 'text-amber-400'">
+                <span class="text-xs font-mono font-bold" :class="doc.daysLeft <= 15 ? 'text-rose-700' : 'text-amber-700'">
                   Expires in {{ doc.daysLeft }} days
                 </span>
-                <q-btn color="cyan-8" text-color="white" dense no-caps size="sm" label="Verify" to="/documents" class="q-px-sm" />
+                <q-btn color="primary" text-color="white" dense no-caps size="sm" label="Verify" to="/documents" class="q-px-sm" />
               </div>
             </div>
           </div>
@@ -92,24 +92,24 @@
 
       <div class="lg:col-span-4 space-y-4">
         <div class="cyber-card p-5">
-          <div class="text-sm font-semibold text-white mb-2">Freight Claims Adjudication</div>
-          <div class="text-xs text-slate-400 mb-3">Damage, shortage, and temperature deviation claims</div>
-          <div class="ticket-item p-3 rounded-lg text-xs">
-            <div class="flex justify-between font-bold text-white mb-1">
+          <div class="text-sm font-semibold text-slate-900 mb-2">Freight Claims Adjudication</div>
+          <div class="text-xs text-slate-500 mb-3">Damage, shortage, and temperature deviation claims</div>
+          <div class="ticket-item p-3 rounded-lg text-xs bg-white">
+            <div class="flex justify-between font-bold text-slate-900 mb-1">
               <span>CLM-2024-008</span>
-              <span class="text-amber-400 font-mono">₹12,500.00</span>
+              <span class="text-amber-800 font-mono font-bold">₹12,500.00</span>
             </div>
-            <div class="text-slate-400">Cargo: Perishables &bull; Dwell time alarm logged on NH-48</div>
-            <div class="mt-2 pt-2 border-t border-slate-800 flex justify-end">
-              <q-btn flat dense no-caps size="xs" color="cyan" label="Review Claim" to="/billing" />
+            <div class="text-slate-600">Cargo: Perishables &bull; Dwell time alarm logged on NH-48</div>
+            <div class="mt-2 pt-2 border-t border-slate-200 flex justify-end">
+              <q-btn flat dense no-caps size="xs" color="primary" label="Review Claim" to="/billing" />
             </div>
           </div>
         </div>
 
         <div class="cyber-card p-4">
-          <div class="text-sm font-semibold text-white mb-1">System Audit Integrity</div>
-          <p class="text-xs text-slate-400 mb-3">PostgreSQL 17 Write-Ahead Log encryption active across all tenant schemas.</p>
-          <q-btn flat dense no-caps size="sm" color="cyan" icon="shield" label="Security Telemetry" to="/audit-logs" />
+          <div class="text-sm font-semibold text-slate-900 mb-1">System Audit Integrity</div>
+          <p class="text-xs text-slate-600 mb-3">PostgreSQL 17 Write-Ahead Log encryption active across all tenant schemas.</p>
+          <q-btn flat dense no-caps size="sm" color="primary" icon="shield" label="Security Telemetry" to="/audit-logs" />
         </div>
       </div>
     </div>
@@ -131,19 +131,19 @@ const expiringDocs = ref([
 
 <style scoped>
 .cyber-card {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .ticket-item {
-  background: #111a33;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
 }
 
 .ticket-item:hover {
-  border-color: rgba(0, 242, 254, 0.3);
-  background: #14203e;
+  border-color: #0284c7;
+  background: #ffffff;
 }
 </style>

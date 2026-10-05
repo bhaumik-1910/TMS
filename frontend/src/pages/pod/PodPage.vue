@@ -1,9 +1,9 @@
 <template>
-  <div class="pod-page p-3 sm:p-4 text-slate-100 font-sans">
+  <div class="pod-page p-3 sm:p-4 text-slate-800 font-sans">
     <!-- Header matching Image 1 -->
     <div class="row items-center justify-between q-mb-md">
       <div>
-        <div class="text-h5 text-weight-bold text-white relative inline-block">
+        <div class="text-h5 text-weight-bold text-slate-900 relative inline-block">
           POD — Proof of Delivery
           <div class="title-underline"></div>
         </div>
@@ -23,42 +23,43 @@
 
     <!-- 4 KPI Stat Cards matching Image 1 -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card stat-card--active p-4 rounded-xl border border-cyan-500/40 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL PODS</div>
-        <div class="text-3xl font-extrabold font-mono text-cyan-400 my-1">{{ pods.length }}</div>
-        <div class="text-xs text-slate-400 font-mono">This month</div>
-        <div class="accent-bar bg-cyan-400"></div>
+      <div class="stat-card stat-card--active p-4 rounded-xl border border-sky-300 bg-sky-50 relative overflow-hidden">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-sky-700 mb-1">TOTAL PODS</div>
+        <div class="text-3xl font-extrabold font-mono text-sky-700 my-1">{{ pods.length }}</div>
+        <div class="text-xs text-sky-600 font-mono">This month</div>
+        <div class="accent-bar bg-sky-500"></div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">PENDING POD</div>
-        <div class="text-3xl font-extrabold font-mono text-amber-400 my-1">{{ pendingCount }}</div>
-        <div class="text-xs text-amber-300 font-mono">Awaiting upload</div>
+      <div class="stat-card p-4 rounded-xl border border-amber-200 bg-amber-50 relative overflow-hidden">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-amber-700 mb-1">PENDING POD</div>
+        <div class="text-3xl font-extrabold font-mono text-amber-600 my-1">{{ pendingCount }}</div>
+        <div class="text-xs text-amber-600 font-mono">Awaiting upload</div>
         <div class="accent-bar bg-amber-400"></div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">DISPUTED</div>
-        <div class="text-3xl font-extrabold font-mono text-rose-400 my-1">{{ disputedCount }}</div>
-        <div class="text-xs text-rose-300 font-mono">Shortage / damage</div>
-        <div class="accent-bar bg-rose-500"></div>
+      <div class="stat-card p-4 rounded-xl border border-red-200 bg-red-50 relative overflow-hidden">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-red-700 mb-1">DISPUTED</div>
+        <div class="text-3xl font-extrabold font-mono text-red-600 my-1">{{ disputedCount }}</div>
+        <div class="text-xs text-red-600 font-mono">Shortage / damage</div>
+        <div class="accent-bar bg-red-500"></div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">VERIFIED</div>
-        <div class="text-3xl font-extrabold font-mono text-emerald-400 my-1">{{ verifiedCount }}</div>
-        <div class="text-xs text-emerald-300 font-mono">AI + manual verified</div>
-        <div class="accent-bar bg-emerald-400"></div>
+      <div class="stat-card p-4 rounded-xl border border-green-200 bg-green-50 relative overflow-hidden">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-green-700 mb-1">VERIFIED</div>
+        <div class="text-3xl font-extrabold font-mono text-green-600 my-1">{{ verifiedCount }}</div>
+        <div class="text-xs text-green-600 font-mono">AI + manual verified</div>
+        <div class="accent-bar bg-emerald-500"></div>
       </div>
     </div>
 
     <!-- Search Bar matching Image 1 -->
     <div class="mb-4">
       <q-input
+        ref="searchInputRef"
         v-model="searchQuery"
         dense
         outlined
-        placeholder="Search LR no / customer..."
+        placeholder="Search LR no / customer... (Alt+F)"
         class="desk-search-input"
         style="max-width: 320px;"
       >
@@ -288,6 +289,7 @@ import {
   DeskForm,
   DeskField,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 export interface PodRecord {
   id?: string;
@@ -309,6 +311,7 @@ const showModal = ref(false);
 const isEditing = ref(false);
 const editingPod = ref<PodRecord | null>(null);
 
+const searchInputRef = ref();
 const searchQuery = ref('');
 const isRefreshing = ref(false);
 
@@ -562,30 +565,42 @@ async function savePod() {
 
   showModal.value = false;
 }
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  searchInputRef,
+  onNewRecord: openAddDialog,
+  isModalOpen: () => showModal.value,
+  onSave: savePod,
+  onEscape: () => {
+    showModal.value = false;
+  },
+});
 </script>
 
 <style scoped>
 .pod-page {
-  background-color: #070c18;
+  background-color: #ffffff;
   min-height: calc(100vh - 88px);
+  overflow-y: auto;
 }
 
 .title-underline {
   height: 3px;
-  background: #00e5ff;
+  background: #0284c7;
   width: 32px;
   margin-top: 5px;
   border-radius: 2px;
 }
 
 .desk-btn-cyan-action {
-  background: #00e5ff;
-  color: #020617;
+  background: #0284c7;
+  color: #ffffff;
   font-weight: 700;
   font-size: 13px;
   padding: 8px 16px;
-  border-radius: 8px;
-  border: none;
+  border-radius: 4px;
+  border: 1px solid #0369a1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -594,21 +609,22 @@ async function savePod() {
 }
 
 .desk-btn-cyan-action:hover {
-  background: #33ebff;
-  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+  background: #0369a1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card {
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .stat-card--active {
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: #00e5ff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .accent-bar {
@@ -621,8 +637,8 @@ async function savePod() {
 
 /* Cyber Card & Table matching Image 1 */
 .cyber-card {
-  background: #090f1d;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -637,25 +653,25 @@ async function savePod() {
 }
 
 .cyber-table th {
-  background: rgba(255, 255, 255, 0.02);
-  color: #00e5ff;
+  background: #f8fafc;
+  color: #334155;
   font-weight: 700;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
   padding: 0.9rem 1rem;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .cyber-table td {
   padding: 0.9rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: #cbd5e1;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
   font-size: 0.84rem;
 }
 
 .cyber-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.025);
+  background: #f8fafc;
 }
 
 /* Status Pills matching Image 1 */
@@ -668,33 +684,33 @@ async function savePod() {
 }
 
 .status-pill--verified {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #86efac;
 }
 
 .status-pill--disputed {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
 }
 
 .status-pill--pending {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fde047;
 }
 
 .status-pill--uploaded {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: #dbeafe;
+  color: #2563eb;
+  border: 1px solid #93c5fd;
 }
 
 .status-pill--default {
-  background: rgba(148, 163, 184, 0.15);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
 }
 
 .btn-table-action {
@@ -703,15 +719,15 @@ async function savePod() {
   font-size: 12px;
   font-weight: 600;
   border-radius: 6px;
-  border: 1px solid rgba(0, 229, 255, 0.4);
-  background: rgba(0, 229, 255, 0.08);
-  color: #00e5ff;
+  border: 1px solid #bae6fd;
+  background: #e0f2fe;
+  color: #0284c7;
   cursor: pointer;
   transition: all 0.18s ease;
 }
 
 .btn-table-action:hover {
-  background: rgba(0, 229, 255, 0.2);
-  border-color: #00e5ff;
+  background: #bae6fd;
+  border-color: #0284c7;
 }
 </style>

@@ -126,7 +126,7 @@
             <div class="q-mb-sm flex flex-center" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.15); margin: 0 auto;">
               <q-icon name="search_off" size="28px" class="text-slate-400" />
             </div>
-            <div class="text-subtitle1 text-weight-bold text-slate-200">No matching records found</div>
+            <div class="text-subtitle1 text-weight-bold text-slate-800">No matching records found</div>
             <div class="text-caption text-slate-500 q-mt-xs">Try adjusting your search terms or clearing active filters.</div>
           </div>
         </template>
@@ -333,13 +333,13 @@
 
     <!-- 4-Copy Print Preview Modal -->
     <q-dialog v-model="printModalOpen">
-      <q-card style="width: 780px; max-width: 95vw;" class="rounded-borders">
-        <q-toolbar class="bg-slate-900 text-white q-px-md">
+      <q-card style="width: 780px; max-width: 95vw;" class="rounded-borders bg-white">
+        <q-toolbar class="bg-slate-50 text-slate-800 border-b border-slate-200 q-px-md">
           <div class="text-subtitle1 text-weight-bold">
             Print Lorry Receipt (4 Copies) — {{ activePrintLR?.lrNumber }}
           </div>
           <q-space />
-          <q-btn flat round dense icon="close" color="white" v-close-popup />
+          <q-btn flat round dense icon="close" color="grey-7" v-close-popup />
         </q-toolbar>
 
         <q-card-section class="q-pa-lg">
@@ -630,23 +630,23 @@ function printBatch() {
 
 function exportCSV() {
   exportToCsv(
-    lrList.value,
+    `Lorry_Receipts_Consignments_${new Date().toISOString().slice(0, 10)}.csv`,
     [
-      { key: 'lrNumber', label: 'LR Number' },
-      { key: 'consignor', label: 'Consignor' },
-      { key: 'consignee', label: 'Consignee' },
-      { key: 'origin', label: 'Origin' },
-      { key: 'destination', label: 'Destination' },
-      { key: 'packages', label: 'Packages' },
-      { key: 'weightKg', label: 'Weight (Kg)' },
-      { key: 'freightTerms', label: 'Terms' },
-      { key: 'ewayBillNumber', label: 'E-Way Bill' },
-      { key: 'totalFreight', label: 'Freight ($)' },
-      { key: 'status', label: 'Status' },
+      { field: 'lrNumber', label: 'LR Number' },
+      { field: 'consignor', label: 'Consignor' },
+      { field: 'consignee', label: 'Consignee' },
+      { field: 'origin', label: 'Origin' },
+      { field: 'destination', label: 'Destination' },
+      { field: 'packages', label: 'Packages' },
+      { field: 'weightKg', label: 'Weight (Kg)' },
+      { field: 'freightTerms', label: 'Terms' },
+      { field: 'ewayBillNumber', label: 'E-Way Bill' },
+      { field: 'totalFreight', label: 'Freight ($)' },
+      { field: 'status', label: 'Status' },
     ],
-    `Lorry_Receipts_Consignments_${new Date().toISOString().slice(0, 10)}.csv`
+    lrList.value
   );
-  notify.success('Consignments register exported to CSV');
+  notify.notifySuccess('Consignments register exported to CSV');
 }
 </script>
 

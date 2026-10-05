@@ -7,14 +7,14 @@
       subtitle="Titan Freightways Corp (Carrier Code: 3PL-TITAN) • Certified Logistics Partner"
     >
       <template #badge>
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-purple-950 text-purple-300 border border-purple-800">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-300 font-bold">
           <q-icon name="verified" size="14px" />
           CERTIFIED 3PL CARRIER
         </span>
       </template>
       <template #actions>
         <q-btn
-          color="cyan-8"
+          color="primary"
           text-color="white"
           icon="business"
           label="Contract Rate Cards"
@@ -39,7 +39,7 @@
         title="Active Linehauls"
         value="8 Units"
         icon="local_shipping"
-        icon-color="cyan"
+        icon-color="primary"
         subtitle="Currently in transit"
       />
       <AppStatCard
@@ -55,19 +55,19 @@
         title="Settlement Balance"
         value="₹3,84,500"
         icon="payments"
-        icon-color="cyan"
+        icon-color="primary"
         subtitle="Ready for weekly payout"
       />
     </div>
 
     <!-- Tendered Loads Action Board -->
     <div class="cyber-card p-5 mb-6">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
         <div>
-          <div class="text-base font-bold text-white">New Load Tenders Awaiting Carrier Action</div>
-          <div class="text-xs text-slate-400">Review lane origin, delivery schedule, and contracted linehaul rate</div>
+          <div class="text-base font-bold text-slate-900">New Load Tenders Awaiting Carrier Action</div>
+          <div class="text-xs text-slate-500">Review lane origin, delivery schedule, and contracted linehaul rate</div>
         </div>
-        <span class="px-2 py-0.5 rounded text-xs font-mono font-semibold bg-amber-950 text-amber-300 border border-amber-800">
+        <span class="px-2 py-0.5 rounded text-xs font-mono font-semibold bg-amber-50 text-amber-800 border border-amber-300 font-bold">
           3 PENDING OFFERS
         </span>
       </div>
@@ -76,28 +76,28 @@
         <div
           v-for="tender in tenders"
           :key="tender.id"
-          class="ticket-item p-4 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all"
+          class="ticket-item p-4 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white"
         >
           <div>
             <div class="flex items-center gap-2 mb-1">
-              <span class="font-mono font-bold text-sm text-cyan-4">{{ tender.code }}</span>
-              <span class="text-xs px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800 font-semibold">{{ tender.equipment }}</span>
-              <span class="text-xs text-slate-400 font-mono">{{ tender.weight }}</span>
+              <span class="font-mono font-bold text-sm text-sky-700">{{ tender.code }}</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-300 font-bold">{{ tender.equipment }}</span>
+              <span class="text-xs text-slate-500 font-mono">{{ tender.weight }}</span>
             </div>
-            <div class="text-xs font-medium text-slate-300">
-              <span class="font-semibold text-white">{{ tender.origin }}</span>
-              <span class="mx-2 text-cyan-4">&rarr;</span>
-              <span class="font-semibold text-white">{{ tender.destination }}</span>
+            <div class="text-xs font-medium text-slate-700">
+              <span class="font-semibold text-slate-900">{{ tender.origin }}</span>
+              <span class="mx-2 text-sky-700">&rarr;</span>
+              <span class="font-semibold text-slate-900">{{ tender.destination }}</span>
             </div>
-            <div class="text-[11px] text-slate-400 mt-1">
-              Pickup: <span class="text-slate-200">{{ tender.pickupTime }}</span> &bull; Distance: <span class="text-cyan-3 font-mono">{{ tender.distance }}</span>
+            <div class="text-[11px] text-slate-500 mt-1">
+              Pickup: <span class="text-slate-800 font-semibold">{{ tender.pickupTime }}</span> &bull; Distance: <span class="text-sky-700 font-mono font-bold">{{ tender.distance }}</span>
             </div>
           </div>
 
           <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
             <div class="text-right">
-              <div class="text-xs text-slate-400">Contract Rate</div>
-              <div class="text-base font-mono font-bold text-emerald-400">₹{{ tender.rate.toLocaleString('en-IN') }}</div>
+              <div class="text-xs text-slate-500">Contract Rate</div>
+              <div class="text-base font-mono font-bold text-emerald-700">₹{{ tender.rate.toLocaleString('en-IN') }}</div>
             </div>
 
             <div class="flex items-center gap-2">
@@ -106,12 +106,12 @@
                 dense
                 no-caps
                 size="sm"
-                color="red-4"
+                color="negative"
                 label="Decline"
                 @click="rejectTender(tender)"
               />
               <q-btn
-                color="cyan-8"
+                color="primary"
                 text-color="white"
                 dense
                 no-caps
@@ -128,28 +128,28 @@
 
     <!-- Quick Navigation Panels for Carrier -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="quick-nav-panel p-4 rounded-lg cursor-pointer" @click="$router.push('/shipments')">
+      <div class="quick-nav-panel p-4 rounded-lg cursor-pointer bg-white" @click="$router.push('/shipments')">
         <div class="flex items-center gap-2 mb-1">
-          <q-icon name="local_shipping" color="cyan" size="20px" />
-          <span class="text-sm font-bold text-white">Active Assigned Linehauls</span>
+          <q-icon name="local_shipping" color="primary" size="20px" />
+          <span class="text-sm font-bold text-slate-900">Active Assigned Linehauls</span>
         </div>
-        <p class="text-xs text-slate-400 m-0">Monitor loads in transit and update arrival/departure checkpoints.</p>
+        <p class="text-xs text-slate-600 m-0">Monitor loads in transit and update arrival/departure checkpoints.</p>
       </div>
 
-      <div class="quick-nav-panel p-4 rounded-lg cursor-pointer" @click="$router.push('/pod')">
+      <div class="quick-nav-panel p-4 rounded-lg cursor-pointer bg-white" @click="$router.push('/pod')">
         <div class="flex items-center gap-2 mb-1">
-          <q-icon name="task" color="cyan" size="20px" />
-          <span class="text-sm font-bold text-white">Upload Delivery ePOD</span>
+          <q-icon name="task" color="primary" size="20px" />
+          <span class="text-sm font-bold text-slate-900">Upload Delivery ePOD</span>
         </div>
-        <p class="text-xs text-slate-400 m-0">Submit signed delivery receipts and consignee stamps to release payables.</p>
+        <p class="text-xs text-slate-600 m-0">Submit signed delivery receipts and consignee stamps to release payables.</p>
       </div>
 
-      <div class="quick-nav-panel p-4 rounded-lg cursor-pointer" @click="$router.push('/billing')">
+      <div class="quick-nav-panel p-4 rounded-lg cursor-pointer bg-white" @click="$router.push('/billing')">
         <div class="flex items-center gap-2 mb-1">
-          <q-icon name="receipt_long" color="cyan" size="20px" />
-          <span class="text-sm font-bold text-white">Carrier Settlement Vouchers</span>
+          <q-icon name="receipt_long" color="primary" size="20px" />
+          <span class="text-sm font-bold text-slate-900">Carrier Settlement Vouchers</span>
         </div>
-        <p class="text-xs text-slate-400 m-0">Review invoice statuses, payment schedules, and verified fuel surcharges.</p>
+        <p class="text-xs text-slate-600 m-0">Review invoice statuses, payment schedules, and verified fuel surcharges.</p>
       </div>
     </div>
   </div>
@@ -192,30 +192,31 @@ function rejectTender(tender: any) {
 
 <style scoped>
 .cyber-card {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .ticket-item {
-  background: #111a33;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
 }
 
 .ticket-item:hover {
-  border-color: rgba(0, 242, 254, 0.3);
-  background: #14203e;
+  border-color: #0284c7;
+  background: #ffffff;
 }
 
 .quick-nav-panel {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   transition: all 0.2s ease;
 }
 
 .quick-nav-panel:hover {
-  border-color: #00f2fe;
-  box-shadow: 0 4px 14px rgba(0, 242, 254, 0.15);
+  border-color: #0284c7;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
 }
 </style>

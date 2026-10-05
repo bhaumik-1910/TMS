@@ -1,9 +1,9 @@
 <template>
-  <div class="access-page min-h-screen text-slate-100 p-6">
-    <!-- Header with Cyan Underline Bar & Add User Button matching Screenshot 1 -->
+  <div class="access-page min-h-screen text-slate-800 p-6 bg-slate-50">
+    <!-- Header with Underline Bar & Add User Button -->
     <div class="flex items-center justify-between mb-6">
       <div class="page-title-wrap">
-        <h1 class="text-2xl font-bold tracking-tight text-white mb-1">Access Management</h1>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900 mb-1">Access Management</h1>
         <div class="page-underline"></div>
       </div>
       <button class="btn-add-cyan" @click="openAddUserDrawer">
@@ -11,46 +11,47 @@
       </button>
     </div>
 
-    <!-- 3 KPI Cards Row matching Screenshot 1 -->
+    <!-- 3 KPI Cards Row -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <!-- 1. TOTAL USERS -->
       <div class="kpi-box">
         <span class="kpi-title">TOTAL USERS</span>
-        <div class="kpi-number text-cyan-400">{{ totalUsersCount }}</div>
+        <div class="kpi-number text-sky-700">{{ totalUsersCount }}</div>
         <span class="kpi-subtext">All roles</span>
       </div>
 
       <!-- 2. ACTIVE -->
       <div class="kpi-box">
         <span class="kpi-title">ACTIVE</span>
-        <div class="kpi-number text-white">{{ activeUsersCount }}</div>
+        <div class="kpi-number text-slate-900">{{ activeUsersCount }}</div>
         <span class="kpi-subtext">Logged in within 30 days</span>
       </div>
 
       <!-- 3. PENDING APPROVAL -->
       <div class="kpi-box">
         <span class="kpi-title">PENDING APPROVAL</span>
-        <div class="kpi-number text-amber-400">{{ pendingApprovalCount }}</div>
+        <div class="kpi-number text-amber-600">{{ pendingApprovalCount }}</div>
         <span class="kpi-subtext">New users to approve</span>
       </div>
     </div>
 
-    <!-- Search Bar matching Screenshot 1 -->
+    <!-- Search Bar -->
     <div class="mb-6">
       <div class="search-wrap">
-        <svg class="search-icon w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg class="search-icon w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
         <input
+          ref="searchInputRef"
           v-model="searchQuery"
           type="text"
-          placeholder="Search user / email / role..."
+          placeholder="Search user / email / role... (Alt+F)"
           class="search-input"
         />
         <button
           v-if="searchQuery"
-          class="text-slate-400 hover:text-white mr-3 text-xs"
+          class="text-slate-400 hover:text-slate-600 mr-3 text-xs"
           @click="searchQuery = ''"
         >
           ✕
@@ -58,7 +59,7 @@
       </div>
     </div>
 
-    <!-- Access Directory Table matching Screenshot 1 -->
+    <!-- Access Directory Table -->
     <div class="table-container">
       <table class="access-table">
         <thead>
@@ -76,26 +77,26 @@
         <tbody>
           <tr v-for="u in filteredUsers" :key="u.id" class="table-row">
             <!-- USER ID -->
-            <td class="td-cell font-mono font-bold text-cyan-400">
+            <td class="td-cell font-mono font-bold text-sky-700">
               {{ u.userId }}
             </td>
 
             <!-- NAME -->
-            <td class="td-cell font-semibold text-white">
+            <td class="td-cell font-semibold text-slate-900">
               {{ u.name }}
             </td>
 
             <!-- EMAIL -->
-            <td class="td-cell text-slate-300">
+            <td class="td-cell text-slate-600">
               {{ u.email }}
             </td>
 
             <!-- PHONE -->
-            <td class="td-cell font-mono text-slate-300">
+            <td class="td-cell font-mono text-slate-600">
               {{ u.phone }}
             </td>
 
-            <!-- ROLE BADGES matching Screenshot 1 -->
+            <!-- ROLE BADGES -->
             <td class="td-cell">
               <span class="role-pill" :class="getRoleClass(u.role)">
                 {{ u.role }}
@@ -103,16 +104,16 @@
             </td>
 
             <!-- BRANCH -->
-            <td class="td-cell text-slate-300">
+            <td class="td-cell text-slate-600">
               {{ u.branch }}
             </td>
 
             <!-- LAST LOGIN -->
-            <td class="td-cell font-mono text-slate-400">
+            <td class="td-cell font-mono text-slate-500">
               {{ u.lastLogin }}
             </td>
 
-            <!-- STATUS & ACTION BUTTONS matching Screenshot 1 -->
+            <!-- STATUS & ACTION BUTTONS -->
             <td class="td-cell">
               <div class="flex items-center gap-3">
                 <span class="status-pill" :class="getStatusClass(u.status)">
@@ -147,7 +148,7 @@
       </table>
     </div>
 
-    <!-- Right Slide Drawer for Add User & Edit User using standard DeskDialog matching user's screenshot -->
+    <!-- Right Slide Drawer for Add User & Edit User -->
     <DeskDialog
       v-model="showDrawer"
       :title="isEditing ? 'Edit User' : 'Add User'"
@@ -162,7 +163,7 @@
       <div class="row q-col-gutter-md">
         <!-- Section Header: USER DETAILS -->
         <div class="col-12">
-          <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mb-xs font-mono uppercase tracking-wider">
+          <div class="text-subtitle2 text-weight-bold text-sky-700 q-mb-xs font-mono uppercase tracking-wider">
             USER DETAILS
           </div>
         </div>
@@ -258,8 +259,10 @@ import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import api from '../../api/client';
 import { DeskDialog, DeskField, DeskCombo } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 const $q = useQuasar();
+const searchInputRef = ref();
 
 export interface UserItem {
   id: string;
@@ -689,11 +692,22 @@ async function saveUser() {
 onMounted(() => {
   loadUsers();
 });
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  searchInputRef,
+  onNewRecord: openAddUserDrawer,
+  isModalOpen: () => showDrawer.value,
+  onSave: saveUser,
+  onEscape: () => {
+    closeDrawer();
+  },
+});
 </script>
 
 <style scoped>
 .access-page {
-  background-color: #050b18;
+  background-color: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -706,15 +720,15 @@ onMounted(() => {
 .page-underline {
   height: 3px;
   width: 38px;
-  background-color: #00e5ff;
+  background-color: #0284c7;
   border-radius: 2px;
   margin-top: 4px;
 }
 
-/* Add User Cyan Button */
+/* Add User Button */
 .btn-add-cyan {
-  background-color: #00e5ff;
-  color: #050b18;
+  background-color: #0284c7;
+  color: #ffffff;
   border: none;
   font-size: 13px;
   font-weight: 700;
@@ -728,25 +742,25 @@ onMounted(() => {
 }
 
 .btn-add-cyan:hover {
-  background-color: #33ebff;
-  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+  background-color: #0369a1;
+  box-shadow: 0 1px 4px rgba(2, 132, 199, 0.25);
 }
 
 /* KPI Box Cards */
 .kpi-box {
-  background-color: #081224;
-  border: 1px solid #162540;
-  border-radius: 12px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .kpi-title {
   font-size: 11px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #64748b;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -769,15 +783,15 @@ onMounted(() => {
   display: flex;
   align-items: center;
   width: 320px;
-  background-color: #081224;
-  border: 1px solid #162540;
-  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
   overflow: hidden;
   transition: border-color 0.2s ease;
 }
 
 .search-wrap:focus-within {
-  border-color: #00e5ff;
+  border-color: #0284c7;
 }
 
 .search-icon {
@@ -791,21 +805,21 @@ onMounted(() => {
   border: none;
   padding: 10px 12px;
   font-size: 13px;
-  color: #ffffff;
+  color: #0f172a;
   outline: none;
 }
 
 .search-input::placeholder {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 /* Table Container */
 .table-container {
-  background-color: #081224;
-  border: 1px solid #162540;
-  border-radius: 12px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   overflow-x: auto;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .access-table {
@@ -818,22 +832,22 @@ onMounted(() => {
   padding: 14px 18px;
   font-size: 11px;
   font-weight: 700;
-  color: #00e5ff;
+  color: #475569;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid #162540;
-  background-color: rgba(6, 14, 28, 0.4);
+  border-bottom: 1px solid #cbd5e1;
+  background-color: #f8fafc;
   white-space: nowrap;
 }
 
 .td-cell {
   padding: 14px 18px;
   font-size: 13px;
-  border-bottom: 1px solid rgba(22, 37, 64, 0.6);
+  border-bottom: 1px solid #e2e8f0;
   white-space: nowrap;
 }
 
 .table-row:hover {
-  background-color: rgba(0, 229, 255, 0.02);
+  background-color: #f1f5f9;
 }
 
 /* Role Badges */
@@ -847,63 +861,63 @@ onMounted(() => {
 }
 
 .role-admin {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
 }
 
 .role-branch-mgr {
-  background-color: rgba(0, 229, 255, 0.12);
-  color: #00e5ff;
-  border: 1px solid rgba(0, 229, 255, 0.3);
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
 .role-ops-planner {
-  background-color: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.35);
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
 }
 
 .role-fuel-mgr {
-  background-color: rgba(217, 119, 6, 0.18);
-  color: #f59e0b;
-  border: 1px solid rgba(217, 119, 6, 0.35);
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
 }
 
 .role-accounts {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.35);
+  background-color: #f0fdf4;
+  color: #047857;
+  border: 1px solid #a7f3d0;
 }
 
 .role-workshop {
-  background-color: rgba(234, 88, 12, 0.18);
-  color: #f97316;
-  border: 1px solid rgba(234, 88, 12, 0.35);
+  background-color: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #ffedd5;
 }
 
 .role-driver {
-  background-color: rgba(79, 70, 229, 0.18);
-  color: #6366f1;
-  border: 1px solid rgba(79, 70, 229, 0.35);
+  background-color: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
 }
 
 .role-ca {
-  background-color: rgba(99, 102, 241, 0.18);
-  color: #818cf8;
-  border: 1px solid rgba(99, 102, 241, 0.35);
+  background-color: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
 }
 
 .role-customer {
-  background-color: rgba(20, 184, 166, 0.15);
-  color: #14b8a6;
-  border: 1px solid rgba(20, 184, 166, 0.35);
+  background-color: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #99f6e4;
 }
 
 .role-default {
-  background-color: rgba(100, 116, 139, 0.15);
-  color: #94a3b8;
-  border: 1px solid rgba(100, 116, 139, 0.3);
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
 }
 
 /* Status Badges */
@@ -916,34 +930,34 @@ onMounted(() => {
 }
 
 .status-active {
-  background-color: rgba(16, 185, 129, 0.12);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
 .status-pending {
-  background-color: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
 }
 
 .status-suspended {
-  background-color: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
 }
 
 .status-inactive {
-  background-color: rgba(100, 116, 139, 0.12);
-  color: #94a3b8;
-  border: 1px solid rgba(100, 116, 139, 0.3);
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
 }
 
 /* Edit & Approve Buttons */
 .btn-edit {
-  background-color: #091830;
-  color: #00e5ff;
-  border: 1px solid rgba(0, 229, 255, 0.35);
+  background-color: #ffffff;
+  color: #0284c7;
+  border: 1px solid #0284c7;
   font-size: 12px;
   font-weight: 600;
   padding: 4px 14px;
@@ -953,14 +967,13 @@ onMounted(() => {
 }
 
 .btn-edit:hover {
-  background-color: rgba(0, 229, 255, 0.12);
-  border-color: #00e5ff;
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+  background-color: #f0f9ff;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.15);
 }
 
 .btn-approve {
-  background-color: #00e5ff;
-  color: #050b18;
+  background-color: #10b981;
+  color: #ffffff;
   border: none;
   font-size: 12px;
   font-weight: 700;
@@ -971,9 +984,7 @@ onMounted(() => {
 }
 
 .btn-approve:hover {
-  background-color: #33ebff;
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.35);
+  background-color: #059669;
 }
-
 </style>
 

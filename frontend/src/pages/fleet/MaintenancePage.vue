@@ -1,13 +1,13 @@
 <template>
-  <div class="maintenance-page p-3 sm:p-4 text-slate-100 font-sans">
+  <div class="maintenance-page p-3 sm:p-4 text-slate-800 font-sans">
     <!-- Header -->
     <div class="row items-center justify-between q-mb-md">
       <div>
-        <div class="text-h6 text-weight-bold text-white row items-center q-gutter-x-sm">
-          <q-icon name="build" color="cyan" size="24px" />
+        <div class="text-h6 text-weight-bold text-slate-900 row items-center q-gutter-x-sm">
+          <q-icon name="build" color="primary" size="24px" />
           <span>Maintenance / Job Cards</span>
         </div>
-        <div class="text-caption text-grey-5">
+        <div class="text-caption text-slate-500">
           Workshop repair orders, scheduled PM cycles, mechanical work orders &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> for job card
         </div>
       </div>
@@ -79,6 +79,7 @@
       <div class="row items-center justify-between no-wrap">
         <div class="row items-center q-gutter-x-sm no-wrap">
           <q-input
+            ref="searchInputRef"
             v-model="searchQuery"
             dense
             outlined
@@ -483,6 +484,7 @@ import {
   DeskForm,
   DeskField,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 export interface JobCard {
   id?: string;
@@ -503,6 +505,7 @@ export interface JobCard {
 }
 
 const notify = useAppNotify();
+const searchInputRef = ref();
 
 const showModal = ref(false);
 const isEditing = ref(false);
@@ -957,11 +960,24 @@ function exportMaintenancePdf() {
     rows: filteredJobCards.value,
   });
 }
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  searchInputRef,
+  onNewRecord: openAddDialog,
+  isModalOpen: () => showModal.value || showDetailsModal.value || showDeleteDialog.value,
+  onSave: saveJobCard,
+  onEscape: () => {
+    showModal.value = false;
+    showDetailsModal.value = false;
+    showDeleteDialog.value = false;
+  },
+});
 </script>
 
 <style scoped>
 .maintenance-page {
-  background-color: #070c18;
+  background-color: #f8fafc;
   min-height: calc(100vh - 88px);
 }
 
@@ -971,7 +987,7 @@ function exportMaintenancePdf() {
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: #00f2fe;
+  border-color: #0284c7;
 }
 
 .accent-bar {
@@ -983,13 +999,14 @@ function exportMaintenancePdf() {
 }
 
 .desk-kbd {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1px 4px;
+  background: #f1f5f9;
+  padding: 1px 5px;
   border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #00f2fe;
+  border: 1px solid #cbd5e1;
+  color: #0284c7;
   font-family: var(--desk-font-mono, monospace);
   font-size: 10px;
+  font-weight: 700;
 }
 
 /* Cyber Card & Table matching Enterprise Dark */

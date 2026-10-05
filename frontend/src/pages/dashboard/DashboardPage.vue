@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-none" style="background-color: #070c18;">
+  <q-page class="q-pa-none" style="background-color: #f8fafc;">
     <!-- Dynamic Role-Tailored Dashboard Component (13 Roles Supported) -->
     <transition name="fade" mode="out-in">
       <component :is="activeDashboardComponent" :key="authStore.currentRole" />

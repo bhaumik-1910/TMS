@@ -1,26 +1,26 @@
 <template>
-  <q-page class="flex flex-center bg-slate-900 q-pa-sm" style="min-height: 100vh; background-color: #0f172a;">
+  <q-page class="flex flex-center bg-slate-100 q-pa-md" style="min-height: 100vh;">
     <!-- Mobile Device Container -->
     <div
-      class="bg-white rounded-borders overflow-hidden column justify-between shadow-24"
-      style="width: 100%; max-width: 420px; min-height: 720px; border-radius: 24px; border: 4px solid #1e293b;"
+      class="bg-white rounded-borders overflow-hidden column justify-between shadow-2xl"
+      style="width: 100%; max-width: 420px; min-height: 720px; border-radius: 24px; border: 4px solid #cbd5e1;"
     >
       <!-- Mobile App Header -->
-      <div class="q-pa-md bg-slate-900 text-white row items-center justify-between" style="background-color: #0f172a;">
+      <div class="q-pa-md bg-white border-b border-slate-200 text-slate-800 row items-center justify-between">
         <div class="row items-center q-gutter-x-sm">
-          <q-avatar size="32px" color="blue-7" text-color="white" icon="badge" />
+          <q-avatar size="32px" color="primary" text-color="white" icon="badge" />
           <div>
-            <div class="text-subtitle2 text-weight-bold">Driver Console</div>
-            <div class="text-caption text-grey-4 font-mono" style="font-size: 0.7rem;">UNIT: TRK-101 • Marcus Vance</div>
+            <div class="text-subtitle2 text-weight-bold text-slate-900">Driver Console</div>
+            <div class="text-caption text-slate-500 font-mono" style="font-size: 0.7rem;">UNIT: TRK-101 • Marcus Vance</div>
           </div>
         </div>
         <q-badge color="positive" rounded label="ONLINE" />
       </div>
 
       <!-- Main Scrollable Trip Content -->
-      <div class="col q-pa-md bg-grey-1 overflow-auto" style="background-color: #f8fafc;">
+      <div class="col q-pa-md bg-slate-50 overflow-auto">
         <!-- Today's Active Trip Card -->
-        <div class="tms-card q-pa-md q-mb-md bg-white">
+        <div class="tms-card q-pa-md q-mb-md bg-white border border-slate-200 shadow-sm">
           <div class="row items-center justify-between q-mb-xs">
             <span class="text-caption text-weight-bold text-grey-6 text-uppercase" style="letter-spacing: 0.05em;">
               Today's Assigned Route

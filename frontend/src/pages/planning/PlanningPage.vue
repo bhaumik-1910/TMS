@@ -63,13 +63,13 @@
             round
             dense
             icon="refresh"
-            color="cyan"
+            color="primary"
             class="q-mr-xs"
             @click="loadWorkspace"
             :loading="loading"
           >
             <template #loading>
-              <q-spinner color="cyan" size="18px" />
+              <q-spinner color="primary" size="18px" />
             </template>
             <q-tooltip>Refresh Orders &amp; Fleet Capacity</q-tooltip>
           </q-btn>
@@ -735,27 +735,27 @@
 
     <!-- TRIP MANIFEST APPROVAL MODAL -->
     <q-dialog v-model="showManifestModal" position="right" full-height>
-      <div class="bg-[#0b1329] border-l border-cyan-500/40 text-white shadow-[0_0_30px_rgba(0,242,254,0.2)] rounded-l-2xl max-w-2xl w-full h-full flex flex-col justify-between p-3">
-        <q-card-section class="flex items-center justify-between pb-2 border-b border-slate-800">
+      <div class="bg-white border-l border-slate-300 text-slate-900 shadow-xl rounded-l-xl max-w-2xl w-full h-full flex flex-col justify-between p-3">
+        <q-card-section class="flex items-center justify-between pb-2 border-b border-slate-200">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+            <div class="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
               <q-icon name="verified" size="18px" />
             </div>
             <div>
-              <div class="text-sm font-bold text-white">Consolidated Trip Manifest Approval</div>
-              <div class="text-[11px] font-mono text-cyan-300">MANIFEST #TRIP-DISPATCH-{{ new Date().getFullYear() }}-884</div>
+              <div class="text-sm font-bold text-slate-900">Consolidated Trip Manifest Approval</div>
+              <div class="text-[11px] font-mono text-sky-600">MANIFEST #TRIP-DISPATCH-{{ new Date().getFullYear() }}-884</div>
             </div>
           </div>
-          <q-btn flat round dense icon="close" color="grey-5" v-close-popup />
+          <q-btn flat round dense icon="close" color="grey-7" v-close-popup />
         </q-card-section>
 
         <q-card-section class="space-y-4 pt-3 text-xs">
           <!-- Vehicle & Driver Card -->
-          <div class="p-3 rounded-xl border border-slate-800 bg-slate-950/70 grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 grid grid-cols-2 gap-3">
             <div>
-              <div class="text-slate-400 text-[11px]">Assigned Tractor</div>
-              <div class="font-mono font-bold text-sm text-cyan-300">{{ currentSelectedVehicle?.vehicleNumber }}</div>
-              <div class="text-slate-300 text-[11px]">{{ currentSelectedVehicle?.make }} {{ currentSelectedVehicle?.model }}</div>
+              <div class="text-slate-500 text-[11px]">Assigned Tractor</div>
+              <div class="font-mono font-bold text-sm text-sky-700">{{ currentSelectedVehicle?.vehicleNumber }}</div>
+              <div class="text-slate-600 text-[11px]">{{ currentSelectedVehicle?.make }} {{ currentSelectedVehicle?.model }}</div>
             </div>
             <div>
               <div class="text-slate-400 text-[11px]">Allocated Driver</div>
@@ -818,6 +818,7 @@ import { useQuasar } from 'quasar';
 import api from '../../api/client';
 import AppPageHeader from '../../components/AppPageHeader.vue';
 import AppStatCard from '../../components/AppStatCard.vue';
+import { useDeskPageShortcuts } from '../../desk';
 
 const $q = useQuasar();
 const loading = ref(false);
@@ -1182,6 +1183,20 @@ onMounted(() => {
   }
   loadWorkspace();
 });
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  onNewRecord: autoConsolidateAll,
+  filters: [
+    () => { activeViewMode.value = 'split'; },
+    () => { activeViewMode.value = 'table'; },
+  ],
+  isModalOpen: () => showManifestModal.value,
+  onSave: confirmDispatchPlan,
+  onEscape: () => {
+    showManifestModal.value = false;
+  },
+});
 </script>
 
 <style scoped>
@@ -1217,9 +1232,9 @@ onMounted(() => {
 }
 
 .view-mode-btn.active {
-  background: #00f2fe;
-  color: #070c18;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .custom-scroll::-webkit-scrollbar {

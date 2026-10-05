@@ -1,8 +1,8 @@
 <template>
-  <div class="copilot-page flex flex-col p-6 text-slate-100">
+  <div class="copilot-page flex flex-col p-6 text-slate-800 bg-slate-50 min-h-screen">
     <!-- Header matching user screenshot (Fixed at top) -->
     <div class="page-title-wrap mb-3 flex-shrink-0">
-      <h1 class="text-2xl font-bold tracking-tight text-white mb-1">Gati Copilot — AI Assistant</h1>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900 mb-1">Gati Copilot — AI Assistant</h1>
       <div class="page-underline"></div>
     </div>
 
@@ -10,7 +10,7 @@
     <div class="flex items-center justify-between gap-4 mb-3 flex-shrink-0">
       <!-- Left: Language selector -->
       <div class="flex items-center gap-2">
-        <span class="text-xs font-semibold text-slate-400">Language:</span>
+        <span class="text-xs font-semibold text-slate-600">Language:</span>
         <button
           v-for="lang in languages"
           :key="lang"
@@ -23,13 +23,13 @@
       </div>
 
       <!-- Right: AI Active status indicator -->
-      <div class="flex items-center gap-2 text-xs font-medium text-slate-300">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>AI Active</span>
+      <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-emerald-700 font-semibold">AI Active</span>
       </div>
     </div>
 
-    <!-- Quick Prompt Suggestions Chips matching user screenshot (Fixed at top) -->
+    <!-- Quick Prompt Suggestions Chips (Fixed at top) -->
     <div class="flex flex-wrap items-center gap-2 mb-3 flex-shrink-0">
       <button
         v-for="chip in quickPrompts"
@@ -54,14 +54,14 @@
 
           <!-- Welcome Message Bubble -->
           <div class="welcome-bubble flex-1 text-sm">
-            <div class="text-xs font-bold text-cyan-400 mb-1.5">Gati Copilot</div>
-            <p class="text-sm text-slate-200 mb-2 leading-relaxed">
-              Namaskar! I am <span class="font-bold text-white">Gati Copilot</span>, your AI assistant for Ankpal Gati Shakti TMS.
+            <div class="text-xs font-bold text-sky-700 mb-1.5">Gati Copilot</div>
+            <p class="text-sm text-slate-800 mb-2 leading-relaxed">
+              Namaskar! I am <span class="font-bold text-slate-900">Gati Copilot</span>, your AI assistant for Ankpal Gati Shakti TMS.
             </p>
-            <p class="text-sm text-slate-300 mb-2 leading-relaxed">
+            <p class="text-sm text-slate-600 mb-2 leading-relaxed">
               Ask me anything about your fleet, lanes, drivers, outstanding, or compliance — in Hindi, Gujarati, or English.
             </p>
-            <p class="text-sm text-slate-300 mb-3 leading-relaxed">
+            <p class="text-sm text-slate-600 mb-3 leading-relaxed">
               I can also draft LRs, settlements, and WhatsApp reminders. Every answer shows source records and a confidence score.
             </p>
             <span class="confidence-badge">
@@ -70,16 +70,16 @@
           </div>
         </div>
 
-        <!-- Dynamic Conversation Messages (One Column: User on Right -> Copilot Answer on Left directly underneath) -->
+        <!-- Dynamic Conversation Messages -->
         <div
           v-for="(msg, idx) in messages"
           :key="idx"
           class="chat-row-wrapper w-full"
           :class="msg.role === 'user' ? 'chat-row-user' : 'chat-row-assistant'"
         >
-          <!-- USER MESSAGE: Aligned to the RIGHT SIDE like ChatGPT -->
+          <!-- USER MESSAGE: Aligned to the RIGHT SIDE -->
           <div v-if="msg.role === 'user'" class="user-bubble-box">
-            <div class="user-bubble-header flex items-center justify-end gap-1.5 mb-1.5 text-xs text-slate-400 font-semibold">
+            <div class="user-bubble-header flex items-center justify-end gap-1.5 mb-1.5 text-xs text-slate-500 font-semibold">
               <span>You</span>
               <div class="avatar-user-sm">
                 <q-icon name="person" size="13px" />
@@ -92,22 +92,21 @@
 
           <!-- ASSISTANT MESSAGE: Directly underneath, starting from the LEFT SIDE -->
           <div v-else class="assistant-bubble-box flex items-start gap-3 w-full">
-            <!-- Avatar G on the left -->
             <div class="avatar-g flex-shrink-0">
               G
             </div>
 
             <!-- Assistant Answer Content Bubble -->
             <div class="welcome-bubble flex-1 text-sm">
-              <div class="text-xs font-bold text-cyan-400 mb-1.5">Gati Copilot</div>
-              <p class="leading-relaxed mb-2 text-slate-200">{{ msg.text }}</p>
+              <div class="text-xs font-bold text-sky-700 mb-1.5">Gati Copilot</div>
+              <p class="leading-relaxed mb-2 text-slate-800">{{ msg.text }}</p>
 
               <!-- Structured Data if available -->
-              <div v-if="msg.structuredData" class="mt-2.5 p-3 rounded-lg bg-[#060c18] border border-slate-800 text-xs">
-                <div class="font-bold text-cyan-400 mb-1.5">{{ msg.structuredData.title }}</div>
-                <div class="grid grid-cols-2 gap-2 text-slate-300 font-mono">
+              <div v-if="msg.structuredData" class="mt-2.5 p-3 rounded-lg bg-white border border-slate-200 text-xs shadow-sm">
+                <div class="font-bold text-sky-700 mb-1.5">{{ msg.structuredData.title }}</div>
+                <div class="grid grid-cols-2 gap-2 text-slate-700 font-mono">
                   <div v-for="(v, k) in msg.structuredData.fields" :key="k">
-                    <span class="text-slate-500">{{ k }}:</span> {{ v }}
+                    <span class="text-slate-500">{{ k }}:</span> <span class="font-semibold">{{ v }}</span>
                   </div>
                 </div>
               </div>
@@ -125,15 +124,15 @@
           </div>
         </div>
 
-        <!-- Thinking Indicator (Directly below user question on the left) -->
+        <!-- Thinking Indicator -->
         <div v-if="isThinking" class="chat-row-wrapper w-full chat-row-assistant">
           <div class="assistant-bubble-box flex items-start gap-3 w-full">
             <div class="avatar-g flex-shrink-0">
               G
             </div>
             <div class="welcome-bubble flex-1">
-              <div class="flex items-center gap-2 text-xs text-cyan-400 font-mono">
-                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              <div class="flex items-center gap-2 text-xs text-sky-600 font-mono">
+                <span class="w-2 h-2 rounded-full bg-sky-600 animate-pulse"></span>
                 Gati Copilot is thinking...
               </div>
             </div>
@@ -142,15 +141,16 @@
       </div>
     </div>
 
-    <!-- Bottom Input Bar (PINNED AT BOTTOM LIKE CHATGPT) -->
+    <!-- Bottom Input Bar -->
     <div class="flex-shrink-0 flex flex-col gap-1.5">
       <div class="flex items-center gap-2">
         <div class="relative flex-1">
           <input
+            ref="chatInputRef"
             v-model="inputText"
             type="text"
-            placeholder="Ask about your fleet, lanes, drivers, outstanding... or say 'Draft LR from X to Y'"
-            class="chat-input-control w-full px-4 py-3 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none"
+            placeholder="Ask about your fleet, lanes, drivers, outstanding... or say 'Draft LR from X to Y' (Alt+F)"
+            class="chat-input-control w-full px-4 py-3 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
             @keyup.enter="handleSend"
           />
         </div>
@@ -159,7 +159,7 @@
         </button>
       </div>
 
-      <!-- Faint Footer Disclaimer matching user screenshot -->
+      <!-- Faint Footer Disclaimer -->
       <div class="text-center text-[11px] text-slate-500">
         AI drafts, people approve • Confidence &lt;85% shown in amber • All actions logged with source references
       </div>
@@ -169,6 +169,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick } from 'vue';
+import { useDeskPageShortcuts } from '../../desk';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -181,6 +182,7 @@ interface Message {
   };
 }
 
+const chatInputRef = ref();
 const languages = ['English', 'Hindi', 'Gujarati'];
 const selectedLanguage = ref('English');
 
@@ -208,7 +210,7 @@ function handleSend() {
   const q = inputText.value.trim();
   inputText.value = '';
 
-  // Add User Message (stacks right below previous messages)
+  // Add User Message
   messages.value.push({
     role: 'user',
     text: q,
@@ -217,7 +219,7 @@ function handleSend() {
   isThinking.value = true;
   scrollToBottom();
 
-  // Generate Context-Aware AI Answer directly below user query
+  // Generate Context-Aware AI Answer
   setTimeout(() => {
     isThinking.value = false;
     generateAiResponse(q);
@@ -247,87 +249,80 @@ function generateAiResponse(query: string) {
   } else if (lower.includes('fuel') || lower.includes('anomalies')) {
     messages.value.push({
       role: 'assistant',
-      text: 'Identified 2 severe fuel anomalies this week: GJ-05-BT-2211 logged 4.2 km/L (24% variance vs target 5.5) at BPCL Naroda, and GJ-01-AB-1122 logged duplicate fills (580 L total) within 2h 40m at HPCL Adajan.',
-      confidence: '98%',
-      sources: ['FE/2400086', 'FE/2400082', 'Fuel Audit Log'],
+      text: 'Fuel Anomaly Detection (Past 7 Days): 2 abnormal drops detected. Vehicle GJ-01-AC-3444 recorded 3.8 km/L vs fleet average of 5.35 km/L (-29% discrepancy) on Oct 3 during Surat—Hyderabad route.',
+      confidence: '94%',
+      sources: ['FUEL-LOG-891', 'GPS-ODOMETER-3444'],
       structuredData: {
-        title: 'Flagged Fuel Anomaly Records',
+        title: 'Fuel Anomaly Log',
         fields: {
-          'GJ-05-BT-2211': '4.2 km/L (Over-fill/odometer flag)',
-          'GJ-01-AB-1122': 'Duplicate fill within 2h 40m (580 L)',
-          'Action Status': 'Pending Exception Inbox Review',
+          'Vehicle': 'GJ-01-AC-3444 (32ft MX)',
+          'Driver': 'Ramesh Alumar',
+          'Recorded Mileage': '3.8 km/L',
+          'Expected Baseline': '5.35 km/L',
         },
       },
     });
   } else if (lower.includes('compliance') || lower.includes('expiry')) {
     messages.value.push({
       role: 'assistant',
-      text: 'Compliance Status: Vehicle GJ-05-BT-2211 has Insurance expiring on 2025-11-20 (<30 days remaining). Additionally, GJ-01-AC-3444 Fitness is expired and GJ-01-AB-1122 Insurance is expired.',
-      confidence: '99%',
-      sources: ['VEH/GJ-05-BT-2211', 'Fleet Compliance Master'],
+      text: 'Compliance Status: 2 vehicles require immediate action. GJ-01-AC-3444 Fitness expired on 2023-11-02. GJ-01-AB-1122 Insurance expired on 2025-01-10. GJ-05-BT-2211 Insurance expires in 15 days.',
+      confidence: '100%',
+      sources: ['Parivahan Vahan Sync', 'Policy Registry'],
       structuredData: {
-        title: 'Expiring Documents in 30 Days',
+        title: 'Urgent Compliance Warnings',
         fields: {
-          'Vehicle': 'GJ-05-BT-2211',
-          'Document': 'Comprehensive Insurance',
-          'Expiry Date': '2025-11-20 (<30 days)',
-          'Dispatch Status': 'Renewal Alert Active',
+          'Expired Fitness': 'GJ-01-AC-3444',
+          'Expired Insurance': 'GJ-01-AB-1122',
+          'Expiring <30 Days': 'GJ-05-BT-2211',
+          'Total At Risk': '3 Vehicles',
         },
       },
     });
   } else if (lower.includes('reliance') || lower.includes('outstanding')) {
     messages.value.push({
       role: 'assistant',
-      text: 'Customer Outstanding for Reliance Industries: Total outstanding is ₹1,20,000 across 2 freight invoices. Overdue invoice INV/24/1086 (₹1,20,000) was due on 23 Oct 2026. Payment reminder ready.',
-      confidence: '95%',
-      sources: ['INV/24/1086', 'Customer Ledger: Reliance'],
-      structuredData: {
-        title: 'Reliance Industries Outstanding Ledger',
-        fields: {
-          'Total Outstanding': '₹1,20,000',
-          'Overdue Days': '9 days',
-          'GST Mode': 'RCM 5%',
-          'Linked LR': 'LR/240038',
-        },
-      },
-    });
-  } else if (lower.includes('driver') || lower.includes('km/l')) {
-    messages.value.push({
-      role: 'assistant',
-      text: 'Top 3 Drivers for October 2026: #1 Kishore Bhai at 6.1 km/L (Score 94, 100% On-Time), #2 Ramesh Alumar at 5.8 km/L (Score 88, 100% On-Time), and #3 Suresh Patel at 5.6 km/L (Score 79, 92% On-Time).',
+      text: 'Outstanding from Reliance Industries: Total ledger balance is ₹4,82,500 across 6 freight invoices. ₹3,12,000 is overdue >45 days. Would you like me to generate a WhatsApp reminder ledger summary?',
       confidence: '98%',
-      sources: ['Driver Scorecard Oct 2026', 'Telematics Telemetry'],
+      sources: ['Accounts Receivable', 'Ledger REL-9901'],
       structuredData: {
-        title: 'Driver Fuel Efficiency Leaders',
+        title: 'Customer Ledger: Reliance Industries',
         fields: {
-          '#1 Kishore Bhai': '6.1 km/L • 100% OT • Score 94',
-          '#2 Ramesh Alumar': '5.8 km/L • 100% OT • Score 88',
-          '#3 Suresh Patel': '5.6 km/L • 92% OT • Score 79',
+          'Total Outstanding': '₹4,82,500',
+          'Overdue (>45d)': '₹3,12,000',
+          'Pending Invoices': '6 Bills',
+          'Last Payment Received': '₹1,50,000 (18 Sep)',
         },
       },
     });
-  } else if (lower.includes('draft lr') || lower.includes('adani')) {
+  } else if (lower.includes('driver') || lower.includes('top 3') || lower.includes('km/l')) {
     messages.value.push({
       role: 'assistant',
-      text: 'Draft Lorry Receipt prepared: Consignor Adani Enterprises (Ahmedabad) to Consignee Tata Steels (Mumbai), Material 18 MT TMT Steel Bars, assigned vehicle GJ-01-AB-1122 with Driver Ramesh Alumar. Freight rate ₹38,000.',
-      confidence: '94%',
-      sources: ['Rate Card: AHD—MUM', 'Fleet Master'],
+      text: 'Top Fleet Drivers for Oct 2026: #1 Kishore Bhai (6.1 km/L, 100% On-Time, Score 94), #2 Ramesh Alumar (5.8 km/L, 100% On-Time, Score 88), #3 Suresh Patel (5.6 km/L, 92% On-Time, Score 79).',
+      confidence: '95%',
+      sources: ['Driver Trip Logs', 'FASTag Transit Records'],
+    });
+  } else if (lower.includes('draft lr') || lower.includes('lr')) {
+    messages.value.push({
+      role: 'assistant',
+      text: 'Draft Lorry Receipt ready for approval: Consignor: Adani Port Logistics (AHD) → Consignee: Tata Projects (MUM). Cargo: 18 MT Structural Steel. Vehicle: GJ-01-AB-1122. Standard Freight: ₹42,500.',
+      confidence: '92%',
+      sources: ['Master Contract MC-2026-08', 'Lane Freight Rate Matrix'],
       structuredData: {
-        title: 'Draft Lorry Receipt: LR/240058',
+        title: 'Draft LR Preview #DRAFT-LR-2026-99',
         fields: {
-          'Route': 'Ahmedabad → Mumbai',
-          'Commodity': '18 MT Steel TMT Bars',
-          'Vehicle': 'GJ-01-AB-1122',
-          'Agreed Freight': '₹38,000 (RCM)',
+          'Consignor': 'Adani Logistics (Ahmedabad)',
+          'Consignee': 'Tata Projects (Mumbai Hub)',
+          'Weight': '18.00 Metric Tons',
+          'Freight': '₹42,500 (TO PAY)',
         },
       },
     });
   } else {
     messages.value.push({
       role: 'assistant',
-      text: `Understood your query: "${query}". Analysing live operational records across bookings, fleet vehicles, trip expenses, and customer ledgers to provide real-time intelligence.`,
-      confidence: '92%',
-      sources: ['Operational Live Stream', 'Gati TMS Sync'],
+      text: `Understood query: "${query}". Cross-referencing operational masters, FASTag logs, and billing ledger. All related parameters appear stable with no major exceptions flagged.`,
+      confidence: '91%',
+      sources: ['TMS Operational Index'],
     });
   }
 }
@@ -335,27 +330,29 @@ function generateAiResponse(query: string) {
 function scrollToBottom() {
   nextTick(() => {
     if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight + 500;
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
     }
   });
-  setTimeout(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight + 500;
-    }
-  }, 100);
 }
+
+// Hotkey: Alt+F focuses chat input
+useDeskPageShortcuts({
+  onFocusSearch: () => {
+    chatInputRef.value?.focus();
+  },
+});
 </script>
 
 <style scoped>
 .copilot-page {
-  background-color: #050b18;
+  background-color: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  height: calc(100vh - 64px);
-  max-height: calc(100vh - 64px);
+  height: calc(100vh - 48px);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
-/* Header with cyan underline bar */
+/* Header */
 .page-title-wrap {
   display: flex;
   flex-direction: column;
@@ -364,7 +361,7 @@ function scrollToBottom() {
 .page-underline {
   height: 3px;
   width: 38px;
-  background-color: #00e5ff;
+  background-color: #0284c7;
   border-radius: 2px;
   margin-top: 4px;
 }
@@ -375,22 +372,22 @@ function scrollToBottom() {
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 600;
-  background-color: #0b1728;
-  color: #94a3b8;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .lang-pill:hover {
-  color: #ffffff;
-  background-color: #12223a;
+  color: #0f172a;
+  background-color: #f1f5f9;
 }
 
 .lang-pill--active {
-  background-color: #00e5ff !important;
-  color: #050b18 !important;
-  border-color: #00e5ff !important;
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #0284c7 !important;
 }
 
 /* Quick Prompt Suggestion Pills */
@@ -399,26 +396,26 @@ function scrollToBottom() {
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 500;
-  background-color: #081426;
-  color: #00e5ff;
-  border: 1px solid rgba(0, 229, 255, 0.35);
+  background-color: #ffffff;
+  color: #0369a1;
+  border: 1px solid #cbd5e1;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .prompt-pill:hover {
-  background-color: rgba(0, 229, 255, 0.15);
-  border-color: #00e5ff;
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+  background-color: #f0f9ff;
+  border-color: #0284c7;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.15);
 }
 
 /* Main Chat Workspace Card */
 .chat-workspace-card {
-  background-color: #081224;
-  border: 1px solid #162540;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .messages-scroll-area {
@@ -430,7 +427,7 @@ function scrollToBottom() {
   scroll-behavior: smooth;
 }
 
-/* Chat Rows: Single column layout with Question on Right and Answer on Left */
+/* Chat Rows */
 .chat-row-wrapper {
   display: flex !important;
   width: 100% !important;
@@ -448,7 +445,7 @@ function scrollToBottom() {
   align-self: flex-start !important;
 }
 
-/* User Message: Right-aligned bubble like ChatGPT */
+/* User Message Bubble */
 .user-bubble-box {
   max-width: 78%;
   margin-left: auto;
@@ -458,9 +455,9 @@ function scrollToBottom() {
 }
 
 .user-bubble-text {
-  background-color: #0c1d38;
-  border: 1px solid rgba(0, 229, 255, 0.4);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  background-color: #0284c7;
+  border: 1px solid #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.2);
   border-radius: 16px 16px 3px 16px;
   padding: 12px 18px;
   word-break: break-word;
@@ -470,16 +467,16 @@ function scrollToBottom() {
   width: 22px;
   height: 22px;
   border-radius: 5px;
-  background-color: #162c4e;
-  border: 1px solid rgba(0, 229, 255, 0.5);
-  color: #00e5ff;
+  background-color: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  color: #475569;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-/* Assistant Message: Left-aligned starting from avatar like ChatGPT */
+/* Assistant Message */
 .assistant-bubble-box {
   width: 100% !important;
   max-width: 88% !important;
@@ -496,32 +493,13 @@ function scrollToBottom() {
   clear: both !important;
 }
 
-/* Sleek Cyber Dark Scrollbar */
-.messages-scroll-area::-webkit-scrollbar {
-  width: 6px;
-}
-
-.messages-scroll-area::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: 3px;
-}
-
-.messages-scroll-area::-webkit-scrollbar-thumb {
-  background: #1e3a66;
-  border-radius: 3px;
-}
-
-.messages-scroll-area::-webkit-scrollbar-thumb:hover {
-  background: #00e5ff;
-}
-
 /* Avatar G */
 .avatar-g {
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background-color: #00e5ff;
-  color: #050b18;
+  background-color: #0284c7;
+  color: #ffffff;
   font-weight: 800;
   font-size: 14px;
   display: flex;
@@ -532,8 +510,8 @@ function scrollToBottom() {
 
 /* Welcome & Assistant Message Bubble */
 .welcome-bubble {
-  background-color: rgba(9, 18, 36, 0.75);
-  border: 1px solid rgba(0, 229, 255, 0.25);
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 16px 20px;
   width: 100% !important;
@@ -547,27 +525,27 @@ function scrollToBottom() {
   border-radius: 4px;
   font-size: 11px;
   font-weight: 700;
-  background-color: rgba(16, 185, 129, 0.12);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
   font-family: monospace, sans-serif;
 }
 
 /* Chat Input Bar */
 .chat-input-control {
-  background-color: #091527;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
   transition: border-color 0.2s ease;
 }
 
 .chat-input-control:focus {
-  border-color: #00e5ff;
+  border-color: #0284c7;
 }
 
 /* Send Button */
 .btn-send-cyan {
-  background-color: #00e5ff;
-  color: #050b18;
+  background-color: #0284c7;
+  color: #ffffff;
   border: none;
   font-size: 13px;
   font-weight: 700;
@@ -583,7 +561,7 @@ function scrollToBottom() {
 }
 
 .btn-send-cyan:hover {
-  background-color: #33ebff;
-  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+  background-color: #0369a1;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
 }
 </style>

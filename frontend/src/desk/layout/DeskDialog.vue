@@ -17,7 +17,7 @@
       <!-- Dialog Header matching Screenshot -->
       <div class="desk-dialog-header">
         <div class="desk-dialog-title">
-          <q-icon v-if="icon" :name="icon" size="22px" class="text-cyan-400" />
+          <q-icon v-if="icon" :name="icon" size="22px" class="text-sky-600" />
           <span>{{ title }}</span>
         </div>
         <button type="button" class="btn-dialog-close" @click="cancel" aria-label="Close dialog">
@@ -68,6 +68,7 @@
 import { ref, computed, nextTick } from 'vue';
 import { useDeskLayers } from './layers';
 import { trapFocus, FocusTrapController } from '../focus/trap';
+import { useDeskFocus } from '../focus/useDeskFocus';
 
 const props = withDefaults(
   defineProps<{
@@ -162,14 +163,23 @@ function cancel() {
   isOpen.value = false;
 }
 
+const { focusNextInput, focusPreviousInput } = useDeskFocus();
+
 function handleKeyDown(event: KeyboardEvent) {
-  if (event.ctrlKey && event.key.toLowerCase() === 's') {
+  const key = event.key.toLowerCase();
+
+  // 1. Tally Accept shortcuts: Ctrl+A, Alt+S, or Ctrl+S immediately confirms
+  if (
+    ((event.ctrlKey || event.metaKey) && (key === 'a' || key === 's')) ||
+    (event.altKey && key === 's')
+  ) {
     event.preventDefault();
     event.stopPropagation();
     confirm();
     return;
   }
 
+  // 2. Escape closes dialog
   if (event.key === 'Escape') {
     event.preventDefault();
     event.stopPropagation();
@@ -179,7 +189,7 @@ function handleKeyDown(event: KeyboardEvent) {
 
   const activeEl = document.activeElement as HTMLElement | null;
 
-  // If focus is specifically on the cancel or close button, Enter MUST cancel!
+  // 3. Close button or Cancel button explicit Enter
   if (
     activeEl &&
     (activeEl.classList.contains('modal-btn-cancel') ||
@@ -193,7 +203,7 @@ function handleKeyDown(event: KeyboardEvent) {
     }
   }
 
-  // If focus is on the confirm button, Enter confirms!
+  // 4. Confirm button explicit Enter
   if (activeEl && activeEl.classList.contains('modal-btn-confirm')) {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -207,17 +217,48 @@ function handleKeyDown(event: KeyboardEvent) {
     activeEl &&
     (activeEl.tagName === 'INPUT' ||
       activeEl.tagName === 'TEXTAREA' ||
-      activeEl.isContentEditable);
+      activeEl.isContentEditable ||
+      activeEl.closest('.q-field') !== null);
 
+  // 5. Shift+Enter moves focus to previous input
+  if (event.key === 'Enter' && event.shiftKey) {
+    if (dialogCardRef.value) {
+      event.preventDefault();
+      event.stopPropagation();
+      focusPreviousInput(dialogCardRef.value);
+      return;
+    }
+  }
+
+  // 6. Enter key navigation inside inputs:
+  if (event.key === 'Enter' && isInsideTextInput) {
+    // Let textarea handle normal Enter unless Ctrl+Enter
+    if (activeEl && activeEl.tagName === 'TEXTAREA' && !event.ctrlKey) {
+      return;
+    }
+
+    if (dialogCardRef.value) {
+      const advanced = focusNextInput(dialogCardRef.value);
+      event.preventDefault();
+      event.stopPropagation();
+
+      // If cannot advance further (on the last input field), trigger Save / Accept!
+      if (!advanced) {
+        confirm();
+      }
+      return;
+    }
+  }
+
+  // 7. Explicit Y / N confirmation keys outside text inputs
   if (!isInsideTextInput) {
-    // Explicit Y / N hotkeys
-    if (event.key.toLowerCase() === 'y') {
+    if (key === 'y') {
       event.preventDefault();
       event.stopPropagation();
       confirm();
       return;
     }
-    if (event.key.toLowerCase() === 'n') {
+    if (key === 'n') {
       event.preventDefault();
       event.stopPropagation();
       cancel();
@@ -280,8 +321,8 @@ function onHide() {
 .desk-dialog {
   display: flex;
   flex-direction: column;
-  background: #091024 !important;
-  color: #f1f5f9;
+  background: #ffffff !important;
+  color: #0f172a;
   overflow: hidden;
 }
 
@@ -289,35 +330,35 @@ function onHide() {
 .desk-dialog--drawer {
   height: 100vh !important;
   max-height: 100vh !important;
-  border-radius: 16px 0 0 16px !important;
-  border-left: 1px solid rgba(0, 242, 254, 0.28) !important;
+  border-radius: 12px 0 0 12px !important;
+  border-left: 1px solid #cbd5e1 !important;
   border-top: none !important;
   border-right: none !important;
   border-bottom: none !important;
-  box-shadow: -15px 0 50px rgba(0, 0, 0, 0.85) !important;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Centered Standard Modal Mode (for Delete / Alerts) */
 .desk-dialog--standard {
-  border-radius: 14px !important;
-  border: 1px solid rgba(0, 242, 254, 0.3) !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.85) !important;
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
 }
 
 .desk-dialog-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.15rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: #070c18;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #cbd5e1;
+  background: #f8fafc;
   flex-shrink: 0;
 }
 
 .desk-dialog-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #0f172a;
   letter-spacing: -0.01em;
   display: flex;
   align-items: center;
@@ -328,9 +369,9 @@ function onHide() {
 .btn-dialog-close {
   background: transparent;
   border: none;
-  color: #94a3b8;
+  color: #64748b;
   padding: 6px;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;
@@ -339,69 +380,69 @@ function onHide() {
 }
 
 .btn-dialog-close:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
+  color: #0f172a;
+  background: #e2e8f0;
 }
 
 .desk-dialog-body {
   flex: 1 1 auto;
-  padding: 1.5rem;
+  padding: 1.25rem;
   overflow-y: auto;
-  background: #091024;
+  background: #ffffff;
 }
 
 .desk-dialog-body::-webkit-scrollbar {
   width: 6px;
 }
 .desk-dialog-body::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: #f1f5f9;
 }
 .desk-dialog-body::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 .desk-dialog-body::-webkit-scrollbar-thumb:hover {
-  background: #00f2fe;
+  background: #94a3b8;
 }
 
 .desk-dialog-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: #070c18;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid #cbd5e1;
+  background: #f8fafc;
   flex-shrink: 0;
 }
 
 .modal-btn-cancel {
-  background: #131d35;
-  color: #cbd5e1;
-  border: 1px solid #223253;
-  padding: 0.6rem 1.4rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.825rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .modal-btn-cancel:hover:not(:disabled) {
-  background: #1e293b;
-  color: #ffffff;
-  border-color: #334155;
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
 }
 
 .modal-btn-confirm {
-  background: #00f2fe;
-  color: #070c18;
-  border: none;
-  padding: 0.6rem 1.6rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  background: #0284c7;
+  color: #ffffff;
+  border: 1px solid #0369a1;
+  padding: 0.5rem 1.4rem;
+  border-radius: 6px;
+  font-size: 0.825rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 242, 254, 0.35);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
@@ -409,19 +450,19 @@ function onHide() {
 }
 
 .modal-btn-confirm:hover:not(:disabled) {
-  box-shadow: 0 4px 20px rgba(0, 242, 254, 0.55);
-  filter: brightness(1.05);
+  background: #0369a1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .modal-btn-danger {
-  background: #ef4444 !important;
+  background: #dc2626 !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;
+  border-color: #b91c1c !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
 
 .modal-btn-danger:hover:not(:disabled) {
-  background: #dc2626 !important;
-  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.55) !important;
+  background: #b91c1c !important;
 }
 
 .footer-hint-text {

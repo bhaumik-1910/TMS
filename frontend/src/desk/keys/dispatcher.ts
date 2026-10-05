@@ -59,7 +59,7 @@ export function dispatchKeyboardEvent(event: KeyboardEvent): boolean {
     }
   }
 
-  // 2. Find matching commands in DEFAULT_KEYMAP
+  // 2. Find matching commands in registered handlers
   for (const reg of registeredHandlers) {
     const cmd: DeskCommand | undefined = DEFAULT_KEYMAP[reg.commandId];
     const match = cmd ? cmd.keys.includes(keyCombo) : reg.commandId === keyCombo;
@@ -76,6 +76,22 @@ export function dispatchKeyboardEvent(event: KeyboardEvent): boolean {
         return true;
       }
     }
+  }
+
+  // 3. Fallback: Broadcast global Tally events
+  if (
+    (keyCombo === 'ctrl+a' || keyCombo === 'alt+c' || keyCombo === 'alt+n' || keyCombo === 'ctrl+n' || keyCombo === 'insert') &&
+    !inInput
+  ) {
+    window.dispatchEvent(new CustomEvent('desk:new-record'));
+    event.preventDefault();
+    return true;
+  }
+
+  if ((keyCombo === 'alt+f' || keyCombo === 'ctrl+f' || keyCombo === 'f3') && !inInput) {
+    window.dispatchEvent(new CustomEvent('desk:focus-search'));
+    event.preventDefault();
+    return true;
   }
 
   return false;

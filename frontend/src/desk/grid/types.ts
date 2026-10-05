@@ -8,4 +8,5 @@ export interface GridColumn {
   width?: string;
   style?: string;
   classes?: string;
+  editable?: boolean;
 }

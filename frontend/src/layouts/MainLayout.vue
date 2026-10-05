@@ -1,35 +1,62 @@
 <template>
-  <DeskShell>
-    <q-layout view="hHh Lpr lff">
-      <!-- Modular Top Header -->
-      <AppHeader
-        :unread-count="unreadCount"
-        @toggle-sidebar="toggleSidebar"
-        @open-search="commandPaletteRef?.open()"
-        @open-notifications="notificationsDrawerRef?.open()"
-      />
+  <DeskShell :show-ribbon="false" :show-key-strip="false">
+    <q-layout view="hHh lpR fFf" class="tally-application-root">
+      <!-- 1. Tally Top Navbar with Dropdown Submenus Underneath -->
+      <q-header class="bg-white text-slate-900" style="overflow: visible; z-index: 1000; border-bottom: 1px solid #cbd5e1; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+        <DeskMenuBar
+          :items="TMS_MENU_TREE"
+          :current-path="route.path"
+          @go="navigate"
+        >
+          <template #right>
+            <OrgContextDropdown />
+            <PersonaSwitcherDropdown />
 
-      <!-- Modular Sidebar Drawer -->
-      <AppSidebar
-        v-model="leftDrawerOpen"
-        v-model:mini="isMiniSidebar"
-      />
+            <q-btn
+              flat
+              round
+              dense
+              icon="notifications"
+              :color="unreadCount > 0 ? 'primary' : 'grey-7'"
+              size="sm"
+              class="q-mx-xs relative-position"
+              @click="notificationsDrawerRef?.open()"
+            >
+              <q-badge
+                v-if="unreadCount > 0"
+                color="negative"
+                floating
+                rounded
+                class="font-mono text-[10px] font-bold"
+              >
+                {{ unreadCount }}
+              </q-badge>
+            </q-btn>
 
-      <!-- Page Content Container -->
-      <q-page-container class="bg-black" style="min-height: calc(100vh - 26px);">
-        <div style="width: 100%; margin: 0; padding: 0; min-height: calc(100vh - 60px);">
-          <router-view v-slot="{ Component }">
-            <transition name="fade" mode="out-in">
-              <component :is="Component" />
-            </transition>
-          </router-view>
-        </div>
+            <UserAvatarMenu />
+          </template>
+        </DeskMenuBar>
+      </q-header>
+
+      <!-- 2. Main Page Container - 100% Full Width Tally Workspace -->
+      <q-page-container class="tally-page-container">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </q-page-container>
 
-      <!-- Global Command Palette (Ctrl+K) -->
+      <!-- 3. Tally Bottom Footer: Status Bar + Function Key Strip -->
+      <q-footer class="bg-transparent" style="z-index: 900;">
+        <TmsStatusBar />
+        <DeskKeyStrip />
+      </q-footer>
+
+      <!-- Global Quick Command Palette (Alt+G / Ctrl+K) -->
       <CommandPalette ref="commandPaletteRef" />
 
-      <!-- Modern Notification Center Drawer -->
+      <!-- Notification Center Drawer -->
       <NotificationsDrawer ref="notificationsDrawerRef" />
     </q-layout>
   </DeskShell>
@@ -37,68 +64,27 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useNotificationsStore } from '../stores/notifications';
-import AppHeader from './components/AppHeader.vue';
-import AppSidebar from './components/AppSidebar.vue';
+import OrgContextDropdown from './components/OrgContextDropdown.vue';
+import PersonaSwitcherDropdown from './components/PersonaSwitcherDropdown.vue';
+import UserAvatarMenu from './components/UserAvatarMenu.vue';
 import CommandPalette from '../components/CommandPalette.vue';
 import NotificationsDrawer from '../components/NotificationsDrawer.vue';
-import { DeskShell, DeskMenuBar, DeskMenuSection } from '../framework';
+import { DeskShell } from '../desk';
+import DeskMenuBar from '../desk/menu/DeskMenuBar.vue';
+import { TMS_MENU_TREE } from '../desk/menu/tmsMenu';
+import TmsStatusBar from '../desk/layout/TmsStatusBar.vue';
+import DeskKeyStrip from '../desk/layout/DeskKeyStrip.vue';
 
+const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
 const notifStore = useNotificationsStore();
-const leftDrawerOpen = ref(true);
-const isMiniSidebar = ref(false);
 
 const commandPaletteRef = ref<any | null>(null);
 const notificationsDrawerRef = ref<any | null>(null);
-
-const menuSections = ref<DeskMenuSection[]>([
-  {
-    id: 'operations',
-    label: 'Operations',
-    mnemonic: 'O',
-    items: [
-      { id: 'orders', label: 'Orders / LR Booking', mnemonic: 'B', shortcut: 'Ctrl+Shift+O', to: '/orders', icon: 'description' },
-      { id: 'lr', label: 'LR Consignments', mnemonic: 'L', to: '/lr-consignments', icon: 'receipt_long' },
-      { id: 'shipments', label: 'Shipments', mnemonic: 'S', shortcut: 'Ctrl+Shift+S', to: '/shipments', icon: 'local_shipping' },
-      { id: 'planning', label: 'Load Planning', mnemonic: 'P', shortcut: 'Ctrl+Shift+P', to: '/planning', icon: 'route' },
-      { id: 'dispatch', label: 'Dispatch Console', mnemonic: 'D', shortcut: 'Ctrl+Shift+D', to: '/dispatch', icon: 'send' },
-      { id: 'tracking', label: 'Live Tracking', mnemonic: 'T', shortcut: 'Ctrl+Shift+T', to: '/tracking', icon: 'gps_fixed' },
-    ],
-  },
-  {
-    id: 'master-data',
-    label: 'Master Data',
-    mnemonic: 'M',
-    items: [
-      { id: 'fleet', label: 'Fleet & Vehicles', mnemonic: 'V', to: '/fleet', icon: 'directions_car' },
-      { id: 'drivers', label: 'Drivers', mnemonic: 'D', to: '/drivers', icon: 'badge' },
-    ],
-  },
-  {
-    id: 'finance',
-    label: 'Finance',
-    mnemonic: 'F',
-    items: [
-      { id: 'billing', label: 'Invoices & Billing', mnemonic: 'I', to: '/billing', icon: 'account_balance_wallet' },
-      { id: 'rates', label: 'Rate Cards', mnemonic: 'R', to: '/billing/rates', icon: 'request_quote' },
-      { id: 'reports', label: 'Reports & Analytics', mnemonic: 'A', to: '/reports', icon: 'analytics' },
-    ],
-  },
-  {
-    id: 'system',
-    label: 'System',
-    mnemonic: 'S',
-    items: [
-      { id: 'dashboard', label: 'Dashboard', mnemonic: 'D', to: '/dashboard', icon: 'dashboard' },
-      { id: 'admin', label: 'Admin Console', mnemonic: 'A', to: '/admin', icon: 'admin_panel_settings' },
-      { id: 'users', label: 'Access Management', mnemonic: 'U', to: '/admin/users', icon: 'manage_accounts' },
-      { id: 'settings', label: 'Organization & Settings', mnemonic: 'O', to: '/settings', icon: 'settings_suggest' },
-    ],
-  },
-]);
-
 
 const unreadCount = computed(() => notifStore.unreadCount);
 
@@ -109,19 +95,28 @@ onMounted(async () => {
   notifStore.fetchNotifications(true);
 });
 
-function toggleSidebar() {
-  if (window.innerWidth < 1024) {
-    leftDrawerOpen.value = !leftDrawerOpen.value;
-  } else {
-    isMiniSidebar.value = !isMiniSidebar.value;
-  }
+function navigate(path: string) {
+  void router.push(path);
 }
 </script>
 
-<style>
+<style scoped>
+.tally-application-root {
+  background: #ffffff;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  color: #0f172a;
+}
+
+.tally-page-container {
+  min-height: calc(100vh - 36px - 26px - 33px) !important;
+  background: #f8fafc;
+}
+
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.15s ease;
+  transition: opacity 0.12s ease;
 }
 .fade-enter-from,
 .fade-leave-to {

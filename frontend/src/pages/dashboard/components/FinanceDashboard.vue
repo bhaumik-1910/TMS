@@ -24,20 +24,20 @@
           dense
           round
           icon="refresh"
-          color="cyan"
+          color="primary"
           size="sm"
           class="q-mr-xs"
           @click="refreshLedger"
           :loading="loading"
         >
           <template #loading>
-            <q-spinner color="cyan" size="16px" />
+            <q-spinner color="primary" size="16px" />
           </template>
           <q-tooltip>Reconcile Live Ledgers</q-tooltip>
         </q-btn>
         <q-btn
           outline
-          color="cyan"
+          color="primary"
           dense
           no-caps
           icon="sync"
@@ -117,55 +117,55 @@
         <div class="lg:col-span-8 space-y-4">
           <!-- 4 Lifecycle Pipeline Stages -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-900/70 hover:border-slate-700 transition-colors">
-              <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:border-slate-300 transition-colors">
+              <div class="flex items-center justify-between text-xs text-slate-500 mb-1">
                 <span>Draft Vouchers</span>
-                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
               </div>
-              <div class="text-xl font-bold font-mono text-white">12</div>
-              <div class="text-[11px] font-mono text-cyan-400 mt-0.5">₹1,84,000 Volume</div>
+              <div class="text-xl font-bold font-mono text-slate-900">12</div>
+              <div class="text-[11px] font-mono text-sky-700 mt-0.5">₹1,84,000 Volume</div>
             </div>
 
-            <div class="p-3.5 rounded-xl border border-amber-800/80 bg-amber-950/40 hover:border-amber-600 transition-colors shadow-[0_0_12px_rgba(245,158,11,0.1)]">
-              <div class="flex items-center justify-between text-xs text-amber-300 font-semibold mb-1">
+            <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50 hover:border-amber-300 transition-colors shadow-sm">
+              <div class="flex items-center justify-between text-xs text-amber-800 font-semibold mb-1">
                 <span>Audit Review</span>
-                <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
               </div>
-              <div class="text-xl font-bold font-mono text-amber-200">6</div>
-              <div class="text-[11px] font-mono text-amber-300 mt-0.5">₹3,12,500 Volume</div>
+              <div class="text-xl font-bold font-mono text-amber-900">6</div>
+              <div class="text-[11px] font-mono text-amber-800 mt-0.5">₹3,12,500 Volume</div>
             </div>
 
-            <div class="p-3.5 rounded-xl border border-blue-800/80 bg-blue-950/40 hover:border-blue-600 transition-colors">
-              <div class="flex items-center justify-between text-xs text-blue-300 font-semibold mb-1">
+            <div class="p-3.5 rounded-xl border border-blue-200 bg-blue-50 hover:border-blue-300 transition-colors">
+              <div class="flex items-center justify-between text-xs text-blue-800 font-semibold mb-1">
                 <span>Approved (IRN)</span>
-                <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
               </div>
-              <div class="text-xl font-bold font-mono text-blue-200">8</div>
-              <div class="text-[11px] font-mono text-blue-300 mt-0.5">₹2,64,000 Volume</div>
+              <div class="text-xl font-bold font-mono text-blue-900">8</div>
+              <div class="text-[11px] font-mono text-blue-800 mt-0.5">₹2,64,000 Volume</div>
             </div>
 
-            <div class="p-3.5 rounded-xl border border-emerald-800/80 bg-emerald-950/40 hover:border-emerald-600 transition-colors shadow-[0_0_12px_rgba(16,185,129,0.1)]">
-              <div class="flex items-center justify-between text-xs text-emerald-300 font-semibold mb-1">
+            <div class="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:border-emerald-300 transition-colors shadow-sm">
+              <div class="flex items-center justify-between text-xs text-emerald-800 font-semibold mb-1">
                 <span>Settled / Paid</span>
-                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               </div>
-              <div class="text-xl font-bold font-mono text-emerald-200">48</div>
-              <div class="text-[11px] font-mono text-emerald-300 mt-0.5">₹11,48,000 Volume</div>
+              <div class="text-xl font-bold font-mono text-emerald-900">48</div>
+              <div class="text-[11px] font-mono text-emerald-800 mt-0.5">₹11,48,000 Volume</div>
             </div>
           </div>
 
           <!-- Priority Invoices Ledger Table -->
-          <div class="cyber-card p-5">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-800 gap-2 mb-4">
+          <div class="cyber-card p-5 border border-slate-200 bg-white">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-200 gap-2 mb-4">
               <div>
-                <div class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f2fe]"></span>
+                <div class="text-sm font-bold text-slate-900 tracking-wide flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
                   Priority Freight Invoices & Settlement Register
-                  <span class="text-xs font-mono text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">
+                  <span class="text-xs font-mono text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200 font-semibold">
                     {{ filteredInvoices.length }} VOUCHERS
                   </span>
                 </div>
-                <div class="text-xs text-slate-400 mt-0.5">Automated freight audit, three-way match, and GST e-invoice clearance</div>
+                <div class="text-xs text-slate-500 mt-0.5">Automated freight audit, three-way match, and GST e-invoice clearance</div>
               </div>
 
               <!-- Filter Tabs -->
@@ -175,7 +175,7 @@
                   :key="tab.id"
                   @click="activeFilter = tab.id"
                   class="px-2.5 py-1 rounded text-xs font-mono transition-all border"
-                  :class="activeFilter === tab.id ? 'bg-cyan-950 text-cyan-300 border-cyan-500 shadow-[0_0_8px_rgba(0,242,254,0.3)]' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'"
+                  :class="activeFilter === tab.id ? 'bg-sky-50 text-sky-700 border-sky-300 font-bold' : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400'"
                 >
                   {{ tab.label }}
                 </button>
@@ -187,35 +187,35 @@
               <div
                 v-for="inv in filteredInvoices"
                 :key="inv.id"
-                class="invoice-card p-3.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-500/60 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                class="invoice-card p-3.5 rounded-xl border border-slate-200 bg-white hover:border-sky-500 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-none hover:shadow-sm"
               >
                 <div class="space-y-1 flex-1 min-w-0">
                   <div class="flex items-center gap-2.5 flex-wrap">
-                    <span class="font-mono font-bold text-sm text-cyan-400">{{ inv.number }}</span>
+                    <span class="font-mono font-bold text-sm text-sky-700">{{ inv.number }}</span>
                     <span
                       class="text-[10px] px-2 py-0.5 rounded font-mono font-bold uppercase tracking-wider border shadow-sm"
                       :class="getStatusBadgeClass(inv.status)"
                     >
                       {{ inv.status }}
                     </span>
-                    <span class="text-xs text-white font-semibold truncate">{{ inv.party }}</span>
-                    <span class="text-xs text-slate-500">•</span>
-                    <span class="text-xs text-slate-400 font-mono">Tax IRN: {{ inv.irn || 'IRN-PENDING' }}</span>
+                    <span class="text-xs text-slate-900 font-semibold truncate">{{ inv.party }}</span>
+                    <span class="text-xs text-slate-400">•</span>
+                    <span class="text-xs text-slate-500 font-mono">Tax IRN: {{ inv.irn || 'IRN-PENDING' }}</span>
                   </div>
 
-                  <div class="text-xs text-slate-300 font-sans flex items-center gap-1.5">
+                  <div class="text-xs text-slate-600 font-sans flex items-center gap-1.5">
                     <span>{{ inv.lane }}</span>
-                    <span class="text-slate-500">•</span>
-                    <span class="text-slate-400 font-mono">{{ inv.weight }}</span>
-                    <span class="text-slate-500">•</span>
-                    <span class="text-slate-400">Due: {{ inv.dueDate }}</span>
+                    <span class="text-slate-400">•</span>
+                    <span class="text-slate-500 font-mono">{{ inv.weight }}</span>
+                    <span class="text-slate-400">•</span>
+                    <span class="text-slate-500">Due: {{ inv.dueDate }}</span>
                   </div>
                 </div>
 
                 <div class="flex items-center gap-3 w-full sm:w-auto justify-end flex-shrink-0">
                   <div class="text-right font-mono">
-                    <div class="text-sm font-bold text-white">₹{{ inv.amount.toLocaleString('en-IN') }}</div>
-                    <div class="text-[10px] text-slate-400">GST 18%: ₹{{ Math.round(inv.amount * 0.18).toLocaleString('en-IN') }}</div>
+                    <div class="text-sm font-bold text-slate-900">₹{{ inv.amount.toLocaleString('en-IN') }}</div>
+                    <div class="text-[10px] text-slate-500">GST 18%: ₹{{ Math.round(inv.amount * 0.18).toLocaleString('en-IN') }}</div>
                   </div>
 
                   <div class="flex items-center gap-1">
@@ -234,7 +234,7 @@
                       dense
                       round
                       size="xs"
-                      color="cyan-4"
+                      color="primary"
                       icon="visibility"
                       to="/billing"
                     >
@@ -250,52 +250,52 @@
         <!-- Right: Automated Audit Engine & ERP Gateways (4 Cols) -->
         <div class="lg:col-span-4 space-y-4">
           <!-- ERP Ledger Sync Gateway -->
-          <div class="cyber-card p-5">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+          <div class="cyber-card p-5 border border-slate-200 bg-white">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
               <div>
-                <div class="text-sm font-bold text-white flex items-center gap-1.5">
-                  <q-icon name="sync_alt" size="16px" color="cyan" />
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                  <q-icon name="sync_alt" size="16px" color="primary" />
                   ERP & Tax Ledger Synchronization
                 </div>
-                <div class="text-[11px] text-slate-400">SAP S/4HANA & GSTN IRN live gateway</div>
+                <div class="text-[11px] text-slate-500">SAP S/4HANA & GSTN IRN live gateway</div>
               </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 ACTIVE
               </span>
             </div>
 
             <div class="space-y-2.5 text-xs font-mono">
-              <div class="p-3 rounded-lg border border-slate-800 bg-slate-950/60 flex items-center justify-between">
+              <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between">
                 <div>
-                  <div class="font-bold text-white font-sans">SAP S/4HANA Financials</div>
-                  <div class="text-[10px] text-slate-400">Two-way GL batch sync &bull; 14m ago</div>
+                  <div class="font-bold text-slate-900 font-sans">SAP S/4HANA Financials</div>
+                  <div class="text-[10px] text-slate-500">Two-way GL batch sync &bull; 14m ago</div>
                 </div>
-                <span class="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                   SYNCED
                 </span>
               </div>
 
-              <div class="p-3 rounded-lg border border-slate-800 bg-slate-950/60 flex items-center justify-between">
+              <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between">
                 <div>
-                  <div class="font-bold text-white font-sans">GST E-Invoicing Portal (IRN)</div>
-                  <div class="text-[10px] text-slate-400">QR Code & NIC API Gateway</div>
+                  <div class="font-bold text-slate-900 font-sans">GST E-Invoicing Portal (IRN)</div>
+                  <div class="text-[10px] text-slate-500">QR Code & NIC API Gateway</div>
                 </div>
-                <span class="text-[11px] font-bold text-emerald-400">CONNECTED</span>
+                <span class="text-[11px] font-bold text-emerald-700">CONNECTED</span>
               </div>
 
-              <div class="p-3 rounded-lg border border-slate-800 bg-slate-950/60 flex items-center justify-between">
+              <div class="p-3 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between">
                 <div>
-                  <div class="font-bold text-white font-sans">Tally Prime / QuickBooks</div>
-                  <div class="text-[10px] text-slate-400">Chart of Accounts XML sync</div>
+                  <div class="font-bold text-slate-900 font-sans">Tally Prime / QuickBooks</div>
+                  <div class="text-[10px] text-slate-500">Chart of Accounts XML sync</div>
                 </div>
-                <span class="text-[11px] font-bold text-cyan-300">IDLE</span>
+                <span class="text-[11px] font-bold text-sky-700">IDLE</span>
               </div>
             </div>
 
-            <div class="mt-4 pt-3 border-t border-slate-800">
+            <div class="mt-4 pt-3 border-t border-slate-200">
               <q-btn
-                color="cyan-8"
+                color="primary"
                 text-color="white"
                 class="full-width text-weight-bold font-mono"
                 size="sm"
@@ -309,43 +309,43 @@
           </div>
 
           <!-- Automated Freight Audit Engine -->
-          <div class="cyber-card p-5">
+          <div class="cyber-card p-5 border border-slate-200 bg-white">
             <div class="flex items-center gap-2 mb-2">
-              <q-icon name="fact_check" color="cyan" size="20px" />
-              <span class="text-sm font-bold text-white">Automated Freight Audit Engine</span>
+              <q-icon name="fact_check" color="primary" size="20px" />
+              <span class="text-sm font-bold text-slate-900">Automated Freight Audit Engine</span>
             </div>
-            <p class="text-xs text-slate-300 leading-relaxed font-sans mb-3">
+            <p class="text-xs text-slate-600 leading-relaxed font-sans mb-3">
               Automated 3-way rate reconciliation (Contract Rate Card vs Carrier Invoice vs GPS Mileage).
             </p>
 
             <div class="space-y-2 text-xs font-mono">
-              <div class="p-2.5 rounded bg-slate-900/70 border border-slate-800 flex items-center justify-between">
-                <span class="text-slate-400">Auto-Approval Tolerance</span>
-                <span class="font-bold text-emerald-400">&plusmn; ₹500.00 / trip</span>
+              <div class="p-2.5 rounded bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <span class="text-slate-600">Auto-Approval Tolerance</span>
+                <span class="font-bold text-emerald-700">&plusmn; ₹500.00 / trip</span>
               </div>
-              <div class="p-2.5 rounded bg-slate-900/70 border border-slate-800 flex items-center justify-between">
-                <span class="text-slate-400">Detention Threshold</span>
-                <span class="font-bold text-cyan-300">45 Mins Staging</span>
+              <div class="p-2.5 rounded bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <span class="text-slate-600">Detention Threshold</span>
+                <span class="font-bold text-sky-700">45 Mins Staging</span>
               </div>
-              <div class="p-2.5 rounded bg-rose-950/30 border border-rose-900/40 flex items-center justify-between">
-                <span class="text-rose-300">Pending Rate Disputes</span>
-                <span class="font-bold text-rose-400">3 Flagged (₹14.2K)</span>
+              <div class="p-2.5 rounded bg-rose-50 border border-rose-200 flex items-center justify-between">
+                <span class="text-rose-700">Pending Rate Disputes</span>
+                <span class="font-bold text-rose-800">3 Flagged (₹14.2K)</span>
               </div>
             </div>
           </div>
 
           <!-- Gross Operating Margin Meter -->
-          <div class="cyber-card p-4 border border-cyan-800/40 bg-gradient-to-br from-slate-900 via-cyan-950/20 to-slate-900">
+          <div class="cyber-card p-4 border border-slate-200 bg-white">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-mono text-cyan-300 font-bold uppercase">Corridor Net Margin</span>
-              <span class="text-sm font-mono font-extrabold text-emerald-400">19.4% AVG</span>
+              <span class="text-xs font-mono text-sky-800 font-bold uppercase">Corridor Net Margin</span>
+              <span class="text-sm font-mono font-extrabold text-emerald-700">19.4% AVG</span>
             </div>
-            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-2">
-              <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 rounded-full" style="width: 78%;"></div>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-2">
+              <div class="h-full bg-gradient-to-r from-sky-500 to-emerald-500 rounded-full" style="width: 78%;"></div>
             </div>
-            <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+            <div class="flex items-center justify-between text-[10px] font-mono text-slate-500">
               <span>Freight Target: &gt; 16.5%</span>
-              <span class="text-emerald-400">+2.9% Above Budget</span>
+              <span class="text-emerald-700 font-semibold">+2.9% Above Budget</span>
             </div>
           </div>
         </div>
@@ -353,16 +353,16 @@
 
       <!-- Bottom Section: Freight Settlements & Audit Discrepancy Queue -->
       <div class="cyber-card p-5">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-800 gap-3 mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-200 gap-3 mb-4">
           <div>
-            <div class="text-sm font-bold text-white flex items-center gap-2 tracking-wide uppercase">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]"></span>
+            <div class="text-sm font-bold text-slate-900 flex items-center gap-2 tracking-wide uppercase">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
               Freight Settlements & Audit Discrepancy Queue
-              <span class="text-xs font-mono text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-500/30">
+              <span class="text-xs font-mono text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-300 font-bold">
                 {{ activeDiscrepanciesCount }} FLAGGED (₹14,200)
               </span>
             </div>
-            <div class="text-xs text-slate-400 mt-0.5">Audited rate comparisons, three-way telematics match & automated voucher release</div>
+            <div class="text-xs text-slate-500 mt-0.5">Audited rate comparisons, three-way telematics match & automated voucher release</div>
           </div>
 
           <div class="flex items-center gap-2 flex-wrap">
@@ -371,24 +371,24 @@
               dense
               no-caps
               size="sm"
-              color="emerald-4"
+              color="positive"
               icon="auto_awesome"
               label="Auto-Approve Tolerances (< ±₹500)"
               class="font-mono text-xs px-2"
               @click="autoApproveTolerances"
             />
-            <q-btn flat dense no-caps size="sm" color="cyan" label="Open Billing Console →" to="/billing" />
+            <q-btn flat dense no-caps size="sm" color="primary" label="Open Billing Console →" to="/billing" />
           </div>
         </div>
 
         <!-- Filter Tabs -->
-        <div class="flex items-center gap-1.5 flex-wrap mb-4 pb-2 border-b border-slate-800/80">
+        <div class="flex items-center gap-1.5 flex-wrap mb-4 pb-2 border-b border-slate-200">
           <button
             v-for="tab in discrepancyTabs"
             :key="tab.id"
             @click="discrepancyFilter = tab.id"
             class="px-2.5 py-1 rounded text-xs font-mono transition-all border"
-            :class="discrepancyFilter === tab.id ? 'bg-cyan-950 text-cyan-300 border-cyan-500 shadow-[0_0_8px_rgba(0,242,254,0.3)]' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'"
+            :class="discrepancyFilter === tab.id ? 'bg-sky-50 text-sky-700 border-sky-300 font-bold' : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400'"
           >
             {{ tab.label }}
             <span class="ml-1 text-[10px] text-slate-500">({{ tab.count }})</span>
@@ -397,9 +397,9 @@
 
         <!-- Discrepancy Items Table -->
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs font-mono border-collapse">
+          <table class="w-full text-left text-xs font-mono border-collapse bg-white">
             <thead>
-              <tr class="border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider bg-slate-950/60">
+              <tr class="border-b border-slate-200 text-[11px] font-bold text-slate-700 uppercase tracking-wider bg-slate-50">
                 <th class="py-3 px-3">Dispute Ref / Shipment</th>
                 <th class="py-3 px-3">Carrier Partner</th>
                 <th class="py-3 px-3">Corridor Lane</th>
@@ -409,46 +409,46 @@
                 <th class="py-3 px-3 text-right">Audit Resolution</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-800/60">
+            <tbody class="divide-y divide-slate-200">
               <tr
                 v-for="item in filteredDiscrepancies"
                 :key="item.id"
-                class="hover:bg-slate-850/60 transition-colors"
+                class="bg-white hover:bg-white transition-none"
               >
                 <td class="py-3 px-3">
-                  <div class="font-bold text-cyan-300">{{ item.refNo }}</div>
-                  <div class="text-[10px] text-slate-400">{{ item.shipmentNumber }}</div>
+                  <div class="font-bold text-sky-700">{{ item.refNo }}</div>
+                  <div class="text-[10px] text-slate-500">{{ item.shipmentNumber }}</div>
                 </td>
 
                 <td class="py-3 px-3 font-sans">
-                  <div class="font-bold text-white">{{ item.carrier }}</div>
-                  <div class="text-[10px] text-slate-400 font-mono">{{ item.vehiclePlate }}</div>
+                  <div class="font-bold text-slate-900">{{ item.carrier }}</div>
+                  <div class="text-[10px] text-slate-500 font-mono">{{ item.vehiclePlate }}</div>
                 </td>
 
-                <td class="py-3 px-3 font-sans text-slate-200">
+                <td class="py-3 px-3 font-sans text-slate-800">
                   <div>{{ item.lane }}</div>
-                  <div class="text-[10px] text-slate-400 font-mono">{{ item.gpsMileage }} km GPS verified</div>
+                  <div class="text-[10px] text-slate-500 font-mono">{{ item.gpsMileage }} km GPS verified</div>
                 </td>
 
                 <td class="py-3 px-3">
                   <div class="flex items-center gap-1.5">
-                    <span class="text-slate-400">₹{{ item.contractRate.toLocaleString('en-IN') }}</span>
-                    <span class="text-slate-500">&rarr;</span>
-                    <span class="text-white font-bold">₹{{ item.billedRate.toLocaleString('en-IN') }}</span>
+                    <span class="text-slate-500">₹{{ item.contractRate.toLocaleString('en-IN') }}</span>
+                    <span class="text-slate-400">&rarr;</span>
+                    <span class="text-slate-900 font-bold">₹{{ item.billedRate.toLocaleString('en-IN') }}</span>
                   </div>
-                  <div class="text-[10px] font-bold" :class="item.variance > 0 ? 'text-rose-400' : 'text-emerald-400'">
+                  <div class="text-[10px] font-bold" :class="item.variance > 0 ? 'text-rose-700' : 'text-emerald-700'">
                     Variance: +₹{{ item.variance.toLocaleString('en-IN') }} ({{ item.variancePercent }})
                   </div>
                 </td>
 
-                <td class="py-3 px-3 font-sans text-slate-300" style="max-width: 280px;">
+                <td class="py-3 px-3 font-sans text-slate-600" style="max-width: 280px;">
                   <div class="line-clamp-2 text-[11px] leading-relaxed">{{ item.finding }}</div>
                 </td>
 
                 <td class="py-3 px-3">
                   <span
                     class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border shadow-sm"
-                    :class="item.status === 'RESOLVED' ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-rose-950 text-rose-300 border-rose-800 shadow-[0_0_8px_rgba(244,63,94,0.25)]'"
+                    :class="item.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'"
                   >
                     {{ item.status }}
                   </span>
@@ -474,8 +474,8 @@
                       no-caps
                       outline
                       size="sm"
-                      color="rose-4"
-                      class="font-mono text-xs px-2"
+                      color="rose-7"
+                      class="font-mono text-xs px-2 border border-rose-300"
                       label="Debit Note"
                       icon="receipt"
                       @click="resolveDiscrepancy(item, 'DEBIT')"
@@ -487,7 +487,7 @@
                       dense
                       round
                       size="xs"
-                      color="cyan-4"
+                      color="primary"
                       icon="policy"
                       @click="openAuditModal(item)"
                     >
@@ -511,19 +511,19 @@
 
     <!-- Quick Freight Invoice Modal Dialog -->
     <q-dialog v-model="showNewInvoiceModal" position="right" full-height>
-      <div class="cyber-modal bg-slate-900 border-l border-cyan-500/30 text-white rounded-l-2xl p-5 max-w-[620px] w-full h-full flex flex-col justify-between">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+      <div class="cyber-modal bg-white border-l border-slate-300 text-slate-800 rounded-l-2xl p-5 max-w-[620px] w-full h-full flex flex-col justify-between shadow-2xl">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
           <div class="flex items-center gap-2">
-            <q-icon name="receipt_long" color="cyan" size="20px" />
-            <div class="text-base font-bold text-white">Generate Tax Invoice & GST Voucher</div>
+            <q-icon name="receipt_long" color="primary" size="20px" />
+            <div class="text-base font-bold text-slate-900">Generate Tax Invoice & GST Voucher</div>
           </div>
-          <q-btn flat dense round icon="close" color="slate-400" v-close-popup />
+          <q-btn flat dense round icon="close" color="grey-7" v-close-popup />
         </div>
 
         <div class="space-y-4 text-xs font-mono">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-slate-400 mb-1">Customer / Shipper Party</label>
+              <label class="block text-slate-600 mb-1 font-semibold">Customer / Shipper Party</label>
               <q-select
                 v-model="invoiceForm.customer"
                 :options="['TechCorp Industries', 'Titan Freightways Corp', 'Global Retailers LLC', 'Summit Logistics 3PL', 'FreshDirect Cold Chain']"
@@ -533,7 +533,7 @@
               />
             </div>
             <div>
-              <label class="block text-slate-400 mb-1">Corridor Lane</label>
+              <label class="block text-slate-600 mb-1 font-semibold">Corridor Lane</label>
               <q-input
                 v-model="invoiceForm.lane"
                 dense
@@ -546,7 +546,7 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-slate-400 mb-1">Base Freight (₹)</label>
+              <label class="block text-slate-600 mb-1 font-semibold">Base Freight (₹)</label>
               <q-input
                 v-model.number="invoiceForm.baseAmount"
                 dense
@@ -556,7 +556,7 @@
               />
             </div>
             <div>
-              <label class="block text-slate-400 mb-1">Fuel Surcharge (₹)</label>
+              <label class="block text-slate-600 mb-1 font-semibold">Fuel Surcharge (₹)</label>
               <q-input
                 v-model.number="invoiceForm.fuelSurcharge"
                 dense
@@ -566,7 +566,7 @@
               />
             </div>
             <div>
-              <label class="block text-slate-400 mb-1">GST Tax Rate</label>
+              <label class="block text-slate-600 mb-1 font-semibold">GST Tax Rate</label>
               <q-select
                 v-model="invoiceForm.gstRate"
                 :options="['18% (Standard Logistics)', '12% (Multi-Modal)', '5% (GTA RCM)']"
@@ -577,16 +577,16 @@
             </div>
           </div>
 
-          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
-            <span class="text-slate-400">Total Invoiced Amount (with Tax):</span>
-            <span class="text-base font-bold text-cyan-300">
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
+            <span class="text-slate-600 font-semibold">Total Invoiced Amount (with Tax):</span>
+            <span class="text-base font-bold text-sky-800">
               ₹{{ (invoiceForm.baseAmount + invoiceForm.fuelSurcharge + Math.round((invoiceForm.baseAmount + invoiceForm.fuelSurcharge) * 0.18)).toLocaleString('en-IN') }}
             </span>
           </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 mt-5 pt-3 border-t border-slate-800">
-          <q-btn flat dense no-caps label="Cancel" color="slate-400" v-close-popup />
+        <div class="flex items-center justify-end gap-2 mt-5 pt-3 border-t border-slate-200">
+          <q-btn flat dense no-caps label="Cancel" color="grey-7" v-close-popup />
           <q-btn
             class="desk-btn-primary"
             dense
@@ -602,47 +602,47 @@
 
     <!-- 3-Way Rate & Telematics Audit Modal Dialog -->
     <q-dialog v-model="showAuditModal" position="right" full-height>
-      <div class="cyber-modal bg-slate-900 border-l border-cyan-500/30 text-white rounded-l-2xl p-5 max-w-[640px] w-full h-full flex flex-col justify-between" v-if="selectedDiscrepancy">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+      <div class="cyber-modal bg-white border-l border-slate-300 text-slate-800 rounded-l-2xl p-5 max-w-[640px] w-full h-full flex flex-col justify-between shadow-2xl" v-if="selectedDiscrepancy">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
           <div class="flex items-center gap-2">
-            <q-icon name="fact_check" color="cyan" size="20px" />
-            <div class="text-base font-bold text-white">Three-Way Freight Audit Reconciliation</div>
+            <q-icon name="fact_check" color="primary" size="20px" />
+            <div class="text-base font-bold text-slate-900">Three-Way Freight Audit Reconciliation</div>
           </div>
-          <q-btn flat dense round icon="close" color="slate-400" v-close-popup />
+          <q-btn flat dense round icon="close" color="grey-7" v-close-popup />
         </div>
 
         <div class="space-y-4 text-xs font-mono">
-          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
             <div>
-              <div class="text-slate-400">Carrier Partner Claim</div>
-              <div class="font-bold text-white text-sm font-sans">{{ selectedDiscrepancy.carrier }}</div>
-              <div class="text-[11px] text-cyan-300">{{ selectedDiscrepancy.refNo }} &bull; {{ selectedDiscrepancy.shipmentNumber }}</div>
+              <div class="text-slate-500">Carrier Partner Claim</div>
+              <div class="font-bold text-slate-900 text-sm font-sans">{{ selectedDiscrepancy.carrier }}</div>
+              <div class="text-[11px] text-sky-700 font-semibold">{{ selectedDiscrepancy.refNo }} &bull; {{ selectedDiscrepancy.shipmentNumber }}</div>
             </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-300 border border-rose-800">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
               VARIANCE: +₹{{ selectedDiscrepancy.variance.toLocaleString('en-IN') }} ({{ selectedDiscrepancy.variancePercent }})
             </span>
           </div>
 
           <div class="grid grid-cols-3 gap-2.5 text-center">
-            <div class="p-3 rounded bg-slate-950 border border-slate-800">
-              <div class="text-slate-400 text-[10px]">1. Contract Rate Card</div>
-              <div class="text-sm font-bold text-emerald-400 mt-1">₹{{ selectedDiscrepancy.contractRate.toLocaleString('en-IN') }}</div>
-              <div class="text-[10px] text-slate-500">Agreed Baseline</div>
+            <div class="p-3 rounded bg-slate-50 border border-slate-200">
+              <div class="text-slate-500 text-[10px]">1. Contract Rate Card</div>
+              <div class="text-sm font-bold text-emerald-700 mt-1">₹{{ selectedDiscrepancy.contractRate.toLocaleString('en-IN') }}</div>
+              <div class="text-[10px] text-slate-400">Agreed Baseline</div>
             </div>
-            <div class="p-3 rounded bg-slate-950 border border-slate-800">
-              <div class="text-slate-400 text-[10px]">2. Carrier Invoiced</div>
-              <div class="text-sm font-bold text-rose-400 mt-1">₹{{ selectedDiscrepancy.billedRate.toLocaleString('en-IN') }}</div>
-              <div class="text-[10px] text-slate-500">Billed Amount</div>
+            <div class="p-3 rounded bg-slate-50 border border-slate-200">
+              <div class="text-slate-500 text-[10px]">2. Carrier Invoiced</div>
+              <div class="text-sm font-bold text-rose-700 mt-1">₹{{ selectedDiscrepancy.billedRate.toLocaleString('en-IN') }}</div>
+              <div class="text-[10px] text-slate-400">Billed Amount</div>
             </div>
-            <div class="p-3 rounded bg-slate-950 border border-slate-800">
-              <div class="text-slate-400 text-[10px]">3. GPS Telematics</div>
-              <div class="text-sm font-bold text-cyan-400 mt-1">{{ selectedDiscrepancy.gpsMileage }} KM</div>
-              <div class="text-[10px] text-slate-500">Radar Verified</div>
+            <div class="p-3 rounded bg-slate-50 border border-slate-200">
+              <div class="text-slate-500 text-[10px]">3. GPS Telematics</div>
+              <div class="text-sm font-bold text-sky-700 mt-1">{{ selectedDiscrepancy.gpsMileage }} KM</div>
+              <div class="text-[10px] text-slate-400">Radar Verified</div>
             </div>
           </div>
 
-          <div class="p-3 rounded-lg bg-amber-950/30 border border-amber-800/40 text-amber-200 font-sans text-xs">
-            <div class="font-bold font-mono text-amber-300 mb-1 flex items-center gap-1.5">
+          <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-sans text-xs">
+            <div class="font-bold font-mono text-amber-800 mb-1 flex items-center gap-1.5">
               <q-icon name="warning" size="14px" />
               Automated Audit Findings:
             </div>
@@ -650,13 +650,13 @@
           </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 mt-5 pt-3 border-t border-slate-800">
-          <q-btn flat dense no-caps label="Cancel" color="slate-400" v-close-popup />
+        <div class="flex items-center justify-end gap-2 mt-5 pt-3 border-t border-slate-200">
+          <q-btn flat dense no-caps label="Cancel" color="grey-7" v-close-popup />
           <q-btn
             outline
             dense
             no-caps
-            color="rose-4"
+            color="rose-7"
             icon="receipt"
             label="Issue Debit Note"
             @click="resolveDiscrepancy(selectedDiscrepancy, 'DEBIT'); showAuditModal = false;"
@@ -900,13 +900,13 @@ const filteredInvoices = computed(() => {
 function getStatusBadgeClass(status: string) {
   switch (status) {
     case 'PAID':
-      return 'bg-emerald-950 text-emerald-300 border-emerald-800 shadow-[0_0_8px_rgba(16,185,129,0.25)]';
+      return 'bg-emerald-50 text-emerald-700 border-emerald-300 font-bold';
     case 'PENDING':
-      return 'bg-amber-950 text-amber-300 border-amber-800 shadow-[0_0_8px_rgba(245,158,11,0.25)]';
+      return 'bg-amber-50 text-amber-700 border-amber-300 font-bold';
     case 'DISPUTED':
-      return 'bg-rose-950 text-rose-300 border-rose-800 shadow-[0_0_8px_rgba(244,63,94,0.25)]';
+      return 'bg-rose-50 text-rose-700 border-rose-300 font-bold';
     default:
-      return 'bg-slate-800 text-slate-300 border-slate-700';
+      return 'bg-slate-100 text-slate-700 border-slate-300 font-bold';
   }
 }
 
@@ -1020,38 +1020,38 @@ onMounted(() => {
 }
 
 .cyber-card {
-  background: #0d172b;
-  border: 1px solid #1a2744;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .invoice-card {
-  background: #091124;
-  border: 1px solid #16233f;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   transition: all 0.2s ease;
 }
 
 .invoice-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(0, 242, 254, 0.4);
-  box-shadow: 0 6px 18px -2px rgba(0, 242, 254, 0.12);
+  border-color: #0284c7;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
 }
 
 .desk-btn-primary {
-  background: linear-gradient(135deg, #00f2fe 0%, #0284c7 100%) !important;
-  color: #070c18 !important;
+  background: #0284c7 !important;
+  color: #ffffff !important;
   font-weight: 700 !important;
   border-radius: 6px;
 }
 
 :deep(.dark-input .q-field__control) {
-  background: #091124 !important;
-  border-color: #1a2744 !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
 }
 
 :deep(.dark-input .q-field__native) {
-  color: #ffffff !important;
+  color: #0f172a !important;
 }
 </style>

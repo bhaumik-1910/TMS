@@ -2,6 +2,7 @@
   <form
     ref="formRef"
     class="desk-form"
+    novalidate
     @submit.prevent="handleSubmit"
     @keydown="handleKeyDown"
   >
@@ -75,7 +76,6 @@ function handleSubmit() {
     const isInvalid = formRef.value.checkValidity ? !formRef.value.checkValidity() : false;
     if (isInvalid) {
       focusFirstInvalid(formRef.value);
-      return;
     }
   }
   emit('submit');

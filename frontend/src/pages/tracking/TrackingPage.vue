@@ -1,21 +1,21 @@
 <template>
-  <q-page class="p-4 sm:p-6 space-y-5 max-w-[1680px] mx-auto text-white font-sans" style="background-color: transparent;">
+  <q-page class="p-4 sm:p-6 space-y-5 max-w-[1680px] mx-auto text-slate-800 font-sans overflow-y-auto" style="background-color: #ffffff;">
     <!-- Compact Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
       <div>
-        <div class="flex items-center space-x-1.5 text-xs text-slate-400 mb-1 font-sans">
-          <router-link to="/dashboard" class="hover:text-cyan-400 transition-colors text-slate-400">
+        <div class="flex items-center space-x-1.5 text-xs text-slate-500 mb-1 font-sans">
+          <router-link to="/dashboard" class="hover:text-primary transition-colors text-slate-500">
             Console
           </router-link>
-          <span class="text-slate-600">/</span>
-          <span class="text-slate-300 font-medium">Operations / Live Telematics</span>
+          <span class="text-slate-400">/</span>
+          <span class="text-slate-700 font-medium">Operations / Live Telematics</span>
         </div>
         <div class="flex items-center gap-3">
-          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white m-0 leading-none">
+          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 m-0 leading-none">
             Real-Time Telemetry &amp; Fleet Tracking
           </h1>
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(0,242,254,0.2)]">
-            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-sky-50 text-sky-700 border border-sky-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
             RADAR 5G GNSS ACTIVE
           </span>
         </div>
@@ -62,46 +62,46 @@
 
     <!-- Top Telemetry KPI Bar -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="p-3.5 rounded-xl border border-slate-800 bg-[#0b1329]/80 flex items-center justify-between">
+      <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-between">
         <div>
-          <div class="text-xs text-slate-400 font-medium">Monitored Fleet</div>
-          <div class="text-lg font-bold font-mono text-cyan-300 mt-0.5">{{ vehicles.length }} Trucks</div>
-          <div class="text-[11px] text-slate-500 font-mono">100% GNSS Transponders</div>
+          <div class="text-xs text-slate-500 font-medium">Monitored Fleet</div>
+          <div class="text-lg font-bold font-mono text-sky-700 mt-0.5">{{ vehicles.length }} Trucks</div>
+          <div class="text-[11px] text-slate-400 font-mono">100% GNSS Transponders</div>
         </div>
-        <div class="w-10 h-10 rounded-xl bg-cyan-950/80 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+        <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600">
           <q-icon name="local_shipping" size="22px" />
         </div>
       </div>
 
-      <div class="p-3.5 rounded-xl border border-slate-800 bg-[#0b1329]/80 flex items-center justify-between">
+      <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-between">
         <div>
-          <div class="text-xs text-slate-400 font-medium">In Transit Rolling</div>
-          <div class="text-lg font-bold font-mono text-emerald-400 mt-0.5">{{ movingVehiclesCount }} Units</div>
-          <div class="text-[11px] text-emerald-500 font-mono">Live on Western Corridor</div>
+          <div class="text-xs text-slate-500 font-medium">In Transit Rolling</div>
+          <div class="text-lg font-bold font-mono text-emerald-600 mt-0.5">{{ movingVehiclesCount }} Units</div>
+          <div class="text-[11px] text-emerald-600 font-mono">Live on Western Corridor</div>
         </div>
-        <div class="w-10 h-10 rounded-xl bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
           <q-icon name="speed" size="22px" />
         </div>
       </div>
 
-      <div class="p-3.5 rounded-xl border border-slate-800 bg-[#0b1329]/80 flex items-center justify-between">
+      <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-between">
         <div>
-          <div class="text-xs text-slate-400 font-medium">Active Geofence Hubs</div>
-          <div class="text-lg font-bold font-mono text-amber-300 mt-0.5">{{ geofences.length }} Monitored</div>
-          <div class="text-[11px] text-slate-500 font-mono">Ahmedabad &bull; Mumbai Port</div>
+          <div class="text-xs text-slate-500 font-medium">Active Geofence Hubs</div>
+          <div class="text-lg font-bold font-mono text-amber-700 mt-0.5">{{ geofences.length }} Monitored</div>
+          <div class="text-[11px] text-slate-400 font-mono">Ahmedabad &bull; Mumbai Port</div>
         </div>
-        <div class="w-10 h-10 rounded-xl bg-amber-950/80 border border-amber-500/30 flex items-center justify-center text-amber-400">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
           <q-icon name="fence" size="22px" />
         </div>
       </div>
 
-      <div class="p-3.5 rounded-xl border border-slate-800 bg-[#0b1329]/80 flex items-center justify-between">
+      <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-between">
         <div>
-          <div class="text-xs text-slate-400 font-medium">Avg Fleet Speed</div>
-          <div class="text-lg font-bold font-mono text-cyan-300 mt-0.5">{{ avgFleetSpeed }} km/h</div>
-          <div class="text-[11px] text-slate-500 font-mono">NH-48 Freight Limit: 70</div>
+          <div class="text-xs text-slate-500 font-medium">Avg Fleet Speed</div>
+          <div class="text-lg font-bold font-mono text-sky-700 mt-0.5">{{ avgFleetSpeed }} km/h</div>
+          <div class="text-[11px] text-slate-400 font-mono">NH-48 Freight Limit: 70</div>
         </div>
-        <div class="w-10 h-10 rounded-xl bg-blue-950/80 border border-blue-500/30 flex items-center justify-center text-cyan-300">
+        <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600">
           <q-icon name="trending_up" size="22px" />
         </div>
       </div>
@@ -111,7 +111,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
       <!-- Left Column: Live Map Container (8 cols) -->
       <div class="lg:col-span-8 flex flex-col space-y-4">
-        <div class="rounded-2xl border border-slate-800 bg-[#0b1329] overflow-hidden" style="height: 640px;">
+        <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm" style="height: 640px;">
           <LiveMap
             :vehicles="vehicles"
             :geofences="geofences"
@@ -121,16 +121,16 @@
         </div>
 
         <!-- Corridor Trail Quick Info Bar -->
-        <div class="p-3 rounded-xl border border-slate-800 bg-[#0b1329]/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-mono">
+        <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-mono">
           <div class="flex items-center gap-2">
-            <q-icon name="route" color="cyan" size="18px" />
-            <span class="text-slate-400">Selected Route:</span>
-            <strong class="text-white">{{ activeRouteDescription }}</strong>
+            <q-icon name="route" color="primary" size="18px" />
+            <span class="text-slate-500">Selected Route:</span>
+            <strong class="text-slate-900">{{ activeRouteDescription }}</strong>
           </div>
           <div class="flex items-center gap-3">
-            <span class="text-slate-400">Remaining: <strong class="text-cyan-300">{{ selectedRemainingDistance }} km</strong></span>
-            <span class="text-slate-600">&bull;</span>
-            <span class="text-slate-400">Est. Arrival: <strong class="text-emerald-400">{{ selectedETA }}</strong></span>
+            <span class="text-slate-500">Remaining: <strong class="text-sky-700">{{ selectedRemainingDistance }} km</strong></span>
+            <span class="text-slate-400">&bull;</span>
+            <span class="text-slate-500">Est. Arrival: <strong class="text-emerald-600">{{ selectedETA }}</strong></span>
           </div>
         </div>
       </div>
@@ -138,11 +138,11 @@
       <!-- Right Column: Monitored Units & Real-Time Alert Stream (4 cols) -->
       <div class="lg:col-span-4 flex flex-col space-y-4">
         <!-- Monitored Fleet Units -->
-        <div class="p-4 rounded-2xl border border-slate-800 bg-[#0b1329] flex-1 flex flex-col justify-between">
+        <div class="p-4 rounded-2xl border border-slate-200 bg-white shadow-sm flex-1 flex flex-col justify-between">
           <div>
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
               <div>
-                <div class="text-sm font-bold text-white flex items-center gap-2">
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <q-icon name="satellite_alt" color="cyan" size="18px" />
                   Live Fleet Radar Units
                 </div>
@@ -441,13 +441,13 @@ onBeforeUnmount(() => {
   width: 4px;
 }
 .custom-scroll::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.4);
+  background: #f1f5f9;
 }
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+  background: #cbd5e1;
   border-radius: 4px;
 }
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 242, 254, 0.4);
+  background: #94a3b8;
 }
 </style>

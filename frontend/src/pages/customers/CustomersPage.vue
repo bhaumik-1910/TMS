@@ -1,9 +1,9 @@
 <template>
-  <div class="party-master-page p-3 sm:p-4 text-slate-100 font-sans">
+  <div class="party-master-page p-3 sm:p-4 text-slate-800 font-sans">
     <!-- Header -->
     <div class="row items-center justify-between no-wrap q-mb-md">
       <div>
-        <div class="text-h6 text-weight-bold text-white relative-position inline-block q-pb-xs">
+        <div class="text-h6 text-weight-bold text-slate-900 relative-position inline-block q-pb-xs">
           Party Master
           <div class="header-underline"></div>
         </div>
@@ -20,28 +20,28 @@
 
     <!-- KPI Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 q-mb-md">
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL PARTIES</div>
-        <div class="text-3xl font-extrabold font-mono text-cyan-400 my-1">{{ parties.length }}</div>
-        <div class="text-xs text-slate-400 font-mono">Active {{ activeCount }}</div>
-        <div class="accent-bar bg-cyan-400"></div>
+      <div class="stat-card p-4 rounded-xl border border-sky-200 bg-white relative overflow-hidden">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">TOTAL PARTIES</div>
+        <div class="text-3xl font-extrabold font-mono text-sky-700 my-1">{{ parties.length }}</div>
+        <div class="text-xs text-slate-500 font-mono">Active {{ activeCount }}</div>
+        <div class="accent-bar bg-sky-500"></div>
       </div>
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">CUSTOMERS</div>
-        <div class="text-3xl font-extrabold font-mono text-sky-400 my-1">{{ customerCount }}</div>
-        <div class="text-xs text-slate-400 font-mono">Consignors / Consignees</div>
-        <div class="accent-bar bg-sky-400"></div>
+      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">CUSTOMERS</div>
+        <div class="text-3xl font-extrabold font-mono text-slate-800 my-1">{{ customerCount }}</div>
+        <div class="text-xs text-slate-500 font-mono">Consignors / Consignees</div>
+        <div class="accent-bar bg-slate-300"></div>
       </div>
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">VENDORS</div>
-        <div class="text-3xl font-extrabold font-mono text-violet-400 my-1">{{ vendorCount }}</div>
-        <div class="text-xs text-slate-400 font-mono">Fuel / Tyre / Service</div>
+      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">VENDORS</div>
+        <div class="text-3xl font-extrabold font-mono text-violet-600 my-1">{{ vendorCount }}</div>
+        <div class="text-xs text-slate-500 font-mono">Fuel / Tyre / Service</div>
         <div class="accent-bar bg-violet-400"></div>
       </div>
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">CREDIT EXPOSED</div>
-        <div class="text-3xl font-extrabold font-mono text-amber-400 my-1">{{ creditCount }}</div>
-        <div class="text-xs text-amber-300 font-mono">With credit limits</div>
+      <div class="stat-card p-4 rounded-xl border border-amber-200 bg-amber-50 relative overflow-hidden">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-amber-700 mb-1">CREDIT EXPOSED</div>
+        <div class="text-3xl font-extrabold font-mono text-amber-600 my-1">{{ creditCount }}</div>
+        <div class="text-xs text-amber-600 font-mono">With credit limits</div>
         <div class="accent-bar bg-amber-400"></div>
       </div>
     </div>
@@ -351,7 +351,7 @@ import {
   DeskForm,
   DeskField,
   DeskCombo,
-} from '../../framework';
+} from '../../desk';
 import type { GridColumn } from '../../desk/grid/DeskDataTable.vue';
 
 const $q = useQuasar();
@@ -599,25 +599,50 @@ async function loadParties() {
 onMounted(async () => {
   await loadParties();
   window.addEventListener('keydown', handleGlobalKeydown, { capture: true });
+  window.addEventListener('desk:new-record', onDeskNewRecord);
+  window.addEventListener('desk:focus-search', onDeskFocusSearch);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleGlobalKeydown, { capture: true });
+  window.removeEventListener('desk:new-record', onDeskNewRecord);
+  window.removeEventListener('desk:focus-search', onDeskFocusSearch);
 });
+
+function onDeskNewRecord() {
+  if (!showAddModal.value && !showDeleteDialog.value) {
+    openAddParty();
+  }
+}
+
+function onDeskFocusSearch() {
+  if (!showAddModal.value && !showDeleteDialog.value) {
+    gridRef.value?.focusSearch?.();
+  }
+}
 
 // ─── Keyboard Shortcuts ────────────────────────────────────────────────────────
 function handleGlobalKeydown(e: KeyboardEvent) {
   if (showAddModal.value || showDeleteDialog.value) return;
   const key = e.key.toLowerCase();
 
-  // Alt+F or F3 → focus Search
-  if ((e.altKey && key === 'f') || e.key === 'F3') {
+  // Alt+F, F3, Ctrl+F, or '/' (when outside input) → focus Search
+  if (
+    (e.altKey && key === 'f') ||
+    e.key === 'F3' ||
+    ((e.ctrlKey || e.metaKey) && key === 'f') ||
+    (!e.altKey && !e.ctrlKey && e.key === '/' && (document.activeElement as HTMLElement)?.tagName !== 'INPUT')
+  ) {
     e.preventDefault(); e.stopPropagation();
     gridRef.value?.focusSearch?.();
     return;
   }
-  // Alt+C or Insert → Add Party
-  if ((e.altKey && key === 'c') || e.key === 'Insert') {
+  // Ctrl+A, Alt+C, Alt+N, Ctrl+N or Insert → Add Party
+  if (
+    ((e.ctrlKey || e.metaKey) && (key === 'a' || key === 'n')) ||
+    (e.altKey && (key === 'c' || key === 'n')) ||
+    e.key === 'Insert'
+  ) {
     e.preventDefault(); e.stopPropagation();
     openAddParty();
     return;
@@ -778,56 +803,59 @@ async function executeDeleteParty() {
 
 <style scoped>
 .party-master-page {
-  background-color: #070c18;
+  background-color: #ffffff;
   min-height: calc(100vh - 88px);
+  overflow-y: auto;
 }
 
 .header-underline {
   position: absolute;
   bottom: 0; left: 0;
   width: 48px; height: 3px;
-  background-color: #00e5ff;
+  background-color: #0284c7;
   border-radius: 2px;
 }
 
 .btn-hdr-add {
-  background: #00e5ff;
-  color: #070c18;
-  border: none;
+  background: #0284c7;
+  color: #ffffff;
+  border: 1px solid #0369a1;
   font-size: 0.82rem;
   font-weight: 700;
   padding: 6px 18px;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .btn-hdr-add:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+  background: #0369a1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .btn-hdr-import {
-  background: #070c18;
-  border: 1px solid rgba(0, 242, 254, 0.4);
-  color: #ffffff;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
   font-size: 0.82rem;
   font-weight: 500;
   padding: 6px 16px;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .btn-hdr-import:hover {
-  background: rgba(0, 242, 254, 0.1);
-  border-color: #00f2fe;
+  background: #f1f5f9;
+  border-color: #0284c7;
+  color: #0284c7;
 }
 
 /* ── KPI Cards ───────────────────────────────────── */
 .stat-card {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 .accent-bar {
   position: absolute;
@@ -843,9 +871,9 @@ async function executeDeleteParty() {
   flex-wrap: wrap;
 }
 .filter-pill {
-  background: #0d172b;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
   padding: 0.35rem 1rem;
   border-radius: 9999px;
   font-size: 0.78rem;
@@ -854,13 +882,14 @@ async function executeDeleteParty() {
   transition: all 0.15s ease;
 }
 .filter-pill:hover {
-  border-color: rgba(0, 242, 254, 0.4);
-  color: #ffffff;
+  border-color: #0284c7;
+  color: #0284c7;
+  background: #e0f2fe;
 }
 .filter-pill--active {
-  background: #00e5ff !important;
-  color: #070c18 !important;
-  border-color: #00e5ff !important;
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #0369a1 !important;
   font-weight: 700 !important;
 }
 
@@ -873,13 +902,13 @@ async function executeDeleteParty() {
   border-radius: 6px;
   white-space: nowrap;
 }
-.sub-customer      { background: rgba(56,189,248,0.12);  color: #38bdf8; border: 1px solid rgba(56,189,248,0.25); }
-.sub-fuel-station  { background: rgba(16,185,129,0.12);  color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
-.sub-driver        { background: rgba(251,191,36,0.12);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
-.sub-service-centre{ background: rgba(99,102,241,0.15);  color: #818cf8; border: 1px solid rgba(99,102,241,0.25); }
-.sub-tyre-supplier { background: rgba(45,212,191,0.12);  color: #2dd4bf; border: 1px solid rgba(45,212,191,0.25); }
-.sub-vehicle-owner { background: rgba(192,132,252,0.12); color: #c084fc; border: 1px solid rgba(192,132,252,0.25); }
-.sub-spare-supplier{ background: rgba(148,163,184,0.12); color: #94a3b8; border: 1px solid rgba(148,163,184,0.25); }
+.sub-customer      { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+.sub-fuel-station  { background: #d1fae5; color: #059669; border: 1px solid #6ee7b7; }
+.sub-driver        { background: #fef9c3; color: #ca8a04; border: 1px solid #fde047; }
+.sub-service-centre{ background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; }
+.sub-tyre-supplier { background: #ccfbf1; color: #0d9488; border: 1px solid #99f6e4; }
+.sub-vehicle-owner { background: #f3e8ff; color: #9333ea; border: 1px solid #d8b4fe; }
+.sub-spare-supplier{ background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
 
 /* ── Status pills ────────────────────────────────── */
 .status-pill {
@@ -889,15 +918,15 @@ async function executeDeleteParty() {
   border-radius: 6px;
   display: inline-block;
 }
-.status-active   { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
-.status-inactive { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+.status-active   { background: #dcfce7; color: #16a34a; border: 1px solid #86efac; }
+.status-inactive { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
 
 /* ── Form section labels ─────────────────────────── */
 .section-label {
   font-size: 0.7rem;
   font-family: monospace;
   font-weight: 700;
-  color: #00f2fe;
+  color: #0284c7;
   letter-spacing: 0.08em;
   margin-top: 4px;
   margin-bottom: 2px;
@@ -905,9 +934,9 @@ async function executeDeleteParty() {
 
 /* ── Table action buttons (Fleet-page identical) ─── */
 .btn-table-edit {
-  background: #131d32;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #38bdf8;
+  background: #eff6ff;
+  border: 1px solid #bae6fd;
+  color: #0284c7;
   font-size: 0.8rem;
   font-weight: 600;
   padding: 3px 14px;
@@ -920,14 +949,14 @@ async function executeDeleteParty() {
   height: 28px;
 }
 .btn-table-edit:hover {
-  background: #1c2b4a;
-  border-color: #38bdf8;
-  color: #ffffff;
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #0369a1;
 }
 
 .btn-table-delete {
-  background: #131d32;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   color: #94a3b8;
   width: 32px;
   height: 28px;
@@ -940,8 +969,8 @@ async function executeDeleteParty() {
   padding: 0;
 }
 .btn-table-delete:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  color: #f87171;
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 </style>

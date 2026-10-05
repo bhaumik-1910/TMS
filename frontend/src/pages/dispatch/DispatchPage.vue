@@ -3,11 +3,11 @@
     <!-- Header with Title & Action Controls -->
     <div class="row items-center justify-between no-wrap q-mb-md gap-3">
       <div class="min-w-0">
-        <div class="text-h6 text-weight-bold text-white row items-center no-wrap q-gutter-x-sm">
-          <q-icon name="send" color="cyan" size="24px" />
+        <div class="text-h6 text-weight-bold text-slate-900 row items-center no-wrap q-gutter-x-sm">
+          <q-icon name="send" color="primary" size="24px" />
           <span class="truncate">Trip & Allocation</span>
         </div>
-        <div class="text-caption text-grey-5 truncate">
+        <div class="text-caption text-slate-500 truncate">
           Fleet allocation, odometer controls, live dispatch &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> for new trip
         </div>
       </div>
@@ -45,7 +45,7 @@
           @click="onRefresh"
         >
           <template #loading>
-            <q-spinner color="cyan" size="16px" />
+            <q-spinner color="primary" size="16px" />
           </template>
           <q-tooltip>Refresh Trips & Pipeline</q-tooltip>
         </q-btn>
@@ -84,6 +84,7 @@
       <!-- Table View using DeskDataTable matching Image 5 -->
       <div v-if="activeView === 'table'">
         <DeskDataTable
+          ref="gridRef"
           title="Trip & Allocation"
           :rows="filteredTrips"
           :columns="tableColumns"
@@ -516,9 +517,11 @@ import {
   DeskCombo,
   GridColumn,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 const router = useRouter();
 const $q = useQuasar();
+const gridRef = ref();
 
 export interface TripItem {
   id: string;
@@ -1125,34 +1128,53 @@ async function saveTrip() {
     showAddModal.value = false;
   }
 }
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  gridRef,
+  onNewRecord: openAddModal,
+  isModalOpen: () => showAddModal.value || showDeleteDialog.value,
+  onSave: saveTrip,
+  onEscape: () => {
+    showAddModal.value = false;
+    showDeleteDialog.value = false;
+  },
+});
 </script>
 
 <style scoped>
 .trip-allocation-page {
-  background-color: #070c18;
+  background-color: #f8fafc;
   min-height: calc(100vh - 88px);
 }
 
 .pipeline-column {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   min-height: 480px;
 }
 
 .trip-card {
-  background: #111a33;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   transition: all 0.2s ease;
 }
 
 .trip-card:hover {
-  border-color: #00f2fe;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+  border-color: #0284c7;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
 }
 
 .desk-kbd {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1px 4px;
+  background: #f1f5f9;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid #cbd5e1;
+  color: #0284c7;
+  font-family: var(--desk-font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+}
   border-radius: 3px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #00f2fe;

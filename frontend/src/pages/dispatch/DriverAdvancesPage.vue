@@ -1,13 +1,13 @@
 <template>
-  <div class="driver-advances-page p-3 sm:p-4 text-slate-100 font-sans">
+  <div class="driver-advances-page p-3 sm:p-4 text-slate-800 font-sans">
     <!-- Header -->
     <div class="row items-center justify-between q-mb-md">
       <div>
-        <div class="text-h6 text-weight-bold text-white row items-center q-gutter-x-sm">
-          <q-icon name="payments" color="cyan" size="24px" />
+        <div class="text-h6 text-weight-bold text-slate-900 row items-center q-gutter-x-sm">
+          <q-icon name="payments" color="primary" size="24px" />
           <span>Driver Advances & Expenses</span>
         </div>
-        <div class="text-caption text-grey-5">
+        <div class="text-caption text-slate-500">
           Trip cash vouchers, allowances, fastag & en-route expense tracking &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> for advance voucher
         </div>
       </div>
@@ -79,6 +79,7 @@
       <div class="row items-center justify-between no-wrap">
         <div class="row items-center q-gutter-x-sm no-wrap">
           <q-input
+            ref="searchInputRef"
             v-model="search"
             dense
             outlined
@@ -393,6 +394,7 @@ import {
   DeskForm,
   DeskField,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 export interface DriverAdvance {
   id: string;
@@ -408,6 +410,7 @@ export interface DriverAdvance {
 }
 
 const notify = useAppNotify();
+const searchInputRef = ref();
 const search = ref('');
 const headFilter = ref('ALL');
 const statusFilter = ref('ALL');
@@ -813,11 +816,23 @@ function exportAdvancesPdf() {
   });
   notify.notifySuccess('PDF generated for Driver Advances & Expenses');
 }
+
+// ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
+useDeskPageShortcuts({
+  searchInputRef,
+  onNewRecord: openAddDialog,
+  isModalOpen: () => showDialog.value || showDeleteDialog.value,
+  onSave: saveAdvance,
+  onEscape: () => {
+    showDialog.value = false;
+    showDeleteDialog.value = false;
+  },
+});
 </script>
 
 <style scoped>
 .driver-advances-page {
-  background-color: #070c18;
+  background-color: #f8fafc;
   min-height: calc(100vh - 88px);
 }
 
@@ -827,7 +842,7 @@ function exportAdvancesPdf() {
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: #00f2fe;
+  border-color: #0284c7;
 }
 
 .accent-bar {
@@ -839,8 +854,8 @@ function exportAdvancesPdf() {
 }
 
 .cyber-card {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
 }
 

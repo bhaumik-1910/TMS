@@ -1,12 +1,12 @@
 /* ==========================================================================
-   DESK GRID STYLES (Cyber-Dark High-Density Logistics Keyboard Grid)
+   DESK GRID STYLES (Tally Prime Clean High-Density Logistics Keyboard Grid)
    ========================================================================== */
 
 .desk-grid {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  background-color: #0d172b;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   font-family: var(--tms-font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
   font-size: 13px;
   position: relative;
@@ -22,15 +22,15 @@
 }
 
 .desk-grid .q-table thead tr {
-  height: 44px !important;
+  height: 36px !important;
 }
 
 .desk-grid .q-table tbody tr {
-  height: 50px !important;
-  transition: background-color 0.15s ease;
+  height: 40px !important;
+  transition: background-color 0.1s ease;
 }
 
-/* Zero Vertical Borders & Clean Cell Styling matching Image 1 */
+/* Zero Vertical Borders & Clean Cell Styling */
 .desk-grid .q-table,
 .desk-grid .q-table__middle,
 .desk-grid .q-table__middle table,
@@ -66,15 +66,15 @@
 .desk-grid .q-table th {
   font-size: 0.72rem !important;
   font-weight: 700 !important;
-  letter-spacing: 0.06em !important;
+  letter-spacing: 0.05em !important;
   text-transform: uppercase !important;
-  color: #00f2fe !important;
-  background-color: rgba(255, 255, 255, 0.02) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #334155 !important;
+  background-color: #f1f5f9 !important;
+  border-bottom: 1px solid #cbd5e1 !important;
   border-left: none !important;
   border-right: none !important;
   border-top: none !important;
-  padding: 12px 16px !important;
+  padding: 8px 14px !important;
   user-select: none;
   position: sticky;
   top: 0;
@@ -82,40 +82,69 @@
 }
 
 .desk-grid .q-table td {
-  font-size: 0.82rem !important;
-  padding: 12px 16px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  font-size: 0.8125rem !important;
+  padding: 8px 14px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
   border-left: none !important;
   border-right: none !important;
   border-top: none !important;
-  color: #cbd5e1 !important;
+  color: #0f172a !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   position: relative;
 }
 
-/* Clean Row Hover matching Image 1 */
+/* Pure White Theme - Zero Row Hover */
 .desk-grid .q-table tbody tr:hover td {
-  background-color: rgba(255, 255, 255, 0.025) !important;
+  background-color: #ffffff !important;
 }
 
 .desk-grid .q-table tbody tr.desk-row-selected td {
-  background-color: rgba(0, 242, 254, 0.08) !important;
+  background-color: #f0f9ff !important;
 }
 
 .desk-grid .q-table tbody tr.desk-row-active td {
-  background-color: rgba(0, 242, 254, 0.15) !important;
-  color: #ffffff !important;
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
 }
 
 .desk-grid .q-table tbody tr.desk-row-active td:first-child {
-  box-shadow: inset 4px 0 0 0 #00f2fe !important;
+  box-shadow: inset 4px 0 0 0 #0284c7 !important;
 }
 
-.desk-grid td.desk-cell-focused {
-  outline: none !important;
-  box-shadow: none !important;
+/* Deep Cell-by-Cell Grid Navigation (Tally & Excel style) */
+.desk-grid td.desk-cell-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: -2px !important;
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  z-index: 3 !important;
+  position: relative;
+  box-shadow: 0 0 6px rgba(2, 132, 199, 0.3) !important;
+}
+
+.desk-grid td.desk-cell-editing {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: -2px !important;
+  background-color: #ffffff !important;
+  padding: 0 !important;
+  z-index: 4 !important;
+}
+
+.desk-cell-inline-input {
+  width: 100%;
+  height: 100%;
+  min-height: 36px;
+  background: #ffffff;
+  border: none;
+  outline: none;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  box-sizing: border-box;
 }
 
 /* Numeric & Monospace alignment */
@@ -129,7 +158,7 @@
 .desk-grid td.desk-col-code {
   font-family: var(--tms-font-mono, "JetBrains Mono", monospace);
   font-weight: 600;
-  color: #00f2fe;
+  color: #0284c7;
 }
 
 .desk-grid td.desk-col-center,
@@ -140,17 +169,17 @@
 /* Grid Action Bar & Pagination */
 .desk-grid-toolbar {
   padding: 8px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background-color: #0d172b;
-  min-height: 48px;
+  border-bottom: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  min-height: 44px;
 }
 
 .desk-grid-footer {
   padding: 6px 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background-color: #090f1d;
+  border-top: 1px solid #cbd5e1;
+  background-color: #f8fafc;
   font-size: 11px;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 /* Quick Filter Input in Table Toolbar */
@@ -168,13 +197,12 @@
   height: 32px !important;
   min-height: 32px !important;
   padding: 0 10px !important;
-  background: #090f1d !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 6px !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 4px !important;
   transition: all 0.15s ease !important;
 }
 
-/* Remove Quasar default pseudo borders to prevent double/distorted borders */
 .desk-grid-search .q-field__control:before,
 .desk-grid-search .q-field__control:after,
 .desk-filter-select .q-field__control:before,
@@ -184,15 +212,14 @@
 
 .desk-grid-search .q-field__control:hover,
 .desk-filter-select .q-field__control:hover {
-  border-color: rgba(0, 242, 254, 0.4) !important;
-  background: #0d1527 !important;
+  border-color: #94a3b8 !important;
 }
 
 .desk-grid-search .q-field__control--focused,
 .desk-filter-select .q-field__control--focused {
-  border-color: #00f2fe !important;
-  background: #0d1527 !important;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25) !important;
+  border-color: #0284c7 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15) !important;
 }
 
 .desk-grid-search .q-field__marginal,
@@ -203,7 +230,7 @@
 
 .desk-grid-search .q-field__native,
 .desk-filter-select .q-field__native {
-  color: #ffffff !important;
+  color: #0f172a !important;
   font-size: 12px !important;
   min-height: 32px !important;
   height: 32px !important;
@@ -213,12 +240,12 @@
 }
 
 .desk-grid-search input::placeholder {
-  color: #64748b !important;
+  color: #94a3b8 !important;
   font-size: 12px !important;
 }
 
 .desk-filter-select .q-icon {
-  color: #00f2fe !important;
+  color: #64748b !important;
   font-size: 16px !important;
   transition: transform 0.2s ease !important;
 }
@@ -227,15 +254,15 @@
   transform: rotate(180deg) !important;
 }
 
-/* Cyber-Dark Modal Form Input with Left Prepend Icon */
+/* Modal Form Input with Left Prepend Icon */
 .desk-form-input .q-field__control {
-  height: 42px !important;
-  min-height: 42px !important;
+  height: 38px !important;
+  min-height: 38px !important;
   padding: 0 12px !important;
-  background: #090f1d !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  border-radius: 8px !important;
-  transition: all 0.2s ease !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
 }
 
 .desk-form-input .q-field__control:before,
@@ -244,37 +271,36 @@
 }
 
 .desk-form-input .q-field__control:hover {
-  border-color: rgba(0, 242, 254, 0.45) !important;
-  background: #0d172b !important;
+  border-color: #94a3b8 !important;
 }
 
 .desk-form-input .q-field__control--focused {
-  border-color: #00f2fe !important;
-  background: #0d172b !important;
-  box-shadow: 0 0 12px rgba(0, 242, 254, 0.25) !important;
+  border-color: #0284c7 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15) !important;
 }
 
 .desk-form-input .q-field__marginal {
-  height: 42px !important;
-  min-height: 42px !important;
+  height: 38px !important;
+  min-height: 38px !important;
 }
 
 .desk-form-input .q-field__native {
-  color: #ffffff !important;
+  color: #0f172a !important;
   font-size: 13px !important;
   font-weight: 500 !important;
-  min-height: 42px !important;
-  height: 42px !important;
+  min-height: 38px !important;
+  height: 38px !important;
   padding: 0 !important;
 }
 
 .desk-form-input input::placeholder {
-  color: #64748b !important;
+  color: #94a3b8 !important;
   font-size: 13px !important;
 }
 
 .desk-form-input .q-icon {
-  color: #00f2fe !important;
+  color: #0284c7 !important;
   font-size: 18px !important;
 }
 
@@ -283,26 +309,25 @@
   height: 32px !important;
   width: 32px !important;
   min-height: 32px !important;
-  border-radius: 6px !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  color: #94a3b8 !important;
+  border-radius: 4px !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #64748b !important;
   transition: all 0.15s ease !important;
 }
 
 .desk-grid-refresh-btn:hover {
-  background: rgba(0, 242, 254, 0.1) !important;
-  border-color: #00f2fe !important;
-  color: #00f2fe !important;
-  box-shadow: 0 0 8px rgba(0, 242, 254, 0.25) !important;
+  background: #f0f9ff !important;
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
 }
 
-/* Cell Status Pill (Dark Cyber Badges) */
+/* Cell Status Pill */
 .desk-pill {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.65rem;
-  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  border-radius: 4px;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -310,68 +335,68 @@
 }
 
 .desk-pill-draft {
-  background: rgba(148, 163, 184, 0.15);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
 }
 
 .desk-pill-pending {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
 }
 
 .desk-pill-active {
-  background: rgba(0, 242, 254, 0.15);
-  color: #00f2fe;
-  border: 1px solid rgba(0, 242, 254, 0.4);
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
 }
 
 .desk-pill-success {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
 .desk-pill-warning {
-  background: rgba(249, 115, 22, 0.15);
-  color: #fb923c;
-  border: 1px solid rgba(249, 115, 22, 0.35);
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
 }
 
 .desk-pill-danger {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
 }
 
-/* Image 2 Matching Action Button */
+/* Action Buttons */
 .btn-table-action {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
-  padding: 0.28rem 0.75rem;
-  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 0.25rem 0.7rem;
+  border-radius: 4px;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
   outline: none;
 }
 
 .btn-table-action:hover {
-  background: rgba(0, 242, 254, 0.15);
-  border-color: #00f2fe;
-  color: #00f2fe;
+  background: #f0f9ff;
+  border-color: #0284c7;
+  color: #0284c7;
 }
 
 .btn-table-icon {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
   height: 28px;
   width: 28px;
-  border-radius: 6px;
+  border-radius: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -381,57 +406,54 @@
 }
 
 .btn-table-icon:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
 }
 
 .btn-table-icon--danger:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  color: #f87171;
+  background: #fee2e2;
+  border-color: #dc2626;
+  color: #dc2626;
 }
 
-/* ==========================================================================
-   CYBER-DARK SELECT MENU POPUP (Replaces native OS dropdowns)
-   ========================================================================== */
+/* Select menu popup */
 .desk-select-menu,
 .q-menu.q-position-engine {
-  background: #0b1728 !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
   border-radius: 4px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
   padding: 0 !important;
-  color: #ffffff !important;
+  color: #0f172a !important;
 }
 
 .desk-select-menu .q-item,
 .q-menu.q-position-engine .q-item {
-  color: #ffffff !important;
+  color: #0f172a !important;
   border-radius: 0 !important;
   font-size: 13px !important;
-  min-height: 38px !important;
-  padding: 8px 14px !important;
+  min-height: 34px !important;
+  padding: 6px 12px !important;
   transition: all 0.1s ease !important;
 }
 
 .desk-select-menu .q-item:hover,
 .q-menu.q-position-engine .q-item:hover {
-  background: #1976d2 !important;
-  color: #ffffff !important;
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
 }
 
 .desk-select-menu .q-item--active,
 .desk-select-menu .q-item.q-item--selected,
 .q-menu.q-position-engine .q-item--active,
 .q-menu.q-position-engine .q-item.q-item--selected {
-  background: #1976d2 !important;
-  color: #ffffff !important;
-  font-weight: 500 !important;
+  background: #bae6fd !important;
+  color: #0284c7 !important;
+  font-weight: 600 !important;
 }
 
-/* ==========================================================================
-   CENTERED TABLE EMPTY & NO-DATA STATES matching Image 2
-   ========================================================================== */
+/* Centered Table Empty State */
 .desk-grid .q-table__nodata,
 .q-table__nodata {
   display: flex !important;
@@ -439,9 +461,9 @@
   align-items: center !important;
   text-align: center !important;
   width: 100% !important;
-  min-height: 220px !important;
-  padding: 40px 20px !important;
-  color: #94a3b8 !important;
+  min-height: 200px !important;
+  padding: 36px 20px !important;
+  color: #64748b !important;
 }
 
 .desk-empty-state {
@@ -450,9 +472,6 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 48px 20px;
+  padding: 36px 20px;
   width: 100%;
 }
-
-
-

@@ -1,9 +1,9 @@
 <template>
-  <div class="vehicle-master-page p-3 sm:p-4 text-slate-100 font-sans">
+  <div class="vehicle-master-page p-3 sm:p-4 text-slate-800 font-sans">
     <!-- Header with Title & Action Buttons matching Image 4 -->
     <div class="row items-center justify-between no-wrap q-mb-md">
       <div>
-        <div class="text-h6 text-weight-bold text-white relative-position inline-block q-pb-xs">
+        <div class="text-h6 text-weight-bold text-slate-900 relative-position inline-block q-pb-xs">
           Vehicle Master
           <div class="header-underline"></div>
         </div>
@@ -32,31 +32,31 @@
     <div class="relative min-h-[400px]">
       <!-- 4 KPI Stat Cards matching Image 4 -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 q-mb-md">
-        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL FLEET</div>
-          <div class="text-3xl font-extrabold font-mono text-cyan-400 my-1">{{ vehicles.length }}</div>
-          <div class="text-xs text-slate-400 font-mono">Active {{ activeCount }} - Idle {{ idleCount }}</div>
-          <div class="accent-bar bg-cyan-400"></div>
+        <div class="stat-card p-4 rounded-xl border border-sky-200 bg-white relative overflow-hidden">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">TOTAL FLEET</div>
+          <div class="text-3xl font-extrabold font-mono text-sky-700 my-1">{{ vehicles.length }}</div>
+          <div class="text-xs text-slate-500 font-mono">Active {{ activeCount }} - Idle {{ idleCount }}</div>
+          <div class="accent-bar bg-sky-500"></div>
         </div>
 
-        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">UTILISATION</div>
-          <div class="text-3xl font-extrabold font-mono text-white my-1">86%</div>
-          <div class="text-xs text-slate-400 font-mono">This month</div>
-          <div class="accent-bar bg-cyan-400"></div>
+        <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">UTILISATION</div>
+          <div class="text-3xl font-extrabold font-mono text-slate-800 my-1">86%</div>
+          <div class="text-xs text-slate-500 font-mono">This month</div>
+          <div class="accent-bar bg-slate-400"></div>
         </div>
 
-        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">AVG KM/L</div>
-          <div class="text-3xl font-extrabold font-mono text-white my-1">5.7</div>
-          <div class="text-xs text-slate-400 font-mono">vs 5.5 target</div>
-          <div class="accent-bar bg-cyan-400"></div>
+        <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">AVG KM/L</div>
+          <div class="text-3xl font-extrabold font-mono text-slate-800 my-1">5.7</div>
+          <div class="text-xs text-slate-500 font-mono">vs 5.5 target</div>
+          <div class="accent-bar bg-slate-300"></div>
         </div>
 
-        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">COMPLIANCE ALERTS</div>
-          <div class="text-3xl font-extrabold font-mono text-amber-400 my-1">{{ complianceAlertCount }}</div>
-          <div class="text-xs text-amber-300 font-mono">Expiry issues</div>
+        <div class="stat-card p-4 rounded-xl border border-amber-200 bg-amber-50 relative overflow-hidden">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-amber-700 mb-1">COMPLIANCE ALERTS</div>
+          <div class="text-3xl font-extrabold font-mono text-amber-600 my-1">{{ complianceAlertCount }}</div>
+          <div class="text-xs text-amber-600 font-mono">Expiry issues</div>
           <div class="accent-bar bg-amber-400"></div>
         </div>
       </div>
@@ -472,12 +472,12 @@
           Connects to the National Vahan & Sarathi API Gateway to automatically fetch and update vehicle registration validity, fitness certificates, and insurance policies.
         </div>
 
-        <div class="p-3 bg-[#070c18] rounded-lg border border-cyan-500/30 row items-center justify-between q-mb-md">
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 row items-center justify-between q-mb-md">
           <div class="row items-center q-gutter-x-sm">
-            <q-icon name="cloud_done" color="cyan" size="24px" />
+            <q-icon name="cloud_done" color="primary" size="24px" />
             <div>
-              <div class="text-weight-bold text-white">Vahan API Gateway 2.0</div>
-              <div class="text-caption text-grey-5 font-mono">Status: Connected &bull; Latency: 12ms</div>
+              <div class="text-weight-bold text-slate-900">Vahan API Gateway 2.0</div>
+              <div class="text-caption text-slate-500 font-mono">Status: Connected &bull; Latency: 12ms</div>
             </div>
           </div>
           <span class="desk-pill desk-pill-success">ONLINE</span>
@@ -1037,10 +1037,11 @@ function handleGlobalKeydown(e: KeyboardEvent) {
 
   const key = e.key.toLowerCase();
 
-  // Alt+F, F3, or '/' (when outside input) to focus Search Filter
+  // Alt+F, F3, Ctrl+F, or '/' (when outside input) to focus Search Filter
   if (
     (e.altKey && key === 'f') ||
     e.key === 'F3' ||
+    ((e.ctrlKey || e.metaKey) && key === 'f') ||
     (!e.altKey && !e.ctrlKey && e.key === '/' && (document.activeElement as HTMLElement)?.tagName !== 'INPUT')
   ) {
     e.preventDefault();
@@ -1049,8 +1050,12 @@ function handleGlobalKeydown(e: KeyboardEvent) {
     return;
   }
 
-  // Alt+C or Insert opens the Add Vehicle modal
-  if ((e.altKey && key === 'c') || e.key === 'Insert') {
+  // Ctrl+A, Alt+C, Alt+N, Ctrl+N or Insert opens the Add Vehicle modal
+  if (
+    ((e.ctrlKey || e.metaKey) && (key === 'a' || key === 'n')) ||
+    (e.altKey && (key === 'c' || key === 'n')) ||
+    e.key === 'Insert'
+  ) {
     e.preventDefault();
     e.stopPropagation();
     openAddModal();
@@ -1073,7 +1078,7 @@ function handleGlobalKeydown(e: KeyboardEvent) {
     return;
   }
 
-  // Alt+3 or Ctrl+Shift+S -> Status Filter  (Alt+S also risky on some Windows layouts)
+  // Alt+3 or Ctrl+Shift+S -> Status Filter
   if ((e.altKey && key === '3') || (e.ctrlKey && e.shiftKey && key === 's')) {
     e.preventDefault();
     e.stopPropagation();
@@ -1082,12 +1087,28 @@ function handleGlobalKeydown(e: KeyboardEvent) {
   }
 }
 
+function onDeskNewRecord() {
+  if (!showAddModal.value && !showImportModal.value && !showDeleteDialog.value) {
+    openAddModal();
+  }
+}
+
+function onDeskFocusSearch() {
+  if (!showAddModal.value && !showImportModal.value && !showDeleteDialog.value) {
+    gridRef.value?.focusSearch?.();
+  }
+}
+
 onMounted(() => {
   window.addEventListener('keydown', handleGlobalKeydown, { capture: true });
+  window.addEventListener('desk:new-record', onDeskNewRecord);
+  window.addEventListener('desk:focus-search', onDeskFocusSearch);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleGlobalKeydown, { capture: true });
+  window.removeEventListener('desk:new-record', onDeskNewRecord);
+  window.removeEventListener('desk:focus-search', onDeskFocusSearch);
 });
 
 function confirmDeleteVehicle(item: Vehicle) {
@@ -1141,8 +1162,9 @@ function runVahanSync() {
 
 <style scoped>
 .vehicle-master-page {
-  background-color: #070c18;
+  background-color: #ffffff;
   min-height: calc(100vh - 88px);
+  overflow-y: auto;
 }
 
 .header-underline {
@@ -1151,51 +1173,53 @@ function runVahanSync() {
   left: 0;
   width: 48px;
   height: 3px;
-  background-color: #00e5ff;
+  background-color: #0284c7;
   border-radius: 2px;
 }
 
 .btn-hdr-import {
-  background: #070c18;
-  border: 1px solid rgba(0, 242, 254, 0.4);
-  color: #ffffff;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
   font-size: 0.82rem;
   font-weight: 500;
   padding: 6px 16px;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .btn-hdr-import:hover {
-  background: rgba(0, 242, 254, 0.1);
-  border-color: #00f2fe;
+  background: #f1f5f9;
+  border-color: #0284c7;
+  color: #0284c7;
 }
 
 .btn-hdr-add {
-  background: #00e5ff;
-  color: #070c18;
-  border: none;
+  background: #0284c7;
+  color: #ffffff;
+  border: 1px solid #0369a1;
   font-size: 0.82rem;
   font-weight: 700;
   padding: 6px 18px;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .btn-hdr-add:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+  background: #0369a1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card {
   transition: transform 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  border-color: #00f2fe;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .accent-bar {
@@ -1244,9 +1268,9 @@ function runVahanSync() {
 }
 
 .btn-table-edit {
-  background: #131d32;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #38bdf8;
+  background: #eff6ff;
+  border: 1px solid #bae6fd;
+  color: #0284c7;
   font-size: 0.8rem;
   font-weight: 600;
   padding: 3px 14px;
@@ -1260,14 +1284,14 @@ function runVahanSync() {
 }
 
 .btn-table-edit:hover {
-  background: #1c2b4a;
-  border-color: #38bdf8;
-  color: #ffffff;
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #0369a1;
 }
 
 .btn-table-delete {
-  background: #131d32;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   color: #94a3b8;
   width: 32px;
   height: 28px;
@@ -1281,8 +1305,8 @@ function runVahanSync() {
 }
 
 .btn-table-delete:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  color: #f87171;
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 </style>

@@ -1,52 +1,60 @@
 /**
  * Desk Framework — High-Density Enterprise Interaction Tokens
- * Designed for high-speed keyboard data entry and dense logistics tables.
+ * Tally Prime / ERP High-Contrast White Theme
  */
 
 :root {
   /* Desk Layout & Densities */
-  --desk-row-height: 32px;
-  --desk-row-height-compact: 28px;
-  --desk-header-height: 36px;
-  --desk-cell-padding: 4px 8px;
+  --desk-row-height: 28px;
+  --desk-row-height-compact: 24px;
+  --desk-header-height: 32px;
+  --desk-cell-padding: 3px 8px;
   --desk-cell-padding-compact: 2px 6px;
-  
+
   /* Desk Typography */
   --desk-font-size-base: 13px;
   --desk-font-size-sm: 12px;
   --desk-font-size-xs: 11px;
   --desk-font-mono: var(--tms-font-mono, 'JetBrains Mono', 'Fira Code', monospace);
 
-  /* High-Contrast Keyboard Focus & Selection Rings (WCAG 2.2 AA) */
-  --desk-focus-ring-color: #00f2fe;
+  /* High-Contrast Keyboard Focus & Selection Rings */
+  --desk-focus-ring-color: #0284c7;
   --desk-focus-ring: 2px solid var(--desk-focus-ring-color);
   --desk-focus-ring-offset: 1px;
   --desk-focus-ring-inset: inset 0 0 0 2px var(--desk-focus-ring-color);
-  --desk-focus-bg: rgba(0, 242, 254, 0.08);
+  --desk-focus-bg: rgba(2, 132, 199, 0.08);
 
   /* Grid Selection & Active Cell Indicators */
-  --desk-grid-selected-cell-bg: rgba(0, 242, 254, 0.14);
-  --desk-grid-selected-cell-border: #00f2fe;
-  --desk-grid-active-row-bg: rgba(255, 255, 255, 0.04);
-  --desk-grid-hover-row-bg: rgba(255, 255, 255, 0.025);
-  --desk-grid-border: rgba(255, 255, 255, 0.08);
+  --desk-grid-selected-cell-bg: #e0f2fe;
+  --desk-grid-selected-cell-border: #0284c7;
+  --desk-grid-active-row-bg: #f0f9ff;
+  --desk-grid-hover-row-bg: #f8fafc;
+  --desk-grid-border: #cbd5e1;
+  --desk-grid-line: #e2e8f0;
 
   /* Action Bar & Mnemonics */
-  --desk-menubar-height: 32px;
-  --desk-menubar-bg: #090f1d;
-  --desk-mnemonic-underline: underline 1px solid var(--desk-focus-ring-color);
+  --desk-menubar-height: 34px;
+  --desk-menubar-bg: #f1f5f9;
+  --desk-mnemonic-underline: underline 1.5px solid var(--desk-focus-ring-color);
 
-  /* Cyber Theme Colors & Surfaces */
-  --desk-surface: #0b1329;
-  --desk-surface-2: #0f1b38;
-  --desk-surface-3: #162447;
-  --desk-surface-hover: #1e293b;
-  --desk-border-color: rgba(255, 255, 255, 0.1);
-  --desk-border-subtle: rgba(255, 255, 255, 0.06);
-  --desk-text-primary: #f8fafc;
-  --desk-text-muted: #94a3b8;
-  --desk-primary: #00f2fe;
-  --desk-primary-subtle: rgba(0, 242, 254, 0.12);
+  /* Light Theme Surfaces & Colors */
+  --desk-surface: #ffffff;
+  --desk-surface-2: #f8fafc;
+  --desk-surface-3: #f1f5f9;
+  --desk-surface-hover: #e2e8f0;
+  --desk-border-color: #cbd5e1;
+  --desk-border-subtle: #e2e8f0;
+  --desk-text-primary: #0f172a;
+  --desk-text-muted: #64748b;
+  --desk-primary: #0284c7;
+  --desk-primary-subtle: rgba(2, 132, 199, 0.1);
+
+  /* Spreadsheet & Form tokens */
+  --desk-header-bg: #e2e8f0;
+  --desk-row-bg: #ffffff;
+  --desk-text: #0f172a;
+  --desk-muted: #64748b;
+  --desk-cursor: #0284c7;
 }
 
 /* Desk Focus Ring Utility Class */
@@ -54,7 +62,7 @@
 .desk-focused:not(input):not(textarea):not(select) {
   outline: var(--desk-focus-ring) !important;
   outline-offset: var(--desk-focus-ring-offset) !important;
-  box-shadow: 0 0 8px rgba(0, 242, 254, 0.3) !important;
+  box-shadow: 0 0 6px rgba(2, 132, 199, 0.3) !important;
 }
 
 /* Active Cell Outline */

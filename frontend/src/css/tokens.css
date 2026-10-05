@@ -1,50 +1,50 @@
 /**
  * Enterprise TMS Design System Tokens
- * Figma "Ankpal — Gati Shakti TMS" Dark Cyber Design System
+ * Tally Prime / ERP High-Contrast White Theme
  */
 
 :root {
-  /* Colors - Pure Dark Cyber Palette */
-  --tms-bg: #070c18;
-  --tms-surface: #0d172b;
-  --tms-surface-subtle: #090f1d;
-  --tms-surface-hover: #131f38;
+  /* Colors - Tally Clean White Palette */
+  --tms-bg: #ffffff;
+  --tms-surface: #ffffff;
+  --tms-surface-subtle: #f8fafc;
+  --tms-surface-hover: #f1f5f9;
   
-  --tms-text-primary: #ffffff;
-  --tms-text-secondary: #94a3b8;
+  --tms-text-primary: #0f172a;
+  --tms-text-secondary: #334155;
   --tms-text-muted: #64748b;
-  --tms-text-inverse: #070c18;
+  --tms-text-inverse: #ffffff;
 
-  --tms-border: rgba(255, 255, 255, 0.08);
-  --tms-border-subtle: rgba(255, 255, 255, 0.04);
-  --tms-border-focus: #00f2fe;
+  --tms-border: #cbd5e1;
+  --tms-border-subtle: #e2e8f0;
+  --tms-border-focus: #0284c7;
 
-  /* Primary Brand Accent (Figma Neon Cyan) */
-  --tms-primary: #00f2fe;
-  --tms-primary-hover: #38bdf8;
-  --tms-primary-light: rgba(0, 242, 254, 0.12);
-  --tms-primary-border: rgba(0, 242, 254, 0.3);
+  /* Primary Brand Accent (Tally Corporate Blue) */
+  --tms-primary: #0284c7;
+  --tms-primary-hover: #0369a1;
+  --tms-primary-light: rgba(2, 132, 199, 0.08);
+  --tms-primary-border: rgba(2, 132, 199, 0.35);
 
   /* Status Accents */
-  --tms-success: #10b981;
-  --tms-success-light: rgba(16, 185, 129, 0.15);
-  --tms-success-text: #10b981;
-  --tms-success-border: rgba(16, 185, 129, 0.3);
+  --tms-success: #16a34a;
+  --tms-success-light: rgba(22, 163, 74, 0.12);
+  --tms-success-text: #15803d;
+  --tms-success-border: rgba(22, 163, 74, 0.35);
 
-  --tms-warning: #fbbf24;
-  --tms-warning-light: rgba(251, 191, 36, 0.15);
-  --tms-warning-text: #fbbf24;
-  --tms-warning-border: rgba(251, 191, 36, 0.3);
+  --tms-warning: #d97706;
+  --tms-warning-light: rgba(217, 119, 6, 0.12);
+  --tms-warning-text: #b45309;
+  --tms-warning-border: rgba(217, 119, 6, 0.35);
 
-  --tms-danger: #ef4444;
-  --tms-danger-light: rgba(239, 68, 68, 0.15);
-  --tms-danger-text: #f87171;
-  --tms-danger-border: rgba(239, 68, 68, 0.3);
+  --tms-danger: #dc2626;
+  --tms-danger-light: rgba(220, 38, 38, 0.12);
+  --tms-danger-text: #b91c1c;
+  --tms-danger-border: rgba(220, 38, 38, 0.35);
 
-  --tms-info: #00f2fe;
-  --tms-info-light: rgba(0, 242, 254, 0.12);
-  --tms-info-text: #00f2fe;
-  --tms-info-border: rgba(0, 242, 254, 0.3);
+  --tms-info: #0284c7;
+  --tms-info-light: rgba(2, 132, 199, 0.08);
+  --tms-info-text: #0369a1;
+  --tms-info-border: rgba(2, 132, 199, 0.35);
 
   /* Typography */
   --tms-font-sans: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -58,30 +58,20 @@
   --tms-space-5: 20px;
   --tms-space-6: 24px;
   --tms-space-8: 32px;
-  --tms-space-10: 40px;
-  --tms-space-12: 48px;
-  --tms-space-16: 64px;
 
   /* Border Radii */
-  --tms-radius-sm: 6px;
-  --tms-radius-md: 8px;
-  --tms-radius-lg: 12px;
+  --tms-radius-sm: 4px;
+  --tms-radius-md: 6px;
+  --tms-radius-lg: 8px;
   --tms-radius-full: 9999px;
 
-  /* Shadow Elevation Hierarchy */
-  --tms-shadow-0: none;
-  --tms-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
-  --tms-shadow-2: 0 4px 12px -1px rgba(0, 0, 0, 0.6);
-  --tms-shadow-3: 0 10px 25px -3px rgba(0, 0, 0, 0.8);
-  --tms-shadow-dropdown: 0 10px 30px rgba(0, 0, 0, 0.85);
-
-  /* Layout */
-  --tms-header-height: 64px;
-  --tms-sidebar-width: 250px;
-  --tms-sidebar-collapsed-width: 72px;
-  --tms-container-max: 1600px;
+  /* Shadows */
+  --tms-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --tms-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --tms-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 
   /* Transitions */
-  --tms-transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  --tms-transition-base: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  --tms-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --tms-transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --tms-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }

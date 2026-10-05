@@ -24,20 +24,20 @@
           dense
           round
           icon="refresh"
-          color="cyan"
+          color="primary"
           size="sm"
           class="q-mr-xs"
           @click="refreshData"
           :loading="loading"
         >
           <template #loading>
-            <q-spinner color="cyan" size="16px" />
+            <q-spinner color="primary" size="16px" />
           </template>
           <q-tooltip>Refresh Planning Queue</q-tooltip>
         </q-btn>
         <q-btn
           outline
-          color="cyan"
+          color="primary"
           dense
           no-caps
           icon="auto_awesome"
@@ -103,17 +103,17 @@
       <!-- Left Column (8 Cols): Queue & AI Batch Recommendations -->
       <div class="lg:col-span-8 space-y-5">
         <!-- Unconsolidated Orders Queue -->
-        <div class="cyber-card p-5">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-800 gap-2 mb-4">
+        <div class="cyber-card p-5 border border-slate-200 bg-white">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-200 gap-2 mb-4">
             <div>
-              <div class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f2fe]"></span>
+              <div class="text-sm font-bold text-slate-900 tracking-wide flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
                 Unconsolidated Orders in Planning Queue
-                <span class="text-xs font-mono text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">
+                <span class="text-xs font-mono text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200 font-semibold">
                   {{ filteredOrders.length }} ORDERS
                 </span>
               </div>
-              <div class="text-xs text-slate-400 mt-0.5">Filter by corridor lane, select orders, and assign to vehicle capacity</div>
+              <div class="text-xs text-slate-500 mt-0.5">Filter by corridor lane, select orders, and assign to vehicle capacity</div>
             </div>
 
             <!-- Corridor Filter Tabs -->
@@ -121,8 +121,8 @@
               <button
                 v-for="lane in ['ALL', 'AHM-MUM', 'SUR-PUN', 'MUM-DEL']"
                 :key="lane"
-                class="px-2 py-1 rounded text-[11px] font-mono font-semibold transition-all cursor-pointer border"
-                :class="selectedLane === lane ? 'bg-cyan-950 text-cyan-300 border-cyan-500/50 shadow-[0_0_8px_rgba(0,242,254,0.2)]' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'"
+                class="px-2.5 py-1 rounded text-[11px] font-mono font-semibold transition-all cursor-pointer border"
+                :class="selectedLane === lane ? 'bg-sky-50 text-sky-700 border-sky-300 font-bold' : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400'"
                 @click="selectedLane = lane"
               >
                 {{ lane }}
@@ -135,37 +135,37 @@
             <div
               v-for="order in filteredOrders"
               :key="order.id"
-              class="order-planning-item p-3.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-500/40 hover:bg-slate-850/80 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
-              :class="{ 'border-cyan-400/60 bg-cyan-950/20': selectedOrderIds.includes(order.id) }"
+              class="order-planning-item p-3.5 rounded-xl border border-slate-200 bg-slate-50/40 hover:border-sky-500 hover:bg-white transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+              :class="{ 'border-sky-500 bg-sky-50/60': selectedOrderIds.includes(order.id) }"
             >
               <div class="flex items-start sm:items-center gap-3">
                 <q-checkbox
                   v-model="selectedOrderIds"
                   :val="order.id"
                   dense
-                  color="cyan"
+                  color="primary"
                   class="mt-0.5 sm:mt-0"
                 />
                 <div>
                   <div class="flex items-center gap-2 flex-wrap mb-1">
-                    <span class="font-mono font-bold text-sm text-cyan-300">{{ order.orderNumber }}</span>
-                    <span class="text-xs px-2 py-0.5 rounded font-semibold bg-slate-800 text-slate-200 border border-slate-700">
+                    <span class="font-mono font-bold text-sm text-sky-700">{{ order.orderNumber }}</span>
+                    <span class="text-xs px-2 py-0.5 rounded font-semibold bg-slate-100 text-slate-800 border border-slate-200">
                       {{ order.customer }}
                     </span>
-                    <span class="text-xs text-amber-300 font-mono font-bold bg-amber-950/40 px-2 py-0.5 rounded border border-amber-500/20">
+                    <span class="text-xs text-amber-700 font-mono font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                       {{ order.weight }} &bull; {{ order.volume }}
                     </span>
                     <span
                       class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border"
-                      :class="order.priority === 'URGENT' ? 'bg-red-950 text-red-300 border-red-500/40' : 'bg-blue-950 text-blue-300 border-blue-500/40'"
+                      :class="order.priority === 'URGENT' ? 'bg-rose-50 text-rose-700 border-rose-300' : 'bg-blue-50 text-blue-700 border-blue-300'"
                     >
                       {{ order.priority }}
                     </span>
                   </div>
-                  <div class="text-xs text-slate-300 flex items-center gap-1.5 font-medium">
-                    <span class="text-white">{{ order.origin }}</span>
-                    <q-icon name="arrow_forward" size="11px" class="text-cyan-400" />
-                    <span class="text-white">{{ order.destination }}</span>
+                  <div class="text-xs text-slate-600 flex items-center gap-1.5 font-medium">
+                    <span class="text-slate-900 font-semibold">{{ order.origin }}</span>
+                    <q-icon name="arrow_forward" size="11px" class="text-sky-600" />
+                    <span class="text-slate-900 font-semibold">{{ order.destination }}</span>
                     <span class="text-slate-500 text-[11px] font-mono ml-2">SLA: {{ order.sla }}</span>
                   </div>
                 </div>
@@ -176,7 +176,7 @@
                   outline
                   dense
                   no-caps
-                  color="cyan"
+                  color="primary"
                   label="Stage in Batch"
                   size="sm"
                   class="q-px-sm text-xs font-semibold"
@@ -187,9 +187,9 @@
           </div>
 
           <!-- Bottom Batch Footer -->
-          <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
-            <span class="text-slate-400">
-              Selected: <strong class="text-cyan-300">{{ selectedOrderIds.length }} orders</strong> ({{ selectedTotalWeight }} kg)
+          <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-600">
+              Selected: <strong class="text-sky-700">{{ selectedOrderIds.length }} orders</strong> ({{ selectedTotalWeight }} kg)
             </span>
             <div class="flex items-center gap-2">
               <q-btn
@@ -207,41 +207,41 @@
         </div>
 
         <!-- AI Multi-Drop Trip Consolidation Recommendations -->
-        <div class="cyber-card p-5">
+        <div class="cyber-card p-5 border border-slate-200 bg-white">
           <div class="flex items-center justify-between mb-3">
             <div>
-              <div class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                <q-icon name="auto_fix_high" color="cyan" size="18px" />
+              <div class="text-sm font-bold text-slate-900 tracking-wide flex items-center gap-2">
+                <q-icon name="auto_fix_high" color="primary" size="18px" />
                 AI-Recommended Multi-Drop Trip Batches
               </div>
-              <div class="text-xs text-slate-400">Pre-optimized corridor combinations maximizing weight and volumetric cube</div>
+              <div class="text-xs text-slate-500">Pre-optimized corridor combinations maximizing weight and volumetric cube</div>
             </div>
-            <span class="text-xs font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">
+            <span class="text-xs font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-semibold">
               HIGH CONFIDENCE
             </span>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <!-- Batch Alpha -->
-            <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/70 hover:border-cyan-500/40 transition-all flex flex-col justify-between">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-sky-500 transition-all flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-2">
-                  <span class="font-mono font-bold text-xs text-cyan-300">BATCH #TP-901</span>
-                  <span class="text-[11px] font-bold text-emerald-400 font-mono">94.2% VEHICLE FILL</span>
+                  <span class="font-mono font-bold text-xs text-sky-700">BATCH #TP-901</span>
+                  <span class="text-[11px] font-bold text-emerald-700 font-mono">94.2% VEHICLE FILL</span>
                 </div>
-                <div class="text-xs font-bold text-white mb-1">Ahmedabad &rarr; Surat &rarr; Mumbai Corridor</div>
-                <div class="text-[11px] text-slate-400 mb-2 font-mono">Assigned: 28 Ton Multi-Axle (GJ-01-AX-9942)</div>
+                <div class="text-xs font-bold text-slate-900 mb-1">Ahmedabad &rarr; Surat &rarr; Mumbai Corridor</div>
+                <div class="text-[11px] text-slate-500 mb-2 font-mono">Assigned: 28 Ton Multi-Axle (GJ-01-AX-9942)</div>
 
-                <div class="space-y-1 mb-3 text-[11px] font-mono text-slate-300 bg-slate-950/60 p-2 rounded border border-slate-800/80">
+                <div class="space-y-1 mb-3 text-[11px] font-mono text-slate-600 bg-white p-2.5 rounded border border-slate-200">
                   <div class="flex justify-between">
                     <span>Cargo Weight:</span>
-                    <strong class="text-white">26,400 kg / 28,000 kg</strong>
+                    <strong class="text-slate-900">26,400 kg / 28,000 kg</strong>
                   </div>
                   <div class="flex justify-between">
                     <span>Volume Density:</span>
-                    <strong class="text-white">58 m³ / 62 m³</strong>
+                    <strong class="text-slate-900">58 m³ / 62 m³</strong>
                   </div>
-                  <div class="flex justify-between text-cyan-300 font-bold">
+                  <div class="flex justify-between text-sky-800 font-bold">
                     <span>Est. Fuel & Toll Savings:</span>
                     <span>₹14,200</span>
                   </div>
@@ -259,25 +259,25 @@
             </div>
 
             <!-- Batch Beta -->
-            <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/70 hover:border-cyan-500/40 transition-all flex flex-col justify-between">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-sky-500 transition-all flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-2">
-                  <span class="font-mono font-bold text-xs text-cyan-300">BATCH #TP-902</span>
-                  <span class="text-[11px] font-bold text-emerald-400 font-mono">89.6% VEHICLE FILL</span>
+                  <span class="font-mono font-bold text-xs text-sky-700">BATCH #TP-902</span>
+                  <span class="text-[11px] font-bold text-emerald-700 font-mono">89.6% VEHICLE FILL</span>
                 </div>
-                <div class="text-xs font-bold text-white mb-1">Surat Depot &rarr; Vapi &rarr; Pune Express</div>
-                <div class="text-[11px] text-slate-400 mb-2 font-mono">Assigned: 20 Ton HCV (MH-04-CP-8119)</div>
+                <div class="text-xs font-bold text-slate-900 mb-1">Surat Depot &rarr; Vapi &rarr; Pune Express</div>
+                <div class="text-[11px] text-slate-500 mb-2 font-mono">Assigned: 20 Ton HCV (MH-04-CP-8119)</div>
 
-                <div class="space-y-1 mb-3 text-[11px] font-mono text-slate-300 bg-slate-950/60 p-2 rounded border border-slate-800/80">
+                <div class="space-y-1 mb-3 text-[11px] font-mono text-slate-600 bg-white p-2.5 rounded border border-slate-200">
                   <div class="flex justify-between">
                     <span>Cargo Weight:</span>
-                    <strong class="text-white">17,920 kg / 20,000 kg</strong>
+                    <strong class="text-slate-900">17,920 kg / 20,000 kg</strong>
                   </div>
                   <div class="flex justify-between">
                     <span>Volume Density:</span>
-                    <strong class="text-white">39 m³ / 44 m³</strong>
+                    <strong class="text-slate-900">39 m³ / 44 m³</strong>
                   </div>
-                  <div class="flex justify-between text-cyan-300 font-bold">
+                  <div class="flex justify-between text-sky-800 font-bold">
                     <span>Est. Fuel & Toll Savings:</span>
                     <span>₹9,800</span>
                   </div>
@@ -300,42 +300,42 @@
       <!-- Right Column (4 Cols): Live Simulation, Staged Fleet & Spot Rates -->
       <div class="lg:col-span-4 space-y-5">
         <!-- Live Vehicle Trailer Loading Simulation Bay -->
-        <div class="cyber-card p-5">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
-            <div class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-              <q-icon name="view_in_ar" color="cyan" size="18px" />
+        <div class="cyber-card p-5 border border-slate-200 bg-white">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
+            <div class="text-sm font-bold text-slate-900 tracking-wide flex items-center gap-2">
+              <q-icon name="view_in_ar" color="primary" size="18px" />
               Live Trailer Axle Simulation
             </div>
             <span
               class="text-xs font-mono font-bold px-2 py-0.5 rounded border"
-              :class="stagedFillRate > 100 ? 'bg-rose-950 text-rose-300 border-rose-500/50' : 'bg-emerald-950 text-emerald-300 border-emerald-500/50'"
+              :class="stagedFillRate > 100 ? 'bg-rose-50 text-rose-700 border-rose-300' : 'bg-emerald-50 text-emerald-700 border-emerald-300'"
             >
               {{ stagedFillRate > 100 ? 'OVERLOAD LIMIT' : `${stagedFillRate}% STAGED` }}
             </span>
           </div>
 
           <!-- Truck Trailer Graphical Diagram -->
-          <div class="relative bg-slate-950 p-3.5 rounded-xl border border-slate-800 mb-3 overflow-hidden">
+          <div class="relative bg-slate-50 p-3.5 rounded-xl border border-slate-200 mb-3 overflow-hidden">
             <div class="flex items-center gap-2 mb-2.5">
               <!-- Trailer Box -->
-              <div class="flex-1 relative h-18 bg-slate-900/90 rounded-lg border-2 border-dashed border-cyan-500/40 p-1.5 overflow-hidden flex flex-col justify-end">
+              <div class="flex-1 relative h-18 bg-white rounded-lg border-2 border-dashed border-sky-400 p-1.5 overflow-hidden flex flex-col justify-end">
                 <div
-                  class="w-full bg-gradient-to-t from-cyan-600/70 via-blue-600/50 to-cyan-400/30 rounded transition-all duration-500 flex items-center justify-center text-[10px] font-mono font-bold text-white shadow-[0_0_12px_rgba(0,242,254,0.3)]"
+                  class="w-full bg-gradient-to-t from-sky-600 via-sky-500 to-sky-400 rounded transition-all duration-500 flex items-center justify-center text-[10px] font-mono font-bold text-white shadow-sm"
                   :style="`height: ${Math.min(stagedFillRate, 100)}%`"
                 >
                   <span v-if="stagedFillRate > 25">{{ stagedFillRate }}% PAYLOAD</span>
                 </div>
                 <!-- Grid line marks -->
                 <div class="absolute inset-0 pointer-events-none flex flex-col justify-between p-1 opacity-20">
-                  <div class="border-b border-cyan-400 w-full"></div>
-                  <div class="border-b border-cyan-400 w-full"></div>
+                  <div class="border-b border-sky-400 w-full"></div>
+                  <div class="border-b border-sky-400 w-full"></div>
                 </div>
               </div>
 
               <!-- Truck Cab -->
-              <div class="w-10 h-14 bg-slate-850 rounded-r-xl border border-slate-700 flex flex-col items-center justify-center shrink-0">
-                <q-icon name="local_shipping" color="cyan" size="20px" />
-                <span class="text-[8px] font-mono text-slate-400">CAB</span>
+              <div class="w-10 h-14 bg-slate-100 rounded-r-xl border border-slate-300 flex flex-col items-center justify-center shrink-0">
+                <q-icon name="local_shipping" color="primary" size="20px" />
+                <span class="text-[8px] font-mono text-slate-500 font-bold">CAB</span>
               </div>
             </div>
 
@@ -349,16 +349,16 @@
 
           <!-- Staged Weight Progress -->
           <div class="space-y-2 font-mono text-xs mb-3">
-            <div class="flex justify-between text-slate-300">
+            <div class="flex justify-between text-slate-600">
               <span>Staged Weight:</span>
-              <strong :class="stagedFillRate > 100 ? 'text-rose-400' : 'text-cyan-300'">
+              <strong :class="stagedFillRate > 100 ? 'text-rose-700' : 'text-sky-700'">
                 {{ selectedWeightNum.toLocaleString() }} / 28,000 kg
               </strong>
             </div>
-            <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
               <div
                 class="h-full rounded-full transition-all duration-300"
-                :class="stagedFillRate > 100 ? 'bg-rose-500' : 'bg-gradient-to-r from-cyan-500 to-blue-500'"
+                :class="stagedFillRate > 100 ? 'bg-rose-500' : 'bg-gradient-to-r from-sky-500 to-blue-600'"
                 :style="`width: ${Math.min(stagedFillRate, 100)}%`"
               ></div>
             </div>
@@ -375,13 +375,13 @@
         </div>
 
         <!-- Staged Fleet Capacity Radar -->
-        <div class="cyber-card p-5">
+        <div class="cyber-card p-5 border border-slate-200 bg-white">
           <div class="flex items-center justify-between mb-3">
-            <div class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-              <q-icon name="local_shipping" color="cyan" size="18px" />
+            <div class="text-sm font-bold text-slate-900 tracking-wide flex items-center gap-2">
+              <q-icon name="local_shipping" color="primary" size="18px" />
               Staged Fleet Capacity
             </div>
-            <span class="text-xs font-mono text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">
+            <span class="text-xs font-mono text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200 font-semibold">
               3 READY
             </span>
           </div>
@@ -390,18 +390,18 @@
             <div
               v-for="veh in stagedVehicles"
               :key="veh.plate"
-              class="p-3 rounded-lg border border-slate-800 bg-slate-900/60"
+              class="p-3 rounded-lg border border-slate-200 bg-slate-50/50"
             >
               <div class="flex items-center justify-between mb-1">
-                <span class="font-mono font-bold text-xs text-white">{{ veh.plate }}</span>
-                <span class="text-[11px] font-mono text-cyan-300 font-bold">{{ veh.capacity }}</span>
+                <span class="font-mono font-bold text-xs text-slate-900">{{ veh.plate }}</span>
+                <span class="text-[11px] font-mono text-sky-700 font-bold">{{ veh.capacity }}</span>
               </div>
-              <div class="text-xs text-slate-400 mb-2">{{ veh.type }} &bull; Staged: <span class="text-slate-200">{{ veh.location }}</span></div>
+              <div class="text-xs text-slate-500 mb-2">{{ veh.type }} &bull; Staged: <span class="text-slate-800 font-medium">{{ veh.location }}</span></div>
               
               <!-- Utilization Meter -->
-              <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800 mb-1">
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200 mb-1">
                 <div
-                  class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-300"
+                  class="h-full bg-gradient-to-r from-sky-500 to-blue-600 rounded-full transition-all duration-300"
                   :style="`width: ${veh.plate === 'GJ-01-AX-9942' ? Math.min(stagedFillRate, 100) : veh.fillPercent}%`"
                 ></div>
               </div>
@@ -414,41 +414,41 @@
         </div>
 
         <!-- Carrier Spot Rates & Contracts -->
-        <div class="cyber-card p-5">
+        <div class="cyber-card p-5 border border-slate-200 bg-white">
           <div class="flex items-center justify-between mb-3">
-            <div class="text-sm font-bold text-white tracking-wide">Carrier Lane Rates</div>
-            <router-link to="/carriers" class="text-xs font-mono font-semibold text-cyan-400 hover:text-cyan-300">
+            <div class="text-sm font-bold text-slate-900 tracking-wide">Carrier Lane Rates</div>
+            <router-link to="/carriers" class="text-xs font-mono font-semibold text-sky-700 hover:text-sky-800">
               All &rarr;
             </router-link>
           </div>
 
           <div class="space-y-2.5 text-xs">
-            <div class="p-2.5 rounded-lg border border-slate-800 bg-slate-900/60 flex items-center justify-between group hover:border-slate-700 transition-colors">
+            <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50/50 flex items-center justify-between group hover:border-sky-500 hover:bg-white transition-colors">
               <div>
-                <div class="font-bold text-white group-hover:text-cyan-300 transition-colors">Titan Freightways</div>
-                <div class="text-slate-400 text-[11px]">Ahmedabad &rarr; Mumbai Corridor</div>
+                <div class="font-bold text-slate-900 group-hover:text-sky-700 transition-colors">Titan Freightways</div>
+                <div class="text-slate-500 text-[11px]">Ahmedabad &rarr; Mumbai Corridor</div>
               </div>
-              <span class="font-mono text-cyan-300 font-bold bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/20">
+              <span class="font-mono text-sky-700 font-bold bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
                 ₹2,100 / MT
               </span>
             </div>
 
-            <div class="p-2.5 rounded-lg border border-slate-800 bg-slate-900/60 flex items-center justify-between group hover:border-slate-700 transition-colors">
+            <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50/50 flex items-center justify-between group hover:border-sky-500 hover:bg-white transition-colors">
               <div>
-                <div class="font-bold text-white group-hover:text-cyan-300 transition-colors">Swift TransLog</div>
-                <div class="text-slate-400 text-[11px]">Surat &rarr; Pune Express</div>
+                <div class="font-bold text-slate-900 group-hover:text-sky-700 transition-colors">Swift TransLog</div>
+                <div class="text-slate-500 text-[11px]">Surat &rarr; Pune Express</div>
               </div>
-              <span class="font-mono text-cyan-300 font-bold bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/20">
+              <span class="font-mono text-sky-700 font-bold bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
                 ₹1,850 / MT
               </span>
             </div>
 
-            <div class="p-2.5 rounded-lg border border-slate-800 bg-slate-900/60 flex items-center justify-between group hover:border-slate-700 transition-colors">
+            <div class="p-2.5 rounded-lg border border-slate-200 bg-slate-50/50 flex items-center justify-between group hover:border-sky-500 hover:bg-white transition-colors">
               <div>
-                <div class="font-bold text-white group-hover:text-cyan-300 transition-colors">Apex Dedicated Linehaul</div>
-                <div class="text-slate-400 text-[11px]">Mumbai &rarr; Delhi Corridor</div>
+                <div class="font-bold text-slate-900 group-hover:text-sky-700 transition-colors">Apex Dedicated Linehaul</div>
+                <div class="text-slate-500 text-[11px]">Mumbai &rarr; Delhi Corridor</div>
               </div>
-              <span class="font-mono text-cyan-300 font-bold bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/20">
+              <span class="font-mono text-sky-700 font-bold bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
                 ₹2,750 / MT
               </span>
             </div>
@@ -456,26 +456,26 @@
         </div>
 
         <!-- Algorithm Presets -->
-        <div class="cyber-card p-5">
-          <div class="text-sm font-bold text-white tracking-wide mb-1 flex items-center gap-2">
-            <q-icon name="tune" color="cyan" size="16px" />
+        <div class="cyber-card p-5 border border-slate-200 bg-white">
+          <div class="text-sm font-bold text-slate-900 tracking-wide mb-1 flex items-center gap-2">
+            <q-icon name="tune" color="primary" size="16px" />
             Optimization Algorithm Engine
           </div>
-          <p class="text-xs text-slate-400 mb-3">
+          <p class="text-xs text-slate-500 mb-3">
             Active multi-drop heuristic: Minimum distance & fuel cost penalty with volumetric axle limit
           </p>
-          <div class="space-y-1.5 text-xs font-mono mb-4 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
-            <div class="flex justify-between text-slate-300">
+          <div class="space-y-1.5 text-xs font-mono mb-4 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+            <div class="flex justify-between text-slate-600">
               <span>Objective:</span>
-              <strong class="text-cyan-300">Fuel & Toll Min</strong>
+              <strong class="text-sky-700">Fuel & Toll Min</strong>
             </div>
-            <div class="flex justify-between text-slate-300">
+            <div class="flex justify-between text-slate-600">
               <span>Max Drops / Trip:</span>
-              <strong class="text-white">4 Drops</strong>
+              <strong class="text-slate-900">4 Drops</strong>
             </div>
-            <div class="flex justify-between text-slate-300">
+            <div class="flex justify-between text-slate-600">
               <span>Density Factor:</span>
-              <strong class="text-white">1.18x (High Cube)</strong>
+              <strong class="text-slate-900">1.18x (High Cube)</strong>
             </div>
           </div>
           <q-btn

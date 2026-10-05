@@ -1,6 +1,7 @@
 <template>
   <div class="desk-number-input">
     <q-input
+      ref="inputRef"
       :model-value="modelValue"
       type="number"
       dense
@@ -12,8 +13,9 @@
       :readonly="readonly"
       :disable="disable"
       class="font-mono"
-      input-class="font-mono font-bold text-white text-sm"
+      input-class="font-mono font-bold text-slate-900 text-sm"
       @update:model-value="onInput"
+      @keydown.capture="handleKeyDown"
     >
       <template #append>
         <div class="desk-num-stepper-col">
@@ -23,7 +25,7 @@
             round
             icon="keyboard_arrow_up"
             size="8px"
-            color="cyan"
+            color="primary"
             class="desk-num-stepper-btn"
             :disable="disable || readonly || (max !== undefined && numValue >= max)"
             @click.stop.prevent="increment"
@@ -36,8 +38,8 @@
             round
             icon="keyboard_arrow_down"
             size="8px"
-            color="grey-5"
-            class="desk-num-stepper-btn text-slate-400 hover:text-white"
+            color="grey-7"
+            class="desk-num-stepper-btn text-slate-600 hover:text-slate-900"
             :disable="disable || readonly || (min !== undefined && numValue <= min)"
             @click.stop.prevent="decrement"
           >
@@ -50,7 +52,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
+import { useDeskFocus } from '../focus/useDeskFocus';
+
+const { focusNextInput, focusPreviousInput } = useDeskFocus();
+const inputRef = ref();
 
 const props = withDefaults(
   defineProps<{
@@ -81,6 +87,48 @@ const numValue = computed(() => {
 
 function onInput(val: string | number | null) {
   emit('update:modelValue', Number(val) || 0);
+}
+
+function handleKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    e.stopPropagation();
+    const el = inputRef.value?.$el as HTMLElement | undefined;
+    const container = (el?.closest('form') ||
+      el?.closest('.desk-dialog') ||
+      el?.closest('.q-dialog') ||
+      el?.closest('.desk-form') ||
+      el?.closest('.q-card')) as HTMLElement | null;
+    if (container) {
+      const advanced = focusNextInput(container);
+      if (!advanced) {
+        const confirmBtn = container.querySelector<HTMLButtonElement>(
+          '.modal-btn-confirm, button[type="submit"], .btn-save, [data-desk-accept]'
+        );
+        if (confirmBtn) {
+          confirmBtn.click();
+        } else {
+          container.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+      }
+    } else {
+      focusNextInput(document.body);
+    }
+  } else if (e.key === 'Enter' && e.shiftKey) {
+    e.preventDefault();
+    e.stopPropagation();
+    const el = inputRef.value?.$el as HTMLElement | undefined;
+    const container = (el?.closest('form') ||
+      el?.closest('.desk-dialog') ||
+      el?.closest('.q-dialog') ||
+      el?.closest('.desk-form') ||
+      el?.closest('.q-card')) as HTMLElement | null;
+    if (container) {
+      focusPreviousInput(container);
+    } else {
+      focusPreviousInput(document.body);
+    }
+  }
 }
 
 function increment() {
@@ -134,7 +182,7 @@ function decrement() {
 }
 
 .desk-num-stepper-btn:hover {
-  background: rgba(0, 242, 254, 0.2) !important;
-  color: #00f2fe !important;
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
 }
 </style>

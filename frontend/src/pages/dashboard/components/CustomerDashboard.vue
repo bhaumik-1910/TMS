@@ -7,14 +7,14 @@
       subtitle="Apex Global Freight Services • Account: TechCorp Industries Global (ID: ACC-77291)"
     >
       <template #badge>
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-300">
           <q-icon name="verified" size="14px" />
           VERIFIED SHIPPER
         </span>
       </template>
       <template #actions>
         <q-btn
-          color="cyan-8"
+          color="primary"
           text-color="white"
           icon="add"
           label="New Freight Booking"
@@ -29,8 +29,8 @@
     <!-- Quick Track Search Bar -->
     <div class="cyber-card p-5 mb-6">
       <div class="max-w-2xl">
-        <div class="text-sm font-semibold text-cyan-3 mb-1">Instant Cargo Tracking</div>
-        <div class="text-xs text-slate-400 mb-3">Track any active shipment by Consignment Number, BL, or Tracking ID</div>
+        <div class="text-sm font-semibold text-slate-900 mb-1">Instant Cargo Tracking</div>
+        <div class="text-xs text-slate-500 mb-3">Track any active shipment by Consignment Number, BL, or Tracking ID</div>
         <div class="flex items-center gap-2">
           <q-input
             v-model="trackingQuery"
@@ -40,9 +40,9 @@
             class="flex-1 desk-input"
             @keyup.enter="trackCargo"
           >
-            <template #prepend><q-icon name="search" size="18px" color="cyan" /></template>
+            <template #prepend><q-icon name="search" size="18px" color="primary" /></template>
           </q-input>
-          <q-btn color="cyan-8" text-color="white" dense no-caps class="px-4 py-1.5 text-weight-bold" label="Track Cargo" @click="trackCargo" />
+          <q-btn color="primary" text-color="white" dense no-caps class="px-4 py-1.5 text-weight-bold" label="Track Cargo" @click="trackCargo" />
         </div>
       </div>
     </div>
@@ -53,7 +53,7 @@
         title="Active In-Transit"
         value="4 Shipments"
         icon="local_shipping"
-        icon-color="cyan"
+        icon-color="primary"
         subtitle="Moving across freight corridors"
       />
       <AppStatCard
@@ -85,18 +85,18 @@
 
     <!-- Active Shipments Table -->
     <div class="cyber-card p-5 mb-6">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
         <div>
-          <div class="text-base font-bold text-white">Your Active Cargo Shipments</div>
-          <div class="text-xs text-slate-400">Live milestone updates, ETAs, and delivery verifications</div>
+          <div class="text-base font-bold text-slate-900">Your Active Cargo Shipments</div>
+          <div class="text-xs text-slate-500">Live milestone updates, ETAs, and delivery verifications</div>
         </div>
-        <q-btn flat dense no-caps size="sm" color="cyan" label="View All Orders →" to="/orders" />
+        <q-btn flat dense no-caps size="sm" color="primary" label="View All Orders →" to="/orders" />
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs desk-table">
+        <table class="w-full text-left text-xs desk-table bg-white">
           <thead>
-            <tr class="border-b border-slate-800 text-slate-400 font-semibold">
+            <tr class="border-b border-slate-200 text-slate-600 font-semibold bg-slate-50">
               <th class="py-2.5 px-3">Shipment #</th>
               <th class="py-2.5 px-3">Lane Corridor</th>
               <th class="py-2.5 px-3">Cargo Description</th>
@@ -106,18 +106,18 @@
               <th class="py-2.5 px-3 text-right">Action</th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="s in customerShipments" :key="s.id" class="border-b border-slate-800/60 hover:bg-slate-800/40 transition-colors">
-              <td class="py-3 px-3 font-mono font-bold text-cyan-4">{{ s.number }}</td>
-              <td class="py-3 px-3 text-white font-medium">{{ s.lane }}</td>
-              <td class="py-3 px-3 text-slate-300">{{ s.cargo }}</td>
-              <td class="py-3 px-3 text-right font-mono text-slate-200">{{ s.weight }}</td>
-              <td class="py-3 px-3 font-mono text-cyan-3">{{ s.eta }}</td>
+          <tbody class="bg-white">
+            <tr v-for="s in customerShipments" :key="s.id" class="border-b border-slate-100 bg-white hover:bg-white transition-none">
+              <td class="py-3 px-3 font-mono font-bold text-sky-700">{{ s.number }}</td>
+              <td class="py-3 px-3 text-slate-900 font-medium">{{ s.lane }}</td>
+              <td class="py-3 px-3 text-slate-700">{{ s.cargo }}</td>
+              <td class="py-3 px-3 text-right font-mono text-slate-800">{{ s.weight }}</td>
+              <td class="py-3 px-3 font-mono text-sky-700">{{ s.eta }}</td>
               <td class="py-3 px-3 text-center">
                 <AppStatusBadge :status="s.status" />
               </td>
               <td class="py-3 px-3 text-right">
-                <q-btn flat dense round icon="gps_fixed" color="cyan" size="sm" @click="router.push(`/tracking?search=${s.number}`)">
+                <q-btn flat dense round icon="gps_fixed" color="primary" size="sm" @click="router.push(`/tracking?search=${s.number}`)">
                   <q-tooltip>Live Telematics Radar</q-tooltip>
                 </q-btn>
               </td>
@@ -131,26 +131,26 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="quick-nav-panel p-4 rounded-lg cursor-pointer" @click="$router.push('/orders')">
         <div class="flex items-center gap-2 mb-1">
-          <q-icon name="receipt_long" color="cyan" size="20px" />
-          <span class="text-sm font-bold text-white">Manage Transport Bookings</span>
+          <q-icon name="receipt_long" color="primary" size="20px" />
+          <span class="text-sm font-bold text-slate-900">Manage Transport Bookings</span>
         </div>
-        <p class="text-xs text-slate-400 m-0">Create new bookings, review consignments, and authorize load pickups.</p>
+        <p class="text-xs text-slate-600 m-0">Create new bookings, review consignments, and authorize load pickups.</p>
       </div>
 
       <div class="quick-nav-panel p-4 rounded-lg cursor-pointer" @click="$router.push('/billing')">
         <div class="flex items-center gap-2 mb-1">
-          <q-icon name="request_quote" color="cyan" size="20px" />
-          <span class="text-sm font-bold text-white">Invoices & Statements</span>
+          <q-icon name="request_quote" color="primary" size="20px" />
+          <span class="text-sm font-bold text-slate-900">Invoices & Statements</span>
         </div>
-        <p class="text-xs text-slate-400 m-0">View statements, download PDF invoices, and verify line item charges.</p>
+        <p class="text-xs text-slate-600 m-0">View statements, download PDF invoices, and verify line item charges.</p>
       </div>
 
       <div class="quick-nav-panel p-4 rounded-lg cursor-pointer" @click="$router.push('/pod')">
         <div class="flex items-center gap-2 mb-1">
-          <q-icon name="folder_shared" color="cyan" size="20px" />
-          <span class="text-sm font-bold text-white">Proof of Delivery (POD)</span>
+          <q-icon name="folder_shared" color="primary" size="20px" />
+          <span class="text-sm font-bold text-slate-900">Proof of Delivery (POD)</span>
         </div>
-        <p class="text-xs text-slate-400 m-0">Access Bills of Lading, signed delivery receipts, and customs manifests.</p>
+        <p class="text-xs text-slate-600 m-0">Access Bills of Lading, signed delivery receipts, and customs manifests.</p>
       </div>
     </div>
   </div>
@@ -209,26 +209,28 @@ function trackCargo() {
 
 <style scoped>
 .cyber-card {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .desk-table th {
-  background: rgba(255, 255, 255, 0.02);
+  background: #f8fafc;
+  color: #475569;
   text-transform: uppercase;
   font-size: 11px;
 }
 
 .quick-nav-panel {
-  background: #0d1527;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   transition: all 0.2s ease;
 }
 
 .quick-nav-panel:hover {
-  border-color: #00f2fe;
-  box-shadow: 0 4px 14px rgba(0, 242, 254, 0.15);
+  border-color: #0284c7;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
 }
 </style>

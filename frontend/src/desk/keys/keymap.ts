@@ -29,24 +29,38 @@ export const DEFAULT_KEYMAP: Record<string, DeskCommand> = {
   // Data & Forms
   SAVE_FORM: {
     id: 'SAVE_FORM',
-    label: 'Save Current Record',
+    label: 'Save Current Record (Tally Accept)',
     category: 'DATA',
-    keys: ['ctrl+s', 'meta+s'],
+    keys: ['ctrl+a', 'alt+s', 'ctrl+s', 'meta+s'],
     scope: 'FORM',
   },
   NEW_RECORD: {
     id: 'NEW_RECORD',
-    label: 'New Record / Order',
+    label: 'New Record / Voucher Create',
     category: 'DATA',
-    keys: ['ctrl+alt+n', 'insert'],
+    keys: ['alt+c', 'ctrl+alt+n', 'insert', 'ctrl+n'],
     scope: 'GLOBAL',
   },
   EDIT_CELL: {
     id: 'EDIT_CELL',
-    label: 'Edit Grid Cell',
+    label: 'Edit Grid Cell / Quick Date',
     category: 'DATA',
     keys: ['f2'],
     scope: 'GRID',
+  },
+  SWITCH_TENANT: {
+    id: 'SWITCH_TENANT',
+    label: 'Switch Company / Tenant',
+    category: 'SYSTEM',
+    keys: ['f3'],
+    scope: 'GLOBAL',
+  },
+  FILTER_SEARCH: {
+    id: 'FILTER_SEARCH',
+    label: 'Filter Active Table / Search',
+    category: 'NAVIGATION',
+    keys: ['alt+f'],
+    scope: 'GLOBAL',
   },
 
   // Workflow Actions

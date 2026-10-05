@@ -1,5 +1,5 @@
 <template>
-  <div class="dispatch-console-wrapper p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto text-white">
+  <div class="dispatch-console-wrapper p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto text-slate-800">
     <!-- Page Header (Single Row Compact Layout) -->
     <AppPageHeader
       breadcrumb="Operations & Dispatch / Dispatch Command Desk"
@@ -8,11 +8,11 @@
     >
       <template #badge>
         <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-950/70 text-amber-300 border border-amber-500/30">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
             DISPATCH COMMAND ACTIVE
           </span>
-          <span class="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-500/20">
+          <span class="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-300">
             18 ACTIVE LINEHAULS
           </span>
         </div>
@@ -24,14 +24,14 @@
           dense
           round
           icon="refresh"
-          color="cyan"
+          color="primary"
           size="sm"
           class="q-mr-xs"
           @click="refreshData"
           :loading="loading"
         >
           <template #loading>
-            <q-spinner color="cyan" size="16px" />
+            <q-spinner color="primary" size="16px" />
           </template>
           <q-tooltip>Refresh Telematics & Queue</q-tooltip>
         </q-btn>
@@ -104,16 +104,16 @@
         <!-- Left: Unassigned Freight Orders Allocation Matrix -->
         <div class="lg:col-span-8 space-y-4">
           <div class="cyber-card p-5">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-800 gap-2 mb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-200 gap-2 mb-4">
               <div>
-                <div class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b]"></span>
+                <div class="text-sm font-bold text-slate-900 tracking-wide flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
                   Unassigned Freight Bookings Needing Dispatch
-                  <span class="text-xs font-mono text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-500/30">
+                  <span class="text-xs font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-300">
                     {{ filteredOrders.length }} PENDING
                   </span>
                 </div>
-                <div class="text-xs text-slate-400 mt-0.5">Match confirmed customer orders with available drivers and tractor units</div>
+                <div class="text-xs text-slate-500 mt-0.5">Match confirmed customer orders with available drivers and tractor units</div>
               </div>
 
               <!-- Corridor Filter Tabs -->
@@ -123,7 +123,7 @@
                   :key="corridor.id"
                   @click="selectedCorridor = corridor.id"
                   class="px-2.5 py-1 rounded text-xs font-mono transition-all border"
-                  :class="selectedCorridor === corridor.id ? 'bg-cyan-950 text-cyan-300 border-cyan-500 shadow-[0_0_8px_rgba(0,242,254,0.3)]' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'"
+                  :class="selectedCorridor === corridor.id ? 'bg-sky-50 text-sky-700 border-sky-400 font-bold shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'"
                 >
                   {{ corridor.label }}
                 </button>
@@ -135,54 +135,54 @@
               <div
                 v-for="order in filteredOrders"
                 :key="order.id"
-                class="order-dispatch-card p-4 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-500/60 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                class="order-dispatch-card p-4 rounded-xl border border-slate-200 bg-white hover:border-sky-400 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
               >
                 <div class="space-y-1.5 flex-1 min-w-0">
                   <div class="flex items-center gap-2.5 flex-wrap">
-                    <span class="font-mono font-bold text-sm text-cyan-400">{{ order.orderNumber }}</span>
+                    <span class="font-mono font-bold text-sm text-sky-700">{{ order.orderNumber }}</span>
                     <span
                       class="text-[11px] px-2 py-0.5 rounded font-mono font-bold uppercase tracking-wider border"
-                      :class="order.priority === 'HIGH' ? 'bg-rose-950 text-rose-300 border-rose-800' : 'bg-blue-950 text-blue-300 border-blue-800'"
+                      :class="order.priority === 'HIGH' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-sky-50 text-sky-700 border-sky-200'"
                     >
                       {{ order.priority }}
                     </span>
-                    <span class="text-xs text-slate-300 font-medium truncate">{{ order.customer }}</span>
-                    <span class="text-xs text-slate-500">•</span>
-                    <span class="text-xs text-slate-400 font-mono">{{ order.commodity }}</span>
+                    <span class="text-xs text-slate-800 font-medium truncate">{{ order.customer }}</span>
+                    <span class="text-xs text-slate-400">•</span>
+                    <span class="text-xs text-slate-500 font-mono">{{ order.commodity }}</span>
                   </div>
 
                   <!-- Origin -> Destination -->
-                  <div class="text-sm font-semibold text-white flex items-center gap-2">
-                    <span class="text-slate-200">{{ order.origin }}</span>
-                    <q-icon name="arrow_forward" size="14px" color="cyan-4" />
-                    <span class="text-cyan-300">{{ order.destination }}</span>
-                    <span class="text-xs font-mono text-slate-400">({{ order.distanceKm }} km)</span>
+                  <div class="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                    <span class="text-slate-800">{{ order.origin }}</span>
+                    <q-icon name="arrow_forward" size="14px" color="primary" />
+                    <span class="text-sky-700">{{ order.destination }}</span>
+                    <span class="text-xs font-mono text-slate-500">({{ order.distanceKm }} km)</span>
                   </div>
 
                   <!-- Details Pill Row -->
-                  <div class="flex items-center gap-3 text-xs text-slate-400 font-mono pt-1">
-                    <span class="flex items-center gap-1 text-slate-300">
-                      <q-icon name="scale" size="13px" color="cyan-4" />
+                  <div class="flex items-center gap-3 text-xs text-slate-600 font-mono pt-1">
+                    <span class="flex items-center gap-1 text-slate-700">
+                      <q-icon name="scale" size="13px" color="primary" />
                       {{ (order.weightKg).toLocaleString() }} kg ({{ order.pallets }} Pallets)
                     </span>
-                    <span class="flex items-center gap-1 text-amber-300">
+                    <span class="flex items-center gap-1 text-amber-700">
                       <q-icon name="schedule" size="13px" />
                       Req. Pickup: {{ order.pickupTime }}
                     </span>
-                    <span class="text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800/60 text-[10px]">
+                    <span class="text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 text-[10px] font-bold">
                       {{ order.rateQuote }}
                     </span>
                   </div>
 
                   <!-- AI Auto-Match Recommendation -->
-                  <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center gap-2 text-xs font-mono">
-                    <span class="text-[11px] text-cyan-400 font-bold flex items-center gap-1">
+                  <div class="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2 text-xs font-mono">
+                    <span class="text-[11px] text-sky-700 font-bold flex items-center gap-1">
                       <q-icon name="auto_awesome" size="13px" />
                       Recommended Allocation:
                     </span>
-                    <span class="text-white font-semibold">{{ order.recommendedUnit }}</span>
-                    <span class="text-slate-400">• Driver: {{ order.recommendedDriver }}</span>
-                    <span class="text-emerald-400 text-[10px] bg-emerald-950/40 px-1 rounded border border-emerald-500/20">HOS: 11h</span>
+                    <span class="text-slate-900 font-semibold">{{ order.recommendedUnit }}</span>
+                    <span class="text-slate-600">• Driver: {{ order.recommendedDriver }}</span>
+                    <span class="text-emerald-700 text-[10px] bg-emerald-50 px-1 rounded border border-emerald-200 font-bold">HOS: 11h</span>
                   </div>
                 </div>
 
@@ -217,15 +217,15 @@
         <div class="lg:col-span-4 space-y-4">
           <!-- Ready Drivers on Call -->
           <div class="cyber-card p-5">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
               <div>
-                <div class="text-sm font-bold text-white flex items-center gap-1.5">
-                  <q-icon name="badge" size="16px" color="cyan" />
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                  <q-icon name="badge" size="16px" color="primary" />
                   Available Drivers on Call
                 </div>
-                <div class="text-[11px] text-slate-400">Rest cycle verified & DOT HOS compliant</div>
+                <div class="text-[11px] text-slate-500">Rest cycle verified & DOT HOS compliant</div>
               </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
                 {{ availableDrivers.length }} READY
               </span>
             </div>
@@ -234,23 +234,23 @@
               <div
                 v-for="driver in availableDrivers"
                 :key="driver.id"
-                class="p-2.5 rounded-lg border border-slate-800 bg-slate-950/60 hover:border-cyan-500/40 transition-colors flex items-center justify-between"
+                class="p-2.5 rounded-lg border border-slate-200 bg-white hover:border-sky-400 transition-colors flex items-center justify-between"
               >
                 <div class="flex items-center gap-2.5">
-                  <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 text-cyan-300 flex items-center justify-center font-bold font-mono text-xs">
+                  <div class="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200 text-sky-800 flex items-center justify-center font-bold font-mono text-xs">
                     {{ driver.initials }}
                   </div>
                   <div>
-                    <div class="text-xs font-bold text-white">{{ driver.name }}</div>
-                    <div class="text-[10px] text-slate-400 font-mono">
+                    <div class="text-xs font-bold text-slate-900">{{ driver.name }}</div>
+                    <div class="text-[10px] text-slate-500 font-mono">
                       {{ driver.homeBase }} • {{ driver.vehicle }}
                     </div>
                   </div>
                 </div>
 
                 <div class="text-right">
-                  <div class="text-xs font-bold font-mono text-emerald-400">{{ driver.hos }} HOS</div>
-                  <div class="text-[9px] text-slate-500 font-mono">Remaining</div>
+                  <div class="text-xs font-bold font-mono text-emerald-700">{{ driver.hos }} HOS</div>
+                  <div class="text-[9px] text-slate-400 font-mono">Remaining</div>
                 </div>
               </div>
             </div>
@@ -258,15 +258,15 @@
 
           <!-- Staged Tractors at Hub -->
           <div class="cyber-card p-5">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
               <div>
-                <div class="text-sm font-bold text-white flex items-center gap-1.5">
-                  <q-icon name="local_shipping" size="16px" color="amber" />
+                <div class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                  <q-icon name="local_shipping" size="16px" color="amber-8" />
                   Staged Tractors at Terminal
                 </div>
-                <div class="text-[11px] text-slate-400">Pre-trip inspected & fueled units</div>
+                <div class="text-[11px] text-slate-500">Pre-trip inspected & fueled units</div>
               </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono text-amber-300 bg-amber-950/60 border border-amber-800">
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold text-amber-800 bg-amber-50 border border-amber-300">
                 5 STAGED
               </span>
             </div>
@@ -275,32 +275,32 @@
               <div
                 v-for="tractor in stagedTractors"
                 :key="tractor.unit"
-                class="p-2 rounded bg-slate-900/60 border border-slate-800 flex items-center justify-between"
+                class="p-2 rounded bg-slate-50 border border-slate-200 flex items-center justify-between"
               >
                 <div class="flex items-center gap-2">
-                  <span class="font-bold text-cyan-300">{{ tractor.unit }}</span>
-                  <span class="text-slate-400 text-[11px] font-sans">{{ tractor.model }}</span>
+                  <span class="font-bold text-sky-800">{{ tractor.unit }}</span>
+                  <span class="text-slate-600 text-[11px] font-sans">{{ tractor.model }}</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-emerald-400 text-[11px]">Fuel: {{ tractor.fuel }}%</span>
-                  <span class="px-1.5 py-0.2 rounded text-[9px] bg-slate-800 text-slate-300 border border-slate-700">OK</span>
+                  <span class="text-emerald-700 text-[11px] font-bold">Fuel: {{ tractor.fuel }}%</span>
+                  <span class="px-1.5 py-0.2 rounded text-[9px] bg-slate-200 text-slate-700 border border-slate-300 font-semibold">OK</span>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Live Corridor Advisory Widget -->
-          <div class="cyber-card p-4 border border-amber-800/40 bg-gradient-to-br from-slate-900 via-amber-950/20 to-slate-900">
+          <div class="cyber-card p-4 border border-amber-200 bg-amber-50/60">
             <div class="flex items-center gap-2 mb-2">
-              <q-icon name="warning" color="amber" size="18px" />
-              <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">Corridor Weather & Traffic Alert</span>
+              <q-icon name="warning" color="amber-8" size="18px" />
+              <span class="text-xs font-bold text-amber-900 uppercase tracking-wider">Corridor Weather & Traffic Alert</span>
             </div>
-            <p class="text-xs text-slate-300 mb-2 leading-relaxed font-sans">
+            <p class="text-xs text-slate-700 mb-2 leading-relaxed font-sans">
               I-80 Western Corridor Milepost 140–180: High wind gusts advisory. High-profile vehicles restricted to 55 mph.
             </p>
-            <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[10px] font-mono text-slate-400">
+            <div class="flex items-center justify-between pt-2 border-t border-amber-200/80 text-[10px] font-mono text-slate-500">
               <span>National Weather Service</span>
-              <span class="text-cyan-400 cursor-pointer hover:underline" @click="$router.push('/tracking')">View on Radar →</span>
+              <span class="text-sky-700 font-bold cursor-pointer hover:underline" @click="$router.push('/tracking')">View on Radar →</span>
             </div>
           </div>
         </div>
@@ -308,28 +308,28 @@
 
       <!-- Bottom Section: Active Dispatched Linehauls (Full-Width Tracking Feed) -->
       <div class="cyber-card p-5">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
           <div>
-            <div class="text-sm font-bold text-white flex items-center gap-2 tracking-wide uppercase">
-              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f2fe]"></span>
+            <div class="text-sm font-bold text-slate-900 flex items-center gap-2 tracking-wide uppercase">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
               Active Dispatched Linehauls Feed
-              <span class="text-xs font-mono text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">
+              <span class="text-xs font-mono font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded border border-sky-300">
                 18 MOVING UNITS
               </span>
             </div>
-            <div class="text-xs text-slate-400 mt-0.5">Real-time GPS transit milestones, driver velocity, and corridor progress</div>
+            <div class="text-xs text-slate-500 mt-0.5">Real-time GPS transit milestones, driver velocity, and corridor progress</div>
           </div>
 
           <div class="flex items-center gap-2">
-            <q-btn flat dense no-caps color="cyan" label="Open Live Radar Map" icon="my_location" size="sm" to="/tracking" />
-            <q-btn flat dense no-caps color="grey-4" label="View All Shipments →" size="sm" to="/shipments" />
+            <q-btn flat dense no-caps color="primary" label="Open Live Radar Map" icon="my_location" size="sm" to="/tracking" />
+            <q-btn flat dense no-caps color="grey-8" label="View All Shipments →" size="sm" to="/shipments" />
           </div>
         </div>
 
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs border-collapse font-mono">
+          <table class="w-full text-left text-xs border-collapse font-mono bg-white">
             <thead>
-              <tr class="border-b border-slate-800 text-[11px] font-bold text-cyan-400 uppercase tracking-wider bg-slate-950/60">
+              <tr class="border-b border-slate-200 text-[11px] font-bold text-slate-700 uppercase tracking-wider bg-slate-50">
                 <th class="py-3 px-4">Trip ID / Shipment</th>
                 <th class="py-3 px-4">Tractor / Driver</th>
                 <th class="py-3 px-4">Corridor Lane</th>
@@ -339,48 +339,48 @@
                 <th class="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-800/60">
+            <tbody class="divide-y divide-slate-100 bg-white">
               <tr
                 v-for="trip in activeTrips"
                 :key="trip.id"
-                class="hover:bg-slate-850/60 transition-colors"
+                class="bg-white hover:bg-white transition-none"
               >
                 <td class="py-3 px-4">
-                  <div class="font-bold text-cyan-300 cursor-pointer hover:underline" @click="$router.push(`/shipments?id=${trip.shipmentId}`)">
+                  <div class="font-bold text-sky-700 cursor-pointer hover:underline" @click="$router.push(`/shipments?id=${trip.shipmentId}`)">
                     {{ trip.tripId }}
                   </div>
-                  <div class="text-[10px] text-slate-400">{{ trip.shipmentNumber }}</div>
+                  <div class="text-[10px] text-slate-500">{{ trip.shipmentNumber }}</div>
                 </td>
 
                 <td class="py-3 px-4">
-                  <div class="font-bold text-white">{{ trip.vehiclePlate }}</div>
-                  <div class="text-[11px] text-slate-300 font-sans">{{ trip.driverName }}</div>
+                  <div class="font-bold text-slate-900">{{ trip.vehiclePlate }}</div>
+                  <div class="text-[11px] text-slate-600 font-sans">{{ trip.driverName }}</div>
                 </td>
 
-                <td class="py-3 px-4 font-sans text-slate-200">
+                <td class="py-3 px-4 font-sans text-slate-800">
                   <div class="font-medium">{{ trip.origin }} &rarr; {{ trip.destination }}</div>
-                  <div class="text-[10px] text-slate-400 font-mono">{{ trip.totalDistance }} km total</div>
+                  <div class="text-[10px] text-slate-500 font-mono">{{ trip.totalDistance }} km total</div>
                 </td>
 
                 <td class="py-3 px-4" style="min-width: 180px;">
-                  <div class="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                  <div class="flex items-center justify-between text-[10px] text-slate-500 mb-1">
                     <span>{{ trip.completedDistance }} km completed</span>
-                    <span class="font-bold text-cyan-300">{{ trip.progressPercent }}%</span>
+                    <span class="font-bold text-sky-700">{{ trip.progressPercent }}%</span>
                   </div>
-                  <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                  <div class="w-full bg-slate-100 border border-slate-200 h-1.5 rounded-full overflow-hidden">
                     <div
-                      class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"
+                      class="h-full bg-sky-600 rounded-full"
                       :style="{ width: `${trip.progressPercent}%` }"
                     ></div>
                   </div>
                 </td>
 
                 <td class="py-3 px-4">
-                  <div class="text-emerald-400 font-bold flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <div class="text-emerald-700 font-bold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     {{ trip.speed }} mph
                   </div>
-                  <div class="text-[10px] text-slate-400">ETA: {{ trip.eta }}</div>
+                  <div class="text-[10px] text-slate-500">ETA: {{ trip.eta }}</div>
                 </td>
 
                 <td class="py-3 px-4">
@@ -394,10 +394,10 @@
 
                 <td class="py-3 px-4 text-right">
                   <div class="flex items-center justify-end gap-1">
-                    <q-btn flat dense round size="xs" icon="my_location" color="cyan" to="/tracking">
+                    <q-btn flat dense round size="xs" icon="my_location" color="primary" to="/tracking">
                       <q-tooltip>Track on Live Radar</q-tooltip>
                     </q-btn>
-                    <q-btn flat dense round size="xs" icon="visibility" color="teal-4" :to="`/shipments?id=${trip.shipmentId}`">
+                    <q-btn flat dense round size="xs" icon="visibility" color="teal-7" :to="`/shipments?id=${trip.shipmentId}`">
                       <q-tooltip>View Shipment Details</q-tooltip>
                     </q-btn>
                   </div>
@@ -418,30 +418,30 @@
 
     <!-- Quick Dispatch Allocation Dialog -->
     <q-dialog v-model="showDispatchDialog" position="right" full-height>
-      <div class="cyber-modal bg-slate-900 border-l border-cyan-500/30 text-white rounded-l-2xl p-5 max-w-[620px] w-full h-full flex flex-col justify-between">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+      <div class="cyber-modal bg-white border-l border-slate-300 text-slate-800 shadow-2xl rounded-l-2xl p-5 max-w-[620px] w-full h-full flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
           <div class="flex items-center gap-2">
-            <q-icon name="send" color="cyan" size="20px" />
-            <div class="text-base font-bold text-white">Instant Trip Manifest & Dispatch Release</div>
+            <q-icon name="send" color="primary" size="20px" />
+            <div class="text-base font-bold text-slate-900">Instant Trip Manifest & Dispatch Release</div>
           </div>
-          <q-btn flat dense round icon="close" color="slate-400" v-close-popup />
+          <q-btn flat dense round icon="close" color="grey-7" v-close-popup />
         </div>
 
         <div class="space-y-4 text-xs font-mono">
-          <div class="p-3 rounded bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div class="p-3 rounded bg-slate-50 border border-slate-200 flex items-center justify-between">
             <div>
-              <div class="text-slate-400">Freight Order</div>
-              <div class="font-bold text-cyan-300 text-sm font-sans">{{ dispatchForm.orderNumber }} - {{ dispatchForm.customer }}</div>
-              <div class="text-[11px] text-slate-300">{{ dispatchForm.origin }} &rarr; {{ dispatchForm.destination }}</div>
+              <div class="text-slate-500">Freight Order</div>
+              <div class="font-bold text-sky-800 text-sm font-sans">{{ dispatchForm.orderNumber }} - {{ dispatchForm.customer }}</div>
+              <div class="text-[11px] text-slate-600">{{ dispatchForm.origin }} &rarr; {{ dispatchForm.destination }}</div>
             </div>
-            <span class="px-2 py-0.5 rounded text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-500/40">
+            <span class="px-2 py-0.5 rounded text-[10px] bg-sky-50 text-sky-700 border border-sky-200 font-bold">
               {{ dispatchForm.weightKg }} KG
             </span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-slate-400 mb-1">Assign Tractor Unit</label>
+              <label class="block text-slate-600 font-sans font-semibold mb-1">Assign Tractor Unit</label>
               <q-select
                 v-model="dispatchForm.vehicleId"
                 :options="vehicleSelectOptions"
@@ -453,7 +453,7 @@
               />
             </div>
             <div>
-              <label class="block text-slate-400 mb-1">Assign Driver (HOS Verified)</label>
+              <label class="block text-slate-600 font-sans font-semibold mb-1">Assign Driver (HOS Verified)</label>
               <q-select
                 v-model="dispatchForm.driverId"
                 :options="driverSelectOptions"
@@ -468,7 +468,7 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-slate-400 mb-1">Starting Odometer (KM)</label>
+              <label class="block text-slate-600 font-sans font-semibold mb-1">Starting Odometer (KM)</label>
               <q-input
                 v-model="dispatchForm.startOdometer"
                 dense
@@ -478,7 +478,7 @@
               />
             </div>
             <div>
-              <label class="block text-slate-400 mb-1">Container Seal Number</label>
+              <label class="block text-slate-600 font-sans font-semibold mb-1">Container Seal Number</label>
               <q-input
                 v-model="dispatchForm.sealNumber"
                 dense
@@ -490,8 +490,8 @@
           </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 mt-5 pt-3 border-t border-slate-800">
-          <q-btn flat dense no-caps label="Cancel" color="slate-400" v-close-popup />
+        <div class="flex items-center justify-end gap-2 mt-5 pt-3 border-t border-slate-200">
+          <q-btn flat dense no-caps label="Cancel" color="grey-7" v-close-popup />
           <q-btn
             class="desk-btn-primary"
             dense
@@ -698,13 +698,13 @@ const filteredOrders = computed(() => {
 function getStatusBadgeClass(status: string) {
   switch (status) {
     case 'IN_TRANSIT':
-      return 'bg-cyan-950 text-cyan-300 border-cyan-800 shadow-[0_0_8px_rgba(6,182,212,0.3)]';
+      return 'bg-sky-50 text-sky-700 border-sky-300 font-bold';
     case 'DISPATCHED':
-      return 'bg-blue-950 text-blue-300 border-blue-800';
+      return 'bg-blue-50 text-blue-700 border-blue-300 font-bold';
     case 'DELIVERED':
-      return 'bg-emerald-950 text-emerald-300 border-emerald-800';
+      return 'bg-emerald-50 text-emerald-700 border-emerald-300 font-bold';
     default:
-      return 'bg-slate-800 text-slate-300 border-slate-700';
+      return 'bg-slate-100 text-slate-700 border-slate-300 font-bold';
   }
 }
 
@@ -819,37 +819,38 @@ onMounted(() => {
 }
 
 .cyber-card {
-  background: #0d172b;
-  border: 1px solid #1a2744;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .order-dispatch-card {
-  background: #091124;
-  border: 1px solid #16233f;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   transition: all 0.2s ease;
 }
 
 .order-dispatch-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px -2px rgba(0, 242, 254, 0.15);
+  border-color: #0284c7;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
 }
 
 .desk-btn-primary {
-  background: linear-gradient(135deg, #00f2fe 0%, #0284c7 100%) !important;
-  color: #070c18 !important;
+  background: #0284c7 !important;
+  color: #ffffff !important;
   font-weight: 700 !important;
   border-radius: 6px;
 }
 
 :deep(.dark-input .q-field__control) {
-  background: #091124 !important;
-  border-color: #1a2744 !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
 }
 
 :deep(.dark-input .q-field__native) {
-  color: #ffffff !important;
+  color: #0f172a !important;
 }
 </style>

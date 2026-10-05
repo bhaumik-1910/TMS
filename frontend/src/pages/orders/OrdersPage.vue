@@ -3,11 +3,11 @@
     <!-- Header with Title & Summary Metrics -->
     <div class="row items-center justify-between q-mb-md">
       <div>
-        <div class="text-h6 text-weight-bold text-white row items-center q-gutter-x-sm">
-          <q-icon name="description" color="cyan" size="24px" />
+        <div class="text-h6 text-weight-bold text-slate-900 row items-center q-gutter-x-sm">
+          <q-icon name="description" color="primary" size="24px" />
           <span>Lorry Receipts & Booking (LR)</span>
         </div>
-        <div class="text-caption text-grey-5">
+        <div class="text-caption text-slate-500">
           Keyboard-driven high-density booking console &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> for new LR &bull; <kbd class="desk-kbd">Alt+F</kbd> to filter
         </div>
       </div>
@@ -386,7 +386,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useQuasar } from 'quasar';
 import api from '../../api/client';
 import { exportToCsv } from '../../utils/exportCsv';
@@ -398,7 +398,7 @@ import {
   DeskField,
   DeskCombo,
   GridColumn,
-} from '../../framework';
+} from '../../desk';
 
 const $q = useQuasar();
 const gridRef = ref<any>(null);
@@ -664,7 +664,59 @@ const newLr = ref({
 onMounted(() => {
   loadLrs();
   loadAuxiliaryDropdowns();
+  window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('desk:new-record', () => { if (!showAddModal.value) openCreateModal(); });
+  window.addEventListener('desk:focus-search', () => { if (!showAddModal.value) gridRef.value?.focusSearch?.(); });
 });
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeyDown);
+  window.removeEventListener('desk:new-record', () => { if (!showAddModal.value) openCreateModal(); });
+  window.removeEventListener('desk:focus-search', () => { if (!showAddModal.value) gridRef.value?.focusSearch?.(); });
+});
+
+function onKeyDown(e: KeyboardEvent) {
+  const activeEl = document.activeElement as HTMLElement | null;
+  const inInput =
+    activeEl &&
+    (activeEl.tagName === 'INPUT' ||
+      activeEl.tagName === 'TEXTAREA' ||
+      activeEl.isContentEditable);
+
+  const key = e.key.toLowerCase();
+
+  // If inside modal, let form handle or Ctrl+A instant save
+  if (showAddModal.value) {
+    if ((e.ctrlKey || e.metaKey) && key === 'a') {
+      e.preventDefault();
+      saveLr();
+    }
+    return;
+  }
+
+  // Filter shortcut: Alt+F, Ctrl+F, F3, or '/'
+  if (
+    (e.altKey && key === 'f') ||
+    e.key === 'F3' ||
+    ((e.ctrlKey || e.metaKey) && key === 'f') ||
+    (!e.altKey && !e.ctrlKey && e.key === '/' && !inInput)
+  ) {
+    e.preventDefault();
+    gridRef.value?.focusSearch?.();
+    return;
+  }
+
+  // New Record: Ctrl+A, Alt+C, Alt+N, Ctrl+N or Insert
+  if (
+    ((e.ctrlKey || e.metaKey) && (key === 'a' || key === 'n')) ||
+    (e.altKey && (key === 'c' || key === 'n')) ||
+    e.key === 'Insert'
+  ) {
+    e.preventDefault();
+    openCreateModal();
+    return;
+  }
+}
 
 function normalizeLr(item: any): LrItem {
   const lrNo = item.lrNo || item.orderNumber || 'LR/240048';
@@ -1219,18 +1271,19 @@ function exportOrdersPdf() {
 
 <style scoped>
 .booking-lr-page {
-  background-color: #070c18;
+  background-color: #f8fafc;
   min-height: calc(100vh - 88px);
 }
 
 .desk-kbd {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1px 4px;
+  background: #f1f5f9;
+  padding: 1px 5px;
   border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #00f2fe;
+  border: 1px solid #cbd5e1;
+  color: #0284c7;
   font-family: var(--desk-font-mono, monospace);
   font-size: 10px;
+  font-weight: 700;
 }
 
 /* Status Badges */

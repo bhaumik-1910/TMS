@@ -1,13 +1,13 @@
 <template>
-  <div class="roles-management-page p-3 sm:p-4 text-slate-100 font-sans">
+  <div class="roles-management-page p-3 sm:p-4 text-slate-800 bg-slate-50 font-sans">
     <!-- Header with Title & Action Controls in Single Clean Row -->
     <div class="row items-center justify-between no-wrap q-mb-md">
       <div class="column q-gutter-y-xs">
-        <div class="text-h6 text-weight-bold text-white row items-center q-gutter-x-sm no-wrap">
-          <q-icon name="admin_panel_settings" color="cyan" size="26px" />
+        <div class="text-h6 text-weight-bold text-slate-900 row items-center q-gutter-x-sm no-wrap">
+          <q-icon name="admin_panel_settings" color="primary" size="26px" />
           <span>Roles & Permissions Management</span>
         </div>
-        <div class="text-caption text-grey-5">
+        <div class="text-caption text-slate-500">
           Define fine-grained Role-Based Access Control (RBAC) policies, manage personas & grant modular capabilities
         </div>
       </div>
@@ -36,34 +36,34 @@
       </div>
     </div>
 
-    <!-- 4 Cyber KPI Stat Cards -->
+    <!-- 4 KPI Stat Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">CONFIGURED ROLES</div>
-        <div class="text-2xl font-extrabold font-mono text-cyan-400 my-1">{{ roles.length }}</div>
+      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden shadow-sm">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">CONFIGURED ROLES</div>
+        <div class="text-2xl font-extrabold font-mono text-sky-700 my-1">{{ roles.length }}</div>
         <div class="text-xs text-slate-400 font-mono">13 Master Personas Seeded</div>
-        <div class="accent-bar bg-cyan-400"></div>
+        <div class="accent-bar bg-sky-600"></div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL CAPABILITIES</div>
-        <div class="text-2xl font-extrabold font-mono text-teal-400 my-1">{{ totalPermissionsCount }}</div>
+      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden shadow-sm">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">TOTAL CAPABILITIES</div>
+        <div class="text-2xl font-extrabold font-mono text-teal-700 my-1">{{ totalPermissionsCount }}</div>
         <div class="text-xs text-slate-400 font-mono">Granular module:action gates</div>
-        <div class="accent-bar bg-teal-400"></div>
+        <div class="accent-bar bg-teal-600"></div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">SUPER ADMIN GATE</div>
-        <div class="text-2xl font-extrabold font-mono text-purple-400 my-1">WILDCARD *</div>
+      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden shadow-sm">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">SUPER ADMIN GATE</div>
+        <div class="text-2xl font-extrabold font-mono text-purple-700 my-1">WILDCARD *</div>
         <div class="text-xs text-slate-400 font-mono">Unrestricted enterprise access</div>
-        <div class="accent-bar bg-purple-400"></div>
+        <div class="accent-bar bg-purple-600"></div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">ASSIGNED ACCOUNTS</div>
-        <div class="text-2xl font-extrabold font-mono text-emerald-400 my-1">{{ totalAssignedUsers }} Users</div>
+      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden shadow-sm">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">ASSIGNED ACCOUNTS</div>
+        <div class="text-2xl font-extrabold font-mono text-emerald-700 my-1">{{ totalAssignedUsers }} Users</div>
         <div class="text-xs text-slate-400 font-mono">100% Tenant Isolation</div>
-        <div class="accent-bar bg-emerald-400"></div>
+        <div class="accent-bar bg-emerald-600"></div>
       </div>
     </div>
 
@@ -143,13 +143,13 @@
             <div class="row items-center no-wrap q-gutter-x-sm">
               <div
                 class="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs font-mono shrink-0 shadow-sm"
-                :class="props.row.name === 'SUPER_ADMIN' ? 'bg-purple-900/60 text-purple-300 border border-purple-700/80' : 'bg-cyan-950/80 text-cyan-300 border border-cyan-800/80'"
+                :class="props.row.name === 'SUPER_ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-300' : 'bg-sky-100 text-sky-700 border border-sky-300'"
               >
                 {{ props.row.name[0] }}
               </div>
               <div class="column min-w-0">
                 <div class="row items-center q-gutter-x-xs no-wrap">
-                  <span class="font-mono font-bold text-white text-sm truncate">{{ props.row.name }}</span>
+                  <span class="font-mono font-bold text-slate-900 text-sm truncate">{{ props.row.name }}</span>
                   <span v-if="props.row.name === 'SUPER_ADMIN'" class="desk-pill desk-pill-purple text-[10px] q-py-none shrink-0">
                     WILDCARD *
                   </span>
@@ -168,7 +168,7 @@
         <!-- Description Column -->
         <template #body-cell-description="props">
           <q-td :props="props">
-            <span class="text-slate-300 text-xs">{{ props.row.description || 'Enterprise RBAC persona definition' }}</span>
+            <span class="text-slate-600 text-xs">{{ props.row.description || 'Enterprise RBAC persona definition' }}</span>
           </q-td>
         </template>
 
@@ -177,13 +177,13 @@
           <q-td :props="props" align="center">
             <span
               v-if="props.row.name === 'SUPER_ADMIN'"
-              class="font-mono text-xs px-2.5 py-0.5 rounded-full font-bold bg-purple-950/80 border border-purple-700 text-purple-300 inline-flex items-center"
+              class="font-mono text-xs px-2.5 py-0.5 rounded-full font-bold bg-purple-50 border border-purple-200 text-purple-700 inline-flex items-center"
             >
               ALL (* UNRESTRICTED)
             </span>
             <span
               v-else
-              class="font-mono text-xs px-2.5 py-0.5 rounded-full font-bold bg-cyan-950/80 border border-cyan-800 text-cyan-300 inline-flex items-center q-gutter-x-xs"
+              class="font-mono text-xs px-2.5 py-0.5 rounded-full font-bold bg-sky-50 border border-sky-200 text-sky-700 inline-flex items-center q-gutter-x-xs"
             >
               <q-icon name="vpn_key" size="11px" />
               <span>{{ getPermissionsCount(props.row) }} permissions</span>
@@ -194,9 +194,9 @@
         <!-- Assigned Users Count Column -->
         <template #body-cell-usersCount="props">
           <q-td :props="props" align="center">
-            <span class="font-mono text-xs text-slate-300 inline-flex items-center justify-center q-gutter-x-xs bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">
-              <q-icon name="person" size="12px" color="cyan" />
-              <strong class="text-white">{{ props.row._count?.users ?? props.row.users?.length ?? 1 }}</strong>
+            <span class="font-mono text-xs text-slate-600 inline-flex items-center justify-center q-gutter-x-xs bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+              <q-icon name="person" size="12px" color="primary" />
+              <strong class="text-slate-900">{{ props.row._count?.users ?? props.row.users?.length ?? 1 }}</strong>
             </span>
           </q-td>
         </template>
@@ -212,8 +212,7 @@
                   round
                   icon="edit"
                   size="sm"
-                  color="cyan"
-                  class="hover:bg-cyan-950/40"
+                  color="primary"
                   :disable="props.row.name === 'SUPER_ADMIN'"
                   @click="editRole(props.row)"
                 >
@@ -228,7 +227,6 @@
                   icon="delete"
                   size="sm"
                   color="negative"
-                  class="hover:bg-rose-950/40"
                   :disable="props.row.name === 'SUPER_ADMIN' || isSystemRole(props.row.name)"
                   @click="confirmDeleteRole(props.row)"
                 >
@@ -245,7 +243,7 @@
             <div class="q-mb-sm flex flex-center" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.15); margin: 0 auto;">
               <q-icon name="search_off" size="28px" class="text-slate-400" />
             </div>
-            <div class="text-subtitle1 text-weight-bold text-slate-200">No matching records found</div>
+            <div class="text-subtitle1 text-weight-bold text-slate-800">No matching records found</div>
             <div class="text-caption text-slate-500 q-mt-xs q-mb-md">Try adjusting your search terms or clearing active filters.</div>
             <q-btn
               v-if="searchQuery || scopeFilter !== 'all'"
@@ -304,16 +302,16 @@
         <div class="pt-2 border-t border-slate-800">
           <div class="row items-center justify-between q-mb-sm">
             <div class="row items-center q-gutter-x-sm">
-              <q-icon name="vpn_key" color="cyan" size="18px" />
-              <span class="text-sm font-bold text-white">Modular Capability Matrix</span>
-              <span class="font-mono text-xs px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800 text-cyan-300">
+              <q-icon name="vpn_key" color="primary" size="18px" />
+              <span class="text-sm font-bold text-slate-900">Modular Capability Matrix</span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded bg-sky-50 border border-sky-200 text-sky-700">
                 {{ selectedPermissionKeys.length }} permissions granted
               </span>
             </div>
             <div class="row items-center q-gutter-x-xs">
-              <q-btn flat dense no-caps size="xs" color="cyan" label="Select All" class="px-2" @click="selectAllPermissions" />
-              <span class="text-slate-600">•</span>
-              <q-btn flat dense no-caps size="xs" color="grey-5" label="Clear All" class="px-2" @click="clearAllPermissions" />
+              <q-btn flat dense no-caps size="xs" color="primary" label="Select All" class="px-2" @click="selectAllPermissions" />
+              <span class="text-slate-400">•</span>
+              <q-btn flat dense no-caps size="xs" color="grey-7" label="Clear All" class="px-2" @click="clearAllPermissions" />
             </div>
           </div>
 
@@ -326,12 +324,12 @@
               placeholder="Filter capabilities by module, action or keyword..."
               class="desk-search-input w-full"
             >
-              <template #prepend><q-icon name="filter_alt" size="16px" color="cyan" /></template>
+              <template #prepend><q-icon name="filter_alt" size="16px" color="primary" /></template>
               <template #append v-if="permSearchQuery">
                 <q-icon
                   name="cancel"
                   size="16px"
-                  class="cursor-pointer text-slate-400 hover:text-white"
+                  class="cursor-pointer text-slate-400 hover:text-slate-600"
                   @click.stop.prevent="permSearchQuery = ''"
                   @mousedown.stop.prevent="permSearchQuery = ''"
                 />
@@ -340,17 +338,17 @@
           </div>
 
           <!-- Grouped Modules Scroll List -->
-          <div class="permission-matrix-scroll rounded-xl border border-slate-800 bg-[#070c18] p-3 space-y-3" style="max-height: 380px; overflow-y: auto;">
+          <div class="permission-matrix-scroll rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-3" style="max-height: 380px; overflow-y: auto;">
             <div
               v-for="group in filteredPermissionGroups"
               :key="group.module"
-              class="rounded-xl border border-slate-800/90 bg-[#0d172b] p-3"
+              class="rounded-xl border border-slate-200 bg-white p-3 shadow-xs"
             >
-              <div class="row items-center justify-between q-mb-sm pb-2 border-b border-slate-800">
+              <div class="row items-center justify-between q-mb-sm pb-2 border-b border-slate-200">
                 <div class="row items-center q-gutter-x-xs">
-                  <q-icon :name="group.icon || 'shield'" size="16px" color="cyan" />
-                  <span class="text-xs font-bold text-white">{{ group.label }}</span>
-                  <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700 ml-1">
+                  <q-icon :name="group.icon || 'shield'" size="16px" color="primary" />
+                  <span class="text-xs font-bold text-slate-900">{{ group.label }}</span>
+                  <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 border border-slate-200 ml-1">
                     {{ countSelected(group) }} / {{ group.permissions.length }}
                   </span>
                 </div>
@@ -359,7 +357,7 @@
                   dense
                   no-caps
                   size="xs"
-                  color="cyan"
+                  color="primary"
                   label="Toggle Group"
                   @click="toggleGroup(group)"
                 />
@@ -370,7 +368,7 @@
                   v-for="perm in group.permissions"
                   :key="perm.key"
                   class="perm-checkbox-item p-2 rounded-lg border transition-all cursor-pointer select-none"
-                  :class="selectedPermissionKeys.includes(perm.key) ? 'border-cyan-500/50 bg-cyan-950/20 text-white' : 'border-slate-800/80 bg-slate-900/40 text-slate-400 hover:border-slate-700'"
+                  :class="selectedPermissionKeys.includes(perm.key) ? 'border-sky-500 bg-sky-50 text-slate-900' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'"
                   @click="togglePermission(perm.key)"
                 >
                   <div class="row items-start q-gutter-x-xs no-wrap">
@@ -378,7 +376,7 @@
                       :model-value="selectedPermissionKeys.includes(perm.key)"
                       dense
                       size="xs"
-                      color="cyan"
+                      color="primary"
                       class="q-mt-none shrink-0"
                       @click.stop="togglePermission(perm.key)"
                     />
@@ -673,13 +671,13 @@ onMounted(() => {
 }
 
 .stat-card {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 242, 254, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .accent-bar {
@@ -695,25 +693,15 @@ onMounted(() => {
   max-width: 100%;
 }
 
-.permission-matrix-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.permission-matrix-scroll::-webkit-scrollbar-track {
-  background: #070c18;
-}
-
-.permission-matrix-scroll::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 3px;
-}
-
-.permission-matrix-scroll::-webkit-scrollbar-thumb:hover {
-  background: #00f2fe;
-}
-
 .perm-checkbox-item:hover {
-  background: rgba(0, 242, 254, 0.05);
+  background: #f0f9ff;
+}
+
+.cyber-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .cyber-q-table :deep(thead tr th) {
@@ -721,19 +709,19 @@ onMounted(() => {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: #94a3b8;
-  background: #090f1d;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #475569;
+  background: #f8fafc;
+  border-bottom: 1px solid #cbd5e1;
   padding: 10px 16px;
 }
 
 .cyber-q-table :deep(tbody tr td) {
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid #e2e8f0;
   background: transparent;
 }
 
 .cyber-q-table :deep(tbody tr:hover td) {
-  background: rgba(0, 242, 254, 0.03);
+  background: #f1f5f9;
 }
 </style>
