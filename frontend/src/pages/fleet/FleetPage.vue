@@ -105,35 +105,35 @@
 
         <!-- Custom Body Cell: Registration No -->
         <template #body-cell-regNo="{ props, value }">
-          <span class="text-cyan-4 font-mono font-bold">
+          <span class="text-sky-700 font-mono font-bold bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
             {{ value || props?.row?.regNo || props?.row?.vehicleNumber }}
           </span>
         </template>
 
         <!-- Custom Body Cell: Make & Model -->
         <template #body-cell-makeModel="{ props, value }">
-          <span class="text-slate-100 font-medium">
+          <span class="text-slate-900 font-bold">
             {{ value || props?.row?.makeModel || `${props?.row?.make || ''} ${props?.row?.model || ''}`.trim() }}
           </span>
         </template>
 
         <!-- Custom Body Cell: Vehicle Type -->
         <template #body-cell-type="{ props, value }">
-          <span class="text-slate-300">
+          <span class="text-slate-700 font-medium">
             {{ value || props?.row?.type || props?.row?.vehicleTypeStr || 'HCV' }}
           </span>
         </template>
 
         <!-- Custom Body Cell: Ownership -->
         <template #body-cell-owner="{ props, value }">
-          <span class="text-slate-300">
+          <span class="text-slate-700 font-medium">
             {{ value || props?.row?.owner || 'Owned' }}
           </span>
         </template>
 
         <!-- Custom Body Cell: Capacity -->
         <template #body-cell-capacity="{ props, value }">
-          <span class="font-mono text-slate-300">
+          <span class="font-mono text-slate-800 font-semibold">
             {{ value || props?.row?.capacity || '16 MT' }}
           </span>
         </template>
@@ -171,11 +171,12 @@
         <!-- Custom Body Cell: Status -->
         <template #body-cell-status="{ props, value }">
           <span
+            class="px-2 py-0.5 rounded text-[10.5px] font-mono font-bold border uppercase"
             :class="(value || props?.row?.status) === 'Active'
-              ? 'text-emerald-400 font-medium'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
               : (value || props?.row?.status) === 'Maintenance'
-                ? 'text-rose-400 font-medium'
-                : 'text-slate-400 font-medium'"
+                ? 'bg-amber-50 text-amber-800 border-amber-200'
+                : 'bg-slate-100 text-slate-700 border-slate-300'"
           >
             {{ value || props?.row?.status || 'Active' }}
           </span>
@@ -217,8 +218,9 @@
       <DeskForm @submit="saveVehicle">
         <div class="row q-col-gutter-x-md q-col-gutter-y-xs">
           <!-- Section 1: IDENTITY -->
-          <div class="col-12 text-xs font-mono font-bold text-cyan-400 tracking-wider q-mt-xs q-mb-xs">
-            IDENTITY
+          <div class="col-12 text-xs font-mono font-bold text-sky-700 tracking-wider q-mt-xs q-mb-xs flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-600"></span>
+            01 IDENTITY & SPECIFICATIONS
           </div>
 
           <div class="col-12 col-md-6">
@@ -370,8 +372,9 @@
           </div>
 
           <!-- Section 2: DOCUMENTS — EXPIRY DATES -->
-          <div class="col-12 text-xs font-mono font-bold text-cyan-400 tracking-wider q-mt-md q-mb-xs">
-            DOCUMENTS — EXPIRY DATES
+          <div class="col-12 text-xs font-mono font-bold text-sky-700 tracking-wider q-mt-md q-mb-xs flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-600"></span>
+            02 DOCUMENTS — STATUTORY EXPIRY DATES
           </div>
 
           <div class="col-12 col-md-6">
@@ -445,12 +448,12 @@
       @cancel="cancelDelete"
     >
       <div class="q-py-sm">
-        <div class="text-body1 text-white q-mb-sm">
+        <div class="text-body2 text-slate-800 q-mb-sm">
           Are you sure you want to permanently delete vehicle
-          <span class="text-cyan-4 text-weight-bold font-mono">{{ deletingItem?.regNo }}</span>
+          <span class="text-sky-700 text-weight-bold font-mono">{{ deletingItem?.regNo }}</span>
           ({{ deletingItem?.makeModel }})?
         </div>
-        <div class="text-caption text-red-3">
+        <div class="text-caption text-rose-700 font-medium">
           This operation will remove the vehicle asset from the database and fleet allocation records.
         </div>
       </div>
@@ -1163,8 +1166,7 @@ function runVahanSync() {
 <style scoped>
 .vehicle-master-page {
   background-color: #ffffff;
-  min-height: calc(100vh - 88px);
-  overflow-y: auto;
+  min-height: 100%;
 }
 
 .header-underline {
@@ -1240,21 +1242,21 @@ function runVahanSync() {
 }
 
 .pill-valid {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
 }
 
 .pill-warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
 }
 
 .pill-expired {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
 .action-btn-pill {

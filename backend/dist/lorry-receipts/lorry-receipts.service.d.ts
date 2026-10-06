@@ -14,5 +14,7 @@ export declare class LorryReceiptsService {
         consigneeAddress?: string;
         declaredValue?: number;
         billingTerms?: string;
+        userId?: string;
+        organizationId?: string;
     }): Promise<any>;
 }

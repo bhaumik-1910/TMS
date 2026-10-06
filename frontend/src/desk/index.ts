@@ -34,5 +34,8 @@ export * from './pivot';
 // Storage & Form Draft Persistence
 export * from './storage';
 
+// High-Density Declarative Views
+export { default as ResourcePage } from './components/ResourcePage.vue';
+
 // Legacy / Component Views
 export { default as VehicleMasterDeskModal } from './views/VehicleMasterDeskModal.vue';

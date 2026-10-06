@@ -3,20 +3,20 @@
     <div class="row items-center q-gutter-x-md no-wrap">
       <!-- Active Organization -->
       <span class="status-chip highlight">
-        <q-icon name="apartment" size="13px" class="q-mr-xs text-cyan-4" />
+        <q-icon name="apartment" size="13px" class="q-mr-xs text-sky-700" />
         <strong>{{ orgName }}</strong>
       </span>
 
       <!-- Financial Period -->
       <span class="status-chip">
-        <q-icon name="date_range" size="13px" class="q-mr-xs text-slate-400" />
+        <q-icon name="date_range" size="13px" class="q-mr-xs text-slate-500" />
         FY 2026-27 (1-Apr-2026 to 31-Mar-2027)
       </span>
 
       <!-- User & Role -->
       <span class="status-chip">
-        <q-icon name="account_circle" size="13px" class="q-mr-xs text-cyan-4" />
-        {{ userName }} &bull; <span class="text-cyan-3">{{ roleName }}</span>
+        <q-icon name="account_circle" size="13px" class="q-mr-xs text-sky-700" />
+        {{ userName }} &bull; <span class="text-sky-700 font-bold">{{ roleName }}</span>
       </span>
     </div>
 

@@ -4,5 +4,5 @@ export declare class LorryReceiptsController {
     constructor(lrService: LorryReceiptsService);
     findAll(orgId: string): Promise<any>;
     findOne(id: string): Promise<any>;
-    generateLR(body: any): Promise<any>;
+    generateLR(body: any, user: any): Promise<any>;
 }

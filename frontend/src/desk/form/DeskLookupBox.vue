@@ -333,9 +333,11 @@ function onDialogHide() {
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
 }
 
 .desk-lookup-body {

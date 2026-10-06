@@ -25,7 +25,11 @@ export class LorryReceiptsController {
 
   @Post('generate')
   @ApiOperation({ summary: 'Generate LR and E-way bill for shipment' })
-  async generateLR(@Body() body: any) {
-    return this.lrService.generateLR(body);
+  async generateLR(@Body() body: any, @CurrentUser() user: any) {
+    return this.lrService.generateLR({
+      ...body,
+      userId: user?.id,
+      organizationId: user?.organizationId,
+    });
   }
 }

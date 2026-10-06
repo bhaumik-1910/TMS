@@ -381,9 +381,9 @@ defineExpose({
   left: 0;
   right: 0;
   margin-top: 4px;
-  background: #0d172b;
-  border: 1.5px solid #00f2fe;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7), 0 0 12px rgba(0, 242, 254, 0.25);
+  background: #ffffff;
+  border: 1.5px solid #0284c7;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
   border-radius: 6px;
   z-index: 1000;
   overflow: hidden;
@@ -394,17 +394,17 @@ defineExpose({
 
 .desk-select-search-box {
   padding: 6px;
-  background: #080e1a;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .desk-select-search-input {
   width: 100%;
-  background: #111d33;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 4px;
   padding: 4px 8px;
-  color: #ffffff;
+  color: #0f172a;
   font-size: 0.8rem;
   outline: none;
 }
@@ -417,23 +417,25 @@ defineExpose({
 .desk-select-option {
   padding: 8px 12px;
   font-size: 0.85rem;
-  color: #cbd5e1;
+  color: #334155;
   cursor: pointer;
   transition: background 0.1s ease;
 }
 
 .desk-select-option.is-highlighted {
-  background: #0284c7;
-  color: #ffffff;
+  background: #e0f2fe;
+  color: #0284c7;
+  font-weight: 600;
 }
 
 .desk-select-option.is-selected {
   font-weight: 700;
-  color: #38bdf8;
+  color: #0284c7;
 }
 
 .desk-select-option.is-selected.is-highlighted {
-  color: #ffffff;
+  background: #bae6fd;
+  color: #0369a1;
 }
 
 .desk-select-empty {

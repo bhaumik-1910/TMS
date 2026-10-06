@@ -28,8 +28,12 @@ let LorryReceiptsController = class LorryReceiptsController {
     async findOne(id) {
         return this.lrService.findOne(id);
     }
-    async generateLR(body) {
-        return this.lrService.generateLR(body);
+    async generateLR(body, user) {
+        return this.lrService.generateLR({
+            ...body,
+            userId: user?.id,
+            organizationId: user?.organizationId,
+        });
     }
 };
 exports.LorryReceiptsController = LorryReceiptsController;
@@ -53,8 +57,9 @@ __decorate([
     (0, common_1.Post)('generate'),
     (0, swagger_1.ApiOperation)({ summary: 'Generate LR and E-way bill for shipment' }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], LorryReceiptsController.prototype, "generateLR", null);
 exports.LorryReceiptsController = LorryReceiptsController = __decorate([

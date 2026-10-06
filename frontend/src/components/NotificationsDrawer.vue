@@ -5,19 +5,19 @@
     overlay
     behavior="mobile"
     :width="490"
-    class="notifications-cyber-drawer text-white shadow-24"
-    style="max-width: 96vw; background: #060b17 !important; border-left: 1px solid rgba(0, 242, 254, 0.28); box-shadow: -12px 0 40px rgba(0, 0, 0, 0.85);"
+    class="notifications-cyber-drawer text-slate-800 shadow-24"
+    style="max-width: 96vw; background: #ffffff !important; border-left: 1px solid #cbd5e1; box-shadow: -10px 0 35px rgba(0, 0, 0, 0.1);"
   >
     <div class="column full-height" style="overflow-x: hidden;">
       <!-- Drawer Header -->
       <div class="notif-drawer-header">
         <div class="row items-center q-gutter-x-sm no-wrap">
           <div class="notif-header-icon-box flex-shrink-0">
-            <q-icon name="notifications_active" size="18px" class="text-cyan-300" />
+            <q-icon name="notifications_active" size="18px" class="text-sky-700" />
           </div>
           <div class="min-w-0">
             <div class="row items-center gap-2 no-wrap">
-              <span class="text-sm font-bold text-white tracking-wide truncate">Live Notification Feed</span>
+              <span class="text-sm font-bold text-slate-900 tracking-wide truncate">Live Notification Feed</span>
               <span
                 v-if="notifStore.unreadCount > 0"
                 class="unread-pill-counter flex-shrink-0"
@@ -25,7 +25,7 @@
                 {{ notifStore.unreadCount }} NEW
               </span>
             </div>
-            <div class="text-[10px] font-mono text-slate-400 truncate">Real-time telematics & operational alerts</div>
+            <div class="text-[10px] font-mono text-slate-500 truncate">Real-time telematics & operational alerts</div>
           </div>
         </div>
 
@@ -38,7 +38,7 @@
             title="Mark all notifications as read"
             @click="notifStore.markAllAsRead"
           >
-            <q-icon name="done_all" size="13px" class="q-mr-xs text-cyan-300" />
+            <q-icon name="done_all" size="13px" class="q-mr-xs text-sky-700" />
             <span>Read All</span>
           </button>
 
@@ -99,16 +99,16 @@
 
         <!-- Empty State -->
         <div v-if="!notifStore.loading && filteredList.length === 0" class="column flex-center q-pa-xl text-center">
-          <div class="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-600 mb-3">
+          <div class="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 mb-3">
             <q-icon name="notifications_off" size="28px" />
           </div>
-          <div class="text-sm font-semibold text-slate-300">No notifications found</div>
+          <div class="text-sm font-semibold text-slate-700">No notifications found</div>
           <div class="text-xs text-slate-500 font-mono mt-1">All events in this channel are up to date</div>
           <q-btn
             dense
             no-caps
             outline
-            color="cyan-4"
+            color="primary"
             size="xs"
             label="Simulate Live Radar Ping"
             icon="bolt"
@@ -144,27 +144,27 @@
                 <div class="row items-center justify-between no-wrap gap-2">
                   <div class="row items-center gap-1.5 min-w-0 col">
                     <span
-                      class="text-xs font-bold leading-tight truncate text-white group-hover:text-cyan-300 transition-colors"
+                      class="text-xs font-bold leading-tight truncate text-slate-900 group-hover:text-sky-700 transition-colors"
                     >
                       {{ item.title }}
                     </span>
                     <span
                       v-if="!item.isRead"
-                      class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping flex-shrink-0"
+                      class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-ping flex-shrink-0"
                     ></span>
                   </div>
-                  <span class="text-[10px] font-mono text-slate-400 flex-shrink-0 whitespace-nowrap pl-1">
+                  <span class="text-[10px] font-mono text-slate-500 flex-shrink-0 whitespace-nowrap pl-1">
                     {{ formatRelativeTime(item.createdAt) }}
                   </span>
                 </div>
 
                 <!-- Message Snippet -->
-                <div class="text-[11.5px] text-slate-300 mt-1 leading-relaxed font-sans line-clamp-2 break-words">
+                <div class="text-[11.5px] text-slate-600 mt-1 leading-relaxed font-sans line-clamp-2 break-words">
                   {{ item.message }}
                 </div>
 
                 <!-- Footer Quick Actions & Badges -->
-                <div class="row items-center justify-between mt-2 pt-2 border-t border-slate-800/80 text-[10px] font-mono gap-1 no-wrap">
+                <div class="row items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[10px] font-mono gap-1 no-wrap">
                   <span
                     class="px-2 py-0.5 rounded uppercase tracking-wider text-[9px] font-bold border flex-shrink-0"
                     :class="getTypeTagClasses(item.type)"
@@ -176,7 +176,7 @@
                     <!-- Quick Navigate Link -->
                     <span
                       v-if="getDeepLink(item.title, item.message)"
-                      class="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer font-bold transition-colors q-mr-xs"
+                      class="text-sky-700 hover:text-sky-800 flex items-center gap-1 cursor-pointer font-bold transition-colors q-mr-xs"
                       @click.stop="navigateDirect(item)"
                     >
                       <span>{{ getDeepLinkLabel(item.title, item.message) }}</span>
@@ -187,7 +187,7 @@
                     <button
                       v-if="!item.isRead"
                       type="button"
-                      class="icon-action-btn hover:text-cyan-300 hover:bg-cyan-500/10"
+                      class="icon-action-btn hover:text-sky-700 hover:bg-sky-50"
                       title="Mark as Read"
                       @click.stop="notifStore.markAsRead(item.id)"
                     >
@@ -197,7 +197,7 @@
                     <!-- Delete Notification -->
                     <button
                       type="button"
-                      class="icon-action-btn hover:text-rose-400 hover:bg-rose-500/10"
+                      class="icon-action-btn hover:text-rose-600 hover:bg-rose-50"
                       title="Dismiss"
                       @click.stop="notifStore.deleteNotification(item.id)"
                     >
@@ -220,7 +220,7 @@
             :disabled="notifStore.unreadCount === 0"
             @click="notifStore.markAllAsRead"
           >
-            <q-icon name="done_all" size="13px" class="text-cyan-300" />
+            <q-icon name="done_all" size="13px" class="text-sky-700" />
             <span>Mark All Read</span>
           </button>
 
@@ -229,13 +229,13 @@
             class="footer-pill-btn flex items-center gap-1"
             @click="notifStore.clearRead"
           >
-            <q-icon name="clear_all" size="13px" class="text-slate-400" />
+            <q-icon name="clear_all" size="13px" class="text-slate-500" />
             <span>Clear Read</span>
           </button>
         </div>
 
-        <div class="row items-center gap-1.5 text-[10.5px] font-mono text-emerald-400 flex-shrink-0">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <div class="row items-center gap-1.5 text-[10.5px] font-mono text-emerald-600 flex-shrink-0">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
           <span>Live Synced</span>
         </div>
       </div>
@@ -331,17 +331,17 @@ function getTypeBadgeClasses(type?: string) {
   const t = (type || '').toUpperCase();
   switch (t) {
     case 'CRITICAL':
-      return 'bg-rose-950/80 text-rose-400 border-rose-800 shadow-[0_0_8px_rgba(244,63,94,0.3)]';
+      return 'bg-rose-50 text-rose-700 border-rose-200';
     case 'WARNING':
-      return 'bg-amber-950/80 text-amber-400 border-amber-800 shadow-[0_0_8px_rgba(245,158,11,0.25)]';
+      return 'bg-amber-50 text-amber-700 border-amber-200';
     case 'OPERATIONS':
-      return 'bg-cyan-950/80 text-cyan-400 border-cyan-800 shadow-[0_0_8px_rgba(0,242,254,0.25)]';
+      return 'bg-sky-50 text-sky-700 border-sky-200';
     case 'SUCCESS':
-      return 'bg-emerald-950/80 text-emerald-400 border-emerald-800 shadow-[0_0_8px_rgba(16,185,129,0.25)]';
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
     case 'SYSTEM':
-      return 'bg-indigo-950/80 text-indigo-400 border-indigo-800';
+      return 'bg-indigo-50 text-indigo-700 border-indigo-200';
     default:
-      return 'bg-slate-900 text-slate-300 border-slate-700';
+      return 'bg-slate-100 text-slate-700 border-slate-200';
   }
 }
 
@@ -349,17 +349,17 @@ function getTypeTagClasses(type?: string) {
   const t = (type || '').toUpperCase();
   switch (t) {
     case 'CRITICAL':
-      return 'bg-rose-950/60 text-rose-300 border-rose-800/80';
+      return 'bg-rose-50 text-rose-800 border-rose-200';
     case 'WARNING':
-      return 'bg-amber-950/60 text-amber-300 border-amber-800/80';
+      return 'bg-amber-50 text-amber-800 border-amber-200';
     case 'OPERATIONS':
-      return 'bg-cyan-950/60 text-cyan-300 border-cyan-800/80';
+      return 'bg-sky-50 text-sky-800 border-sky-200';
     case 'SUCCESS':
-      return 'bg-emerald-950/60 text-emerald-300 border-emerald-800/80';
+      return 'bg-emerald-50 text-emerald-800 border-emerald-200';
     case 'SYSTEM':
-      return 'bg-indigo-950/60 text-indigo-300 border-indigo-800/80';
+      return 'bg-indigo-50 text-indigo-800 border-indigo-200';
     default:
-      return 'bg-slate-800 text-slate-400 border-slate-700';
+      return 'bg-slate-100 text-slate-700 border-slate-200';
   }
 }
 
@@ -367,10 +367,10 @@ function getCardBorderAccent(type?: string) {
   const t = (type || '').toUpperCase();
   if (t === 'CRITICAL') return 'border-l-4 border-l-rose-500';
   if (t === 'WARNING') return 'border-l-4 border-l-amber-500';
-  if (t === 'OPERATIONS') return 'border-l-4 border-l-cyan-400';
-  if (t === 'SUCCESS') return 'border-l-4 border-l-emerald-400';
-  if (t === 'SYSTEM') return 'border-l-4 border-l-indigo-400';
-  return 'border-l-2 border-l-slate-700';
+  if (t === 'OPERATIONS') return 'border-l-4 border-l-sky-500';
+  if (t === 'SUCCESS') return 'border-l-4 border-l-emerald-500';
+  if (t === 'SYSTEM') return 'border-l-4 border-l-indigo-500';
+  return 'border-l-2 border-l-slate-300';
 }
 
 function formatRelativeTime(dateStr?: string | Date) {
@@ -487,7 +487,8 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
 
 <style scoped>
 .notifications-cyber-drawer {
-  background: #060b17 !important;
+  background: #ffffff !important;
+  color: #1e293b;
 }
 
 /* Header */
@@ -496,8 +497,8 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: rgba(11, 20, 42, 0.95);
-  border-bottom: 1px solid rgba(0, 242, 254, 0.18);
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
   box-sizing: border-box;
 }
 
@@ -505,8 +506,8 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(0, 242, 254, 0.1);
-  border: 1px solid rgba(0, 242, 254, 0.28);
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -518,19 +519,18 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
   font-size: 10px;
   font-family: monospace;
   font-weight: 700;
-  background: rgba(0, 242, 254, 0.15);
-  color: #00f2fe;
-  border: 1px solid rgba(0, 242, 254, 0.4);
-  box-shadow: 0 0 8px rgba(0, 242, 254, 0.25);
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.1);
 }
 
 .header-quick-action-btn {
   display: inline-flex;
   align-items: center;
-  background: rgba(0, 242, 254, 0.08);
-  border: 1px solid rgba(0, 242, 254, 0.3);
-  color: #00f2fe;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
   font-size: 11px;
   font-family: monospace;
   font-weight: 700;
@@ -541,16 +541,17 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
 }
 
 .header-quick-action-btn:hover {
-  background: rgba(0, 242, 254, 0.18);
-  box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: #0284c7;
 }
 
 .header-icon-btn {
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -559,18 +560,18 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
 }
 
 .header-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(0, 242, 254, 0.3);
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
 
-/* Modern Cyber Filter Bar */
+/* Modern Filter Bar */
 .notif-filter-bar {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: #070e1e;
-  border-bottom: 1px solid rgba(0, 242, 254, 0.15);
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -583,12 +584,12 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 30px;
+  height: 28px;
   padding: 0 10px;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #475569;
   font-family: monospace;
   font-size: 11px;
   font-weight: 600;
@@ -599,16 +600,15 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
 }
 
 .notif-pill-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(0, 242, 254, 0.3);
-  color: #e2e8f0;
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #1e293b;
 }
 
 .notif-pill-btn--active {
-  background: rgba(0, 242, 254, 0.12) !important;
-  border-color: #00f2fe !important;
-  color: #00f2fe !important;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+  background: #e0f2fe !important;
+  border-color: #0284c7 !important;
+  color: #0369a1 !important;
   font-weight: 700;
 }
 
@@ -631,50 +631,51 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
 }
 
 .pill-count-neutral {
-  background: rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
+  background: #e2e8f0;
+  color: #475569;
 }
 
 .notif-pill-btn--active .pill-count-neutral {
-  background: rgba(0, 242, 254, 0.25);
-  color: #00f2fe;
+  background: #bae6fd;
+  color: #0369a1;
 }
 
 .pill-count-cyan {
-  background: rgba(0, 242, 254, 0.2);
-  color: #00f2fe;
-  border: 1px solid rgba(0, 242, 254, 0.4);
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
 }
 
 .pill-count-rose {
-  background: rgba(244, 63, 94, 0.2);
-  color: #fb7185;
-  border: 1px solid rgba(244, 63, 94, 0.4);
+  background: #fee2e2;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
 }
 
 /* Notification Cards */
 .notif-card {
   width: 100%;
   box-sizing: border-box;
-  background: linear-gradient(135deg, rgba(12, 21, 44, 0.95) 0%, rgba(8, 14, 28, 0.98) 100%);
-  border: 1px solid rgba(0, 242, 254, 0.18);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .notif-card-unread {
-  background: linear-gradient(135deg, rgba(14, 27, 56, 0.98) 0%, rgba(9, 17, 36, 0.98) 100%);
-  border-color: rgba(0, 242, 254, 0.32);
-  box-shadow: 0 0 14px rgba(0, 242, 254, 0.08);
+  background: #f8fafc;
+  border-color: #bae6fd;
+  box-shadow: 0 1px 4px rgba(2, 132, 199, 0.08);
 }
 
 .notif-card-read {
-  opacity: 0.82;
+  opacity: 0.88;
 }
 
 .notif-card:hover {
   transform: translateY(-1px);
-  border-color: rgba(0, 242, 254, 0.5);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  border-color: #0284c7;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
   opacity: 1;
 }
 
@@ -687,9 +688,14 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: #64748b;
   cursor: pointer;
   transition: all 0.15s ease;
+}
+
+.icon-action-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
 }
 
 /* Footer */
@@ -698,15 +704,15 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: #040813;
-  border-top: 1px solid rgba(0, 242, 254, 0.18);
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
   box-sizing: border-box;
 }
 
 .footer-pill-btn {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
   font-size: 11px;
   font-family: monospace;
   padding: 4px 9px;
@@ -716,9 +722,9 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
 }
 
 .footer-pill-btn:hover:not(:disabled) {
-  background: rgba(0, 242, 254, 0.1);
-  border-color: rgba(0, 242, 254, 0.35);
-  color: #00f2fe;
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
 }
 
 .footer-pill-btn:disabled {
@@ -732,15 +738,15 @@ defineExpose({ open, close, unreadCount: notifStore.unreadCount });
 }
 
 .custom-scroll::-webkit-scrollbar-track {
-  background: rgba(8, 14, 28, 0.6);
+  background: #f1f5f9;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 242, 254, 0.25);
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 242, 254, 0.5);
+  background: #94a3b8;
 }
 </style>

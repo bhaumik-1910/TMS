@@ -51,6 +51,7 @@ function handleKeyDown(event: KeyboardEvent) {
   // Shift+Enter or Up Arrow moves focus back
   if (event.key === 'Enter' && event.shiftKey) {
     event.preventDefault();
+    event.stopPropagation();
     focusPreviousInput(formRef.value || document.body);
     return;
   }
@@ -60,11 +61,10 @@ function handleKeyDown(event: KeyboardEvent) {
     const active = document.activeElement as HTMLElement | null;
     if (active && active.tagName.toLowerCase() !== 'textarea' && active.getAttribute('type') !== 'submit') {
       const advanced = focusNextInput(formRef.value || document.body);
-      if (advanced) {
-        event.preventDefault();
-      } else {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!advanced) {
         // At the last field -> Submit form!
-        event.preventDefault();
         handleSubmit();
       }
     }

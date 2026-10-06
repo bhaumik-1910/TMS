@@ -222,6 +222,9 @@ function handleKeyDown(event: KeyboardEvent) {
 
   // 5. Shift+Enter moves focus to previous input
   if (event.key === 'Enter' && event.shiftKey) {
+    if (activeEl && activeEl.closest('form.desk-form, form.desk-form-container')) {
+      return;
+    }
     if (dialogCardRef.value) {
       event.preventDefault();
       event.stopPropagation();
@@ -232,6 +235,9 @@ function handleKeyDown(event: KeyboardEvent) {
 
   // 6. Enter key navigation inside inputs:
   if (event.key === 'Enter' && isInsideTextInput) {
+    if (activeEl && activeEl.closest('form.desk-form, form.desk-form-container')) {
+      return;
+    }
     // Let textarea handle normal Enter unless Ctrl+Enter
     if (activeEl && activeEl.tagName === 'TEXTAREA' && !event.ctrlKey) {
       return;

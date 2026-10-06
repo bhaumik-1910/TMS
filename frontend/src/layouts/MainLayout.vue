@@ -110,8 +110,30 @@ function navigate(path: string) {
 }
 
 .tally-page-container {
-  min-height: calc(100vh - 36px - 26px - 33px) !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   background: #f8fafc;
+  box-sizing: border-box !important;
+  scroll-behavior: smooth;
+}
+
+.tally-page-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tally-page-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.tally-page-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.tally-page-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .fade-enter-active,

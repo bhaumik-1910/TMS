@@ -450,6 +450,7 @@
       title="Syncing Live Telemetry & Control Tower..."
       subtitle="Updating GPS pings, carrier performance & linehaul routes"
     />
+    </div>
   </div>
 </template>
 
@@ -630,19 +631,19 @@ onUnmounted(() => {
 }
 
 .custom-scroll::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 
 .custom-scroll::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.4);
+  background: #f1f5f9;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 242, 254, 0.4);
+  background: #94a3b8;
 }
 </style>

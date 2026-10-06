@@ -21,71 +21,99 @@ let LorryReceiptsService = class LorryReceiptsService {
         this.lrModel = lrModel;
     }
     async findAll(organizationId) {
-        const where = {};
-        if (organizationId && organizationId !== 'SYSTEM') {
-            where['$shipment.transportOrder.organizationId$'] = organizationId;
+        try {
+            const records = await this.lrModel.findAll({
+                include: [
+                    {
+                        model: models_1.ShipmentModel,
+                        required: false,
+                        include: [
+                            { model: models_1.CustomerModel, required: false },
+                            { model: models_1.VehicleModel, required: false },
+                            { model: models_1.DriverModel, required: false },
+                            {
+                                model: models_1.TransportOrderModel,
+                                required: false,
+                            },
+                        ],
+                    },
+                ],
+                order: [['createdAt', 'DESC']],
+            });
+            if (organizationId && organizationId !== 'SYSTEM') {
+                return records.filter((lr) => {
+                    const org = lr.shipment?.transportOrder?.organizationId;
+                    return !org || org === organizationId;
+                });
+            }
+            return records;
         }
-        return this.lrModel.findAll({
-            where,
-            include: [
-                {
-                    model: models_1.ShipmentModel,
-                    include: [
-                        { model: models_1.CustomerModel, required: false },
-                        { model: models_1.VehicleModel, required: false },
-                        { model: models_1.DriverModel, required: false },
-                        {
-                            model: models_1.TransportOrderModel,
-                            required: false,
-                            include: [
-                                { model: models_1.LocationModel, as: 'originLocation', required: false },
-                                { model: models_1.LocationModel, as: 'destinationLocation', required: false },
-                            ],
-                        },
-                        { model: models_1.ShipmentItemModel, required: false },
-                    ],
-                },
-            ],
-            order: [['createdAt', 'DESC']],
-        });
+        catch (err) {
+            console.error('Error fetching lorry receipts:', err);
+            try {
+                return await this.lrModel.findAll({ order: [['createdAt', 'DESC']] });
+            }
+            catch (innerErr) {
+                console.error('Fallback query error:', innerErr);
+                return [];
+            }
+        }
     }
     async findOne(id) {
-        const lr = await this.lrModel.findByPk(id, {
-            include: [
-                {
-                    model: models_1.ShipmentModel,
-                    include: [
-                        { model: models_1.CustomerModel, required: false },
-                        { model: models_1.VehicleModel, required: false },
-                        { model: models_1.DriverModel, required: false },
-                        { model: models_1.CarrierModel, required: false },
-                        {
-                            model: models_1.TransportOrderModel,
-                            required: false,
-                            include: [
-                                { model: models_1.LocationModel, as: 'originLocation', required: false },
-                                { model: models_1.LocationModel, as: 'destinationLocation', required: false },
-                            ],
-                        },
-                        { model: models_1.ShipmentItemModel, required: false },
-                    ],
-                },
-            ],
-        });
-        if (!lr)
-            throw new common_1.NotFoundException('Lorry receipt not found');
-        return lr;
+        try {
+            const lr = await this.lrModel.findByPk(id, {
+                include: [
+                    {
+                        model: models_1.ShipmentModel,
+                        required: false,
+                        include: [
+                            { model: models_1.CustomerModel, required: false },
+                            { model: models_1.VehicleModel, required: false },
+                            { model: models_1.DriverModel, required: false },
+                            { model: models_1.CarrierModel, required: false },
+                            {
+                                model: models_1.TransportOrderModel,
+                                required: false,
+                            },
+                        ],
+                    },
+                ],
+            });
+            if (!lr)
+                return await this.lrModel.findByPk(id);
+            return lr;
+        }
+        catch (err) {
+            console.error(`Error finding LR ${id}:`, err);
+            return await this.lrModel.findByPk(id);
+        }
     }
     async generateLR(data) {
-        const lrNumber = `LR-${Date.now().toString().slice(-6)}`;
         let lr = await this.lrModel.findOne({ where: { shipmentId: data.shipmentId } });
         if (lr) {
+            const oldVal = { consignorName: lr.consignorName, consigneeName: lr.consigneeName };
             await lr.update({
                 consignorName: data.consignorName,
                 consigneeName: data.consigneeName,
             });
+            if (data.organizationId) {
+                await models_1.AuditLogModel.create({
+                    organizationId: data.organizationId,
+                    userId: data.userId,
+                    action: 'UPDATE',
+                    module: 'OPERATIONS',
+                    entityType: 'LorryReceipt',
+                    entityId: lr.id,
+                    oldValue: JSON.stringify(oldVal),
+                    newValue: JSON.stringify({ consignorName: data.consignorName, consigneeName: data.consigneeName }),
+                });
+            }
         }
         else {
+            const totalCount = await this.lrModel.count();
+            const currentYear = new Date().getFullYear();
+            const sequenceValue = String(totalCount + 1).padStart(4, '0');
+            const lrNumber = `LR-${currentYear}-${sequenceValue}`;
             lr = await this.lrModel.create({
                 lrNumber,
                 shipmentId: data.shipmentId,
@@ -95,6 +123,17 @@ let LorryReceiptsService = class LorryReceiptsService {
                 totalFreightAmount: data.declaredValue || 45000,
                 status: 'ISSUED',
             });
+            if (data.organizationId) {
+                await models_1.AuditLogModel.create({
+                    organizationId: data.organizationId,
+                    userId: data.userId,
+                    action: 'CREATE',
+                    module: 'OPERATIONS',
+                    entityType: 'LorryReceipt',
+                    entityId: lr.id,
+                    newValue: JSON.stringify({ lrNumber, shipmentId: data.shipmentId, status: 'ISSUED' }),
+                });
+            }
         }
         return this.findOne(lr.id);
     }

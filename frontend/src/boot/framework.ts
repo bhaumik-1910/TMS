@@ -17,8 +17,8 @@ import '../css/app.scss';
 import AppLoadingOverlay from '../components/AppLoadingOverlay.vue';
 
 export default defineBoot(({ app }) => {
-  // Ensure enterprise dark mode is active by default
-  Dark.set(true);
+  // Ensure clean white theme is active by default
+  Dark.set(false);
 
   // Register shared enterprise components
   app.component('AppLoadingOverlay', AppLoadingOverlay);

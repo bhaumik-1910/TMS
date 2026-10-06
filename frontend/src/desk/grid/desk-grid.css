@@ -21,6 +21,32 @@
   border-radius: 0;
 }
 
+.desk-grid .q-table__middle {
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  max-height: calc(100vh - 310px);
+  min-height: 200px;
+  scroll-behavior: smooth;
+}
+
+.desk-grid .q-table__middle::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.desk-grid .q-table__middle::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.desk-grid .q-table__middle::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.desk-grid .q-table__middle::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 .desk-grid .q-table thead tr {
   height: 36px !important;
 }
@@ -78,7 +104,7 @@
   user-select: none;
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 10;
 }
 
 .desk-grid .q-table td {

@@ -92,8 +92,8 @@ onBeforeUnmount(() => {
 .desk-accept-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(3, 7, 18, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -102,12 +102,12 @@ onBeforeUnmount(() => {
 }
 
 .desk-accept-box {
-  background: #0d172b;
-  border: 2px solid #00f2fe;
-  box-shadow: 0 10px 30px rgba(0, 242, 254, 0.25), 0 0 20px rgba(0, 0, 0, 0.8);
+  background: #ffffff;
+  border: 1.5px solid #0284c7;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
   border-radius: 8px;
-  padding: 16px 28px;
-  min-width: 280px;
+  padding: 18px 30px;
+  min-width: 300px;
   text-align: center;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
@@ -119,8 +119,8 @@ onBeforeUnmount(() => {
 .desk-accept-title {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.05em;
+  color: #0f172a;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
@@ -145,28 +145,28 @@ onBeforeUnmount(() => {
 }
 
 .desk-btn-yes {
-  background: #00f2fe;
-  color: #070c18;
-  border: 1px solid #38bdf8;
+  background: #0284c7;
+  color: #ffffff;
+  border: 1px solid #0369a1;
 }
 
 .desk-btn-yes:hover,
 .desk-btn-yes:focus {
-  background: #38bdf8;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
+  background: #0369a1;
+  box-shadow: 0 0 8px rgba(2, 132, 199, 0.4);
   transform: translateY(-1px);
 }
 
 .desk-btn-no {
-  background: #1e293b;
-  color: #cbd5e1;
-  border: 1px solid #475569;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
 }
 
 .desk-btn-no:hover,
 .desk-btn-no:focus {
-  background: #334155;
-  color: #ffffff;
+  background: #e2e8f0;
+  color: #0f172a;
   border-color: #94a3b8;
 }
 
@@ -177,12 +177,12 @@ onBeforeUnmount(() => {
 
 .desk-accept-hint {
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: #64748b;
   margin-top: 6px;
 }
 
 .desk-accept-hint strong {
-  color: #38bdf8;
+  color: #0284c7;
 }
 
 @keyframes fadeIn {

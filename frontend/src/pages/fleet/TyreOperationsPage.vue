@@ -717,29 +717,25 @@ useDeskPageShortcuts({
   background: #0284c7;
   border-color: #0369a1;
   color: #ffffff;
-}
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.tyre-tab-btn.active {
-  background: #00e5ff;
-  color: #020617;
-  border-color: #00e5ff;
   font-weight: 700;
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
 }
 
-/* Cyber Card & Table matching Image 1 & Image 2 */
+/* White ERP Card & Table */
 .cyber-card {
-  background: #090f1d;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .table-wrap {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 240px);
+  min-height: 200px;
+  scroll-behavior: smooth;
 }
 
 .cyber-table {
@@ -748,119 +744,122 @@ useDeskPageShortcuts({
 }
 
 .cyber-table th {
-  background: rgba(255, 255, 255, 0.02);
-  color: #00e5ff;
+  background: #f1f5f9;
+  color: #334155;
   font-weight: 700;
   font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  padding: 0.9rem 1rem;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #cbd5e1;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .cyber-table td {
-  padding: 0.9rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: #cbd5e1;
-  font-size: 0.84rem;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+  font-size: 0.8125rem;
 }
 
 .cyber-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.025);
+  background: #f8fafc;
 }
 
-/* Type Pill (New vs Retread) matching Image 1 */
+/* Type Pill (New vs Retread) */
 .type-pill {
   display: inline-block;
   font-size: 0.72rem;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .type-pill--new {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
 }
 
 .type-pill--retread {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
 }
 
-/* Status Pill (FITTED vs Scrapped) matching Image 1 */
+/* Status Pill (FITTED vs Scrapped) */
 .status-pill {
   display: inline-block;
   font-size: 0.72rem;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   text-transform: uppercase;
 }
 
 .status-pill--fitted {
-  background: rgba(6, 182, 212, 0.15);
-  color: #06b6d4;
-  border: 1px solid rgba(6, 182, 212, 0.3);
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
 }
 
 .status-pill--scrapped {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
-/* Event Type Pills matching Image 2 */
+/* Event Type Pills */
 .event-pill {
   display: inline-block;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 2px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .pill-fit {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
 }
 
 .pill-rotate {
-  background: rgba(6, 182, 212, 0.15);
-  color: #06b6d4;
-  border: 1px solid rgba(6, 182, 212, 0.3);
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
 }
 
 .pill-scrap {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
 .pill-remove {
-  background: rgba(249, 115, 22, 0.15);
-  color: #f97316;
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  background: #fff7ed;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
 }
 
 .pill-retread {
-  background: rgba(168, 85, 247, 0.15);
-  color: #a855f7;
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: #faf5ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
 }
 
 .pill-repair {
-  background: rgba(234, 179, 8, 0.15);
-  color: #eab308;
-  border: 1px solid rgba(234, 179, 8, 0.3);
+  background: #fefce8;
+  color: #854d0e;
+  border: 1px solid #fef08a;
 }
 
 .pill-default {
-  background: rgba(148, 163, 184, 0.15);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
 }
 
 .btn-table-action {
@@ -868,16 +867,16 @@ useDeskPageShortcuts({
   padding: 0 14px;
   font-size: 12px;
   font-weight: 600;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 229, 255, 0.4);
-  background: rgba(0, 229, 255, 0.08);
-  color: #00e5ff;
+  border-radius: 4px;
+  border: 1px solid #bae6fd;
+  background: #eff6ff;
+  color: #0284c7;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.15s ease;
 }
 
 .btn-table-action:hover {
-  background: rgba(0, 229, 255, 0.2);
-  border-color: #00e5ff;
+  background: #e0f2fe;
+  border-color: #0284c7;
 }
 </style>
