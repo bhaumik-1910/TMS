@@ -303,6 +303,35 @@ export class TyreEventsService implements OnModuleInit {
     if (!created) {
       await event.update(payload);
     }
+
+    // Auto-synchronize tyre inventory master state
+    try {
+      if (payload.eventType === 'Fit') {
+        await this.tyreInventoryModel.update(
+          {
+            vehicle: payload.vehicle,
+            position: payload.position,
+            status: 'FITTED',
+            fitDate: payload.date,
+            fitOdom: payload.odometer,
+          },
+          { where: { [Op.or]: [{ serialNo: payload.tyreSerial }, { id: payload.tyreSerial }] } },
+        );
+      } else if (payload.eventType === 'Demount') {
+        await this.tyreInventoryModel.update(
+          { vehicle: '—', position: '—', status: 'STOCK' },
+          { where: { [Op.or]: [{ serialNo: payload.tyreSerial }, { id: payload.tyreSerial }] } },
+        );
+      } else if (payload.eventType === 'Scrap') {
+        await this.tyreInventoryModel.update(
+          { vehicle: '—', position: '—', status: 'SCRAP' },
+          { where: { [Op.or]: [{ serialNo: payload.tyreSerial }, { id: payload.tyreSerial }] } },
+        );
+      }
+    } catch (invErr) {
+      console.warn('Could not sync tyre inventory status:', invErr);
+    }
+
     return event;
   }
 

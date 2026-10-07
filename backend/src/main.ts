@@ -1,52 +1,26 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import helmet from 'helmet';
-import { AppModule } from './app.module';
+import { AppModule } from './app.module.js';
+import { fieldErrors, flattenValidationErrors } from './framework/errors.js';
+import { appConfig, type AppConfig } from './config/app.config.js';
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
-
-  // Security Headers
-  app.use(
-    helmet({
-      contentSecurityPolicy: false,
-      crossOriginEmbedderPolicy: false,
-    }),
-  );
-
-  // CORS configuration
-  app.enableCors({
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-  });
-
-  // Global DTO Validation
+  const config = app.get<AppConfig>(appConfig.KEY);
+  // Global prefix omitted: controllers explicitly declare api/v1 or multi-path prefixes
+  app.enableCors({ origin: config.corsOrigins, credentials: false });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
-      forbidNonWhitelisted: false,
+      exceptionFactory: (errors) => fieldErrors(flattenValidationErrors(errors)),
     }),
   );
-
-  // OpenAPI / Swagger Documentation
-  const config = new DocumentBuilder()
-    .setTitle('Enterprise TMS API')
-    .setDescription('Production-Ready Transportation Management System API documentation with RBAC, Multi-tenancy, and Live Telemetry')
-    .setVersion('1.0.0')
-    .addBearerAuth()
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
-
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  logger.log(`Enterprise TMS Backend running on http://localhost:${port}`);
-  logger.log(`Swagger Documentation available at http://localhost:${port}/api/docs`);
+  app.enableShutdownHooks();
+  await app.listen(config.port);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Fatal bootstrap error:', err);
+  process.exit(1);
+});

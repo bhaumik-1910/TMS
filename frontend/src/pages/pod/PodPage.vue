@@ -1,18 +1,16 @@
 <template>
-  <div class="pod-page p-3 sm:p-4 text-slate-800 font-sans">
-    <!-- Header matching Image 1 -->
-    <div class="row items-center justify-between q-mb-md">
-      <div>
-        <div class="text-h5 text-weight-bold text-slate-900 relative inline-block">
-          POD — Proof of Delivery
-          <div class="title-underline"></div>
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Proof of Delivery (ePOD)</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <div class="row items-center q-gutter-x-sm">
+      <div class="flex items-center gap-3">
         <button
           type="button"
-          class="desk-btn-cyan-action"
+          class="btn-primary-cyan"
           @click="openAddDialog"
         >
           <q-icon name="add" size="18px" />
@@ -21,34 +19,30 @@
       </div>
     </div>
 
-    <!-- 4 KPI Stat Cards matching Image 1 -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card stat-card--active p-4 rounded-xl border border-sky-300 bg-sky-50 relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-sky-700 mb-1">TOTAL PODS</div>
-        <div class="text-3xl font-extrabold font-mono text-sky-700 my-1">{{ pods.length }}</div>
-        <div class="text-xs text-sky-600 font-mono">This month</div>
-        <div class="accent-bar bg-sky-500"></div>
+    <!-- 4 KPI Stat Cards matching Billing Page -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="kpi-box kpi-box--active">
+        <div class="kpi-title text-sky-600">TOTAL PODS</div>
+        <div class="kpi-amount text-sky-700">{{ pods.length }}</div>
+        <div class="kpi-subtext">This month consignments</div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-amber-200 bg-amber-50 relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-amber-700 mb-1">PENDING POD</div>
-        <div class="text-3xl font-extrabold font-mono text-amber-600 my-1">{{ pendingCount }}</div>
-        <div class="text-xs text-amber-600 font-mono">Awaiting upload</div>
-        <div class="accent-bar bg-amber-400"></div>
+      <div class="kpi-box">
+        <div class="kpi-title text-amber-700">PENDING POD</div>
+        <div class="kpi-amount text-amber-600">{{ pendingCount }}</div>
+        <div class="kpi-subtext">Awaiting consignee acknowledgment</div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-red-200 bg-red-50 relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-red-700 mb-1">DISPUTED</div>
-        <div class="text-3xl font-extrabold font-mono text-red-600 my-1">{{ disputedCount }}</div>
-        <div class="text-xs text-red-600 font-mono">Shortage / damage</div>
-        <div class="accent-bar bg-red-500"></div>
+      <div class="kpi-box">
+        <div class="kpi-title text-rose-700">DISPUTED POD</div>
+        <div class="kpi-amount text-rose-600">{{ disputedCount }}</div>
+        <div class="kpi-subtext">Shortage / damage exceptions</div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-green-200 bg-green-50 relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-green-700 mb-1">VERIFIED</div>
-        <div class="text-3xl font-extrabold font-mono text-green-600 my-1">{{ verifiedCount }}</div>
-        <div class="text-xs text-green-600 font-mono">AI + manual verified</div>
-        <div class="accent-bar bg-emerald-500"></div>
+      <div class="kpi-box">
+        <div class="kpi-title text-emerald-700">VERIFIED &amp; ACCEPTED</div>
+        <div class="kpi-amount text-emerald-600">{{ verifiedCount }}</div>
+        <div class="kpi-subtext">Clean delivery verified</div>
       </div>
     </div>
 

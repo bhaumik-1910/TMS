@@ -16,9 +16,15 @@ exports.LorryReceiptsService = void 0;
 const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const models_1 = require("../database/models");
+const ops_runner_service_1 = require("../framework/ops/ops-runner.service");
+const document_sequence_service_1 = require("../foundation/document-sequences/document-sequence.service");
+const _010_check_period_lock_1 = require("./ops/save/010-check-period-lock");
+const _020_check_credit_limit_1 = require("./ops/save/020-check-credit-limit");
 let LorryReceiptsService = class LorryReceiptsService {
-    constructor(lrModel) {
+    constructor(lrModel, opsRunner, sequenceService) {
         this.lrModel = lrModel;
+        this.opsRunner = opsRunner;
+        this.sequenceService = sequenceService;
     }
     async findAll(organizationId) {
         try {
@@ -89,59 +95,52 @@ let LorryReceiptsService = class LorryReceiptsService {
         }
     }
     async generateLR(data) {
-        let lr = await this.lrModel.findOne({ where: { shipmentId: data.shipmentId } });
-        if (lr) {
-            const oldVal = { consignorName: lr.consignorName, consigneeName: lr.consigneeName };
-            await lr.update({
-                consignorName: data.consignorName,
-                consigneeName: data.consigneeName,
-            });
-            if (data.organizationId) {
-                await models_1.AuditLogModel.create({
-                    organizationId: data.organizationId,
-                    userId: data.userId,
-                    action: 'UPDATE',
-                    module: 'OPERATIONS',
-                    entityType: 'LorryReceipt',
-                    entityId: lr.id,
-                    oldValue: JSON.stringify(oldVal),
-                    newValue: JSON.stringify({ consignorName: data.consignorName, consigneeName: data.consigneeName }),
+        const orgId = data.organizationId || '1';
+        return this.opsRunner.run({
+            resource: 'LorryReceipt',
+            op: 'generate',
+            user: {
+                id: data.userId || '1',
+                organizationId: orgId,
+                branchId: data.branchId,
+            },
+            data,
+            steps: [_010_check_period_lock_1.checkPeriodLockStep, _020_check_credit_limit_1.checkCreditLimitStep],
+            execute: async (c) => {
+                let lr = await this.lrModel.findOne({
+                    where: { shipmentId: data.shipmentId },
+                    transaction: c.t,
                 });
-            }
-        }
-        else {
-            const totalCount = await this.lrModel.count();
-            const currentYear = new Date().getFullYear();
-            const sequenceValue = String(totalCount + 1).padStart(4, '0');
-            const lrNumber = `LR-${currentYear}-${sequenceValue}`;
-            lr = await this.lrModel.create({
-                lrNumber,
-                shipmentId: data.shipmentId,
-                consignorName: data.consignorName,
-                consigneeName: data.consigneeName,
-                chargedWeightKg: 0,
-                totalFreightAmount: data.declaredValue || 45000,
-                status: 'ISSUED',
-            });
-            if (data.organizationId) {
-                await models_1.AuditLogModel.create({
-                    organizationId: data.organizationId,
-                    userId: data.userId,
-                    action: 'CREATE',
-                    module: 'OPERATIONS',
-                    entityType: 'LorryReceipt',
-                    entityId: lr.id,
-                    newValue: JSON.stringify({ lrNumber, shipmentId: data.shipmentId, status: 'ISSUED' }),
-                });
-            }
-        }
-        return this.findOne(lr.id);
+                if (lr) {
+                    c.state.existingRecord = lr.toJSON();
+                    await lr.update({
+                        consignorName: data.consignorName,
+                        consigneeName: data.consigneeName,
+                    }, { transaction: c.t });
+                }
+                else {
+                    const lrNumber = data.lrNumber ||
+                        (await this.sequenceService.next(c.organizationId, 'lr', data.lrDate, c.t));
+                    lr = await this.lrModel.create({
+                        lrNumber,
+                        shipmentId: data.shipmentId,
+                        consignorName: data.consignorName,
+                        consigneeName: data.consigneeName,
+                        chargedWeightKg: 0,
+                        totalFreightAmount: data.declaredValue || 45000,
+                        status: 'ISSUED',
+                    }, { transaction: c.t });
+                }
+                return lr;
+            },
+        });
     }
 };
 exports.LorryReceiptsService = LorryReceiptsService;
 exports.LorryReceiptsService = LorryReceiptsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, sequelize_1.InjectModel)(models_1.LorryReceiptModel)),
-    __metadata("design:paramtypes", [Object])
+    __metadata("design:paramtypes", [Object, ops_runner_service_1.OpsRunnerService,
+        document_sequence_service_1.DocumentSequenceService])
 ], LorryReceiptsService);
 //# sourceMappingURL=lorry-receipts.service.js.map

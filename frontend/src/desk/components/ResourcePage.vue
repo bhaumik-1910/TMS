@@ -51,7 +51,7 @@
     <DeskDataTable
       ref="gridRef"
       :rows="rows"
-      :columns="columns"
+      :columns="(columns as any)"
       :row-key="rowKey"
       :title="gridTitle || ''"
       :is-loading="loading"

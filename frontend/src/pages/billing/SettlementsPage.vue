@@ -85,11 +85,11 @@
               <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">SETTLEMENT ID</th>
               <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">PARTY</th>
               <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">TRIP REF</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">GROSS AMT</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">ADVANCE</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">TDS</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">SHORTAGE</th>
-              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">NET PAYABLE</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider text-right">GROSS AMT</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider text-right">ADVANCE</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider text-right">TDS</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider text-right">SHORTAGE</th>
+              <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider text-right">NET PAYABLE</th>
               <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">DATE</th>
               <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider">STATUS</th>
               <th class="py-3 px-4 font-mono text-xs font-bold text-slate-700 tracking-wider text-center"></th>
@@ -102,47 +102,47 @@
               class="hover:bg-slate-50 transition-colors"
             >
               <!-- Settlement ID -->
-              <td class="py-4 px-4 font-mono font-medium text-cyan-400">
+              <td class="py-4 px-4 font-mono font-semibold text-sky-700">
                 {{ item.id }}
               </td>
 
               <!-- Party -->
-              <td class="py-4 px-4 text-white font-medium">
+              <td class="py-4 px-4 text-slate-900 font-medium">
                 {{ item.party }}
               </td>
 
               <!-- Trip Ref -->
-              <td class="py-4 px-4 font-mono text-slate-300">
+              <td class="py-4 px-4 font-mono text-slate-700">
                 {{ item.tripRef }}
               </td>
 
               <!-- Gross Amt -->
-              <td class="py-4 px-4 font-mono text-slate-300">
+              <td class="py-4 px-4 font-mono text-slate-700 text-right">
                 {{ item.grossAmt }}
               </td>
 
               <!-- Advance -->
-              <td class="py-4 px-4 font-mono text-slate-300">
+              <td class="py-4 px-4 font-mono text-slate-700 text-right">
                 {{ item.advance }}
               </td>
 
               <!-- TDS -->
-              <td class="py-4 px-4 font-mono text-slate-300">
+              <td class="py-4 px-4 font-mono text-slate-700 text-right">
                 {{ item.tds }}
               </td>
 
               <!-- Shortage -->
-              <td class="py-4 px-4 font-mono text-slate-300">
+              <td class="py-4 px-4 font-mono text-slate-700 text-right">
                 {{ item.shortage }}
               </td>
 
               <!-- Net Payable -->
-              <td class="py-4 px-4 font-mono font-bold text-cyan-400">
+              <td class="py-4 px-4 font-mono font-semibold text-emerald-700 text-right">
                 {{ item.netPayable }}
               </td>
 
               <!-- Date -->
-              <td class="py-4 px-4 font-mono text-slate-300">
+              <td class="py-4 px-4 font-mono text-slate-600 text-xs">
                 {{ item.date }}
               </td>
 
@@ -684,12 +684,20 @@ function generateNextSettlementId(): string {
 }
 
 // Open Add Drawer matching Image 2
-function openAddDrawer() {
+async function openAddDrawer() {
   isEditing.value = false;
   editingId.value = null;
 
+  let nextId = generateNextSettlementId();
+  try {
+    const res: any = await api.get('/api/v1/foundation/sequences/next/settlement');
+    if (res?.next) {
+      nextId = res.next;
+    }
+  } catch (_) {}
+
   form.value = {
-    id: generateNextSettlementId(),
+    id: nextId,
     settlementType: activeTab.value || 'Owner',
     party: '— Select —',
     tripRef: `TR/2400${80 + settlements.value.length}`,
@@ -834,7 +842,14 @@ async function saveSettlement() {
       notify.notifySuccess(`Settlement ${payload.id} updated in database`);
     } else {
       const createRes: any = await api.post('/api/v1/billing/settlements', payload);
-      const newRec = normalizeSettlement(createRes?.data || createRes || payload);
+      const savedData = createRes?.data || createRes;
+      if (savedData?.id) {
+        payload.id = savedData.id;
+      }
+      if (createRes?.issues?.warnings?.length) {
+        notify.notifyWarning(createRes.issues.warnings[0].message);
+      }
+      const newRec = normalizeSettlement(savedData || payload);
       settlements.value.unshift(newRec);
       persistCache();
       notify.notifySuccess(`Settlement ${payload.id} stored in database`);
@@ -842,6 +857,10 @@ async function saveSettlement() {
 
     showDrawer.value = false;
   } catch (err: any) {
+    if (err.response?.data?.message) {
+      notify.notifyError(err.response.data.message);
+      return;
+    }
     console.error('Error saving settlement:', err);
     // Local cache fallback
     if (isEditing.value && editingId.value) {

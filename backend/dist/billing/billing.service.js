@@ -17,8 +17,15 @@ const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const sequelize_2 = require("sequelize");
 const models_1 = require("../database/models");
+const ops_runner_service_1 = require("../framework/ops/ops-runner.service");
+const document_sequence_service_1 = require("../foundation/document-sequences/document-sequence.service");
+const _010_check_period_lock_1 = require("./ops/invoices/010-check-period-lock");
+const _020_validate_lrs_1 = require("./ops/invoices/020-validate-lrs");
+const _010_check_period_lock_2 = require("./ops/purchase-bills/010-check-period-lock");
+const _010_check_period_lock_3 = require("./ops/settlements/010-check-period-lock");
+const _020_validate_trip_balance_1 = require("./ops/settlements/020-validate-trip-balance");
 let BillingService = class BillingService {
-    constructor(invoiceModel, invoiceItemModel, paymentModel, shipmentModel, carrierRateModel, claimModel, claimItemModel, billingInvoiceModel, purchaseBillModel, settlementModel) {
+    constructor(invoiceModel, invoiceItemModel, paymentModel, shipmentModel, carrierRateModel, claimModel, claimItemModel, billingInvoiceModel, purchaseBillModel, settlementModel, opsRunner, sequenceService) {
         this.invoiceModel = invoiceModel;
         this.invoiceItemModel = invoiceItemModel;
         this.paymentModel = paymentModel;
@@ -29,6 +36,8 @@ let BillingService = class BillingService {
         this.billingInvoiceModel = billingInvoiceModel;
         this.purchaseBillModel = purchaseBillModel;
         this.settlementModel = settlementModel;
+        this.opsRunner = opsRunner;
+        this.sequenceService = sequenceService;
     }
     async onModuleInit() {
         try {
@@ -305,20 +314,37 @@ let BillingService = class BillingService {
         });
     }
     async createSettlement(data) {
-        const id = data.id || `STL/${Math.floor(240089 + Math.random() * 500)}`;
-        return this.settlementModel.create({
-            id,
-            settlementType: data.settlementType || 'Owner',
-            party: data.party || '',
-            tripRef: data.tripRef || '',
-            grossAmt: data.grossAmt || '₹0',
-            advance: data.advance || '₹0',
-            tds: data.tds || '₹0',
-            shortage: data.shortage || '₹0',
-            netPayable: data.netPayable || '₹0',
-            date: data.date || '',
-            status: data.status || 'Draft',
-            remarks: data.remarks || '',
+        const orgId = data.organizationId || '1';
+        return this.opsRunner.run({
+            resource: 'Settlement',
+            op: 'create',
+            user: {
+                id: data.userId || '1',
+                organizationId: orgId,
+                branchId: data.branchId,
+            },
+            data,
+            steps: [_010_check_period_lock_3.checkSettlementPeriodLockStep, _020_validate_trip_balance_1.validateSettlementBalanceStep],
+            execute: async (c) => {
+                const dateStr = data.date || new Date().toISOString().slice(0, 10);
+                const resolvedId = data.id ||
+                    (await this.sequenceService.next(c.organizationId, 'settlement', dateStr, c.t));
+                const record = await this.settlementModel.create({
+                    id: resolvedId,
+                    settlementType: data.settlementType || 'Owner',
+                    party: data.party || '',
+                    tripRef: data.tripRef || '',
+                    grossAmt: data.grossAmt || '₹0',
+                    advance: data.advance || '₹0',
+                    tds: data.tds || '₹0',
+                    shortage: data.shortage || '₹0',
+                    netPayable: data.netPayable || '₹0',
+                    date: dateStr,
+                    status: data.status || 'Draft',
+                    remarks: data.remarks || '',
+                }, { transaction: c.t });
+                return record;
+            },
         });
     }
     async updateSettlement(id, data) {
@@ -368,20 +394,39 @@ let BillingService = class BillingService {
         });
     }
     async createPurchaseBill(data) {
-        const id = data.id || `PB/${Math.floor(240050 + Math.random() * 500)}`;
-        return this.purchaseBillModel.create({
-            id,
-            supplier: data.supplier || '',
-            type: data.type || 'Fuel Station',
-            billNo: data.billNo || '',
-            date: data.date || '',
-            baseAmt: data.baseAmt || '₹0',
-            gst: data.gst || '₹0',
-            total: data.total || '₹0',
-            tds: data.tds || '—',
-            tdsSection: data.tdsSection || '194C',
-            linkedRef: data.linkedRef || '—',
-            status: data.status || 'Pending',
+        const orgId = data.organizationId || '1';
+        return this.opsRunner.run({
+            resource: 'PurchaseBill',
+            op: 'create',
+            user: {
+                id: data.userId || '1',
+                organizationId: orgId,
+                branchId: data.branchId,
+            },
+            data,
+            steps: [_010_check_period_lock_2.checkPurchaseBillPeriodLockStep],
+            execute: async (c) => {
+                const dateStr = data.date || new Date().toISOString().slice(0, 10);
+                const billNo = data.billNo ||
+                    data.id ||
+                    (await this.sequenceService.next(c.organizationId, 'purchase_bill', dateStr, c.t));
+                const id = data.id || billNo;
+                const record = await this.purchaseBillModel.create({
+                    id,
+                    supplier: data.supplier || '',
+                    type: data.type || 'Fuel Station',
+                    billNo,
+                    date: dateStr,
+                    baseAmt: data.baseAmt || '₹0',
+                    gst: data.gst || '₹0',
+                    total: data.total || '₹0',
+                    tds: data.tds || '—',
+                    tdsSection: data.tdsSection || '194C',
+                    linkedRef: data.linkedRef || '—',
+                    status: data.status || 'Pending',
+                }, { transaction: c.t });
+                return record;
+            },
         });
     }
     async updatePurchaseBill(id, data) {
@@ -427,20 +472,44 @@ let BillingService = class BillingService {
         });
     }
     async createBillingInvoice(data) {
-        const invoiceNo = data.invoiceNo || `INV/24/${Math.floor(1000 + Math.random() * 9000)}`;
-        const id = data.id || invoiceNo;
-        return this.billingInvoiceModel.create({
-            id,
-            invoiceNo,
-            lrRef: data.lrRef || '',
-            customer: data.customer || '',
-            baseAmt: data.baseAmt || '₹0',
-            gst: data.gst || '₹0 (RCM)',
-            total: data.total || '₹0',
-            gstType: data.gstType || 'RCM 5%',
-            irn: data.irn || '—',
-            dueDate: data.dueDate || '',
-            status: data.status || 'Draft',
+        const orgId = data.organizationId || '1';
+        return this.opsRunner.run({
+            resource: 'BillingInvoice',
+            op: 'create',
+            user: {
+                id: data.userId || '1',
+                organizationId: orgId,
+                branchId: data.branchId,
+            },
+            data,
+            steps: [_010_check_period_lock_1.checkInvoicePeriodLockStep, _020_validate_lrs_1.validateInvoiceLrStep],
+            execute: async (c) => {
+                const dateStr = data.dueDate || data.date || new Date().toISOString().slice(0, 10);
+                const invoiceNo = data.invoiceNo ||
+                    data.id ||
+                    (await this.sequenceService.next(c.organizationId, 'invoice', dateStr, c.t));
+                const id = data.id || invoiceNo;
+                const record = await this.billingInvoiceModel.create({
+                    id,
+                    invoiceNo,
+                    lrRef: data.lrRef || '',
+                    customer: data.customer || '',
+                    baseAmt: data.baseAmt || '₹0',
+                    gst: data.gst || '₹0 (RCM)',
+                    total: data.total || '₹0',
+                    gstType: data.gstType || 'RCM 5%',
+                    irn: data.irn || '—',
+                    dueDate: dateStr,
+                    status: data.status || 'Draft',
+                }, { transaction: c.t });
+                if (c.state.lrRecord) {
+                    try {
+                        await c.state.lrRecord.update({ billingStatus: 'Invoiced', invoiceNo }, { transaction: c.t });
+                    }
+                    catch (_) { }
+                }
+                return record;
+            },
         });
     }
     async updateBillingInvoice(id, data) {
@@ -659,6 +728,7 @@ exports.BillingService = BillingService = __decorate([
     __param(7, (0, sequelize_1.InjectModel)(models_1.BillingInvoiceModel)),
     __param(8, (0, sequelize_1.InjectModel)(models_1.PurchaseBillModel)),
     __param(9, (0, sequelize_1.InjectModel)(models_1.SettlementModel)),
-    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object])
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, ops_runner_service_1.OpsRunnerService,
+        document_sequence_service_1.DocumentSequenceService])
 ], BillingService);
 //# sourceMappingURL=billing.service.js.map

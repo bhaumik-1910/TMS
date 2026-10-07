@@ -28,7 +28,7 @@
           color="primary"
           size="sm"
           class="q-mr-xs"
-          @click="loadDashboard"
+          @click="loadDashboard(true)"
           :loading="loading"
         >
           <template #loading>
@@ -553,62 +553,78 @@ const recentShipments = ref<any[]>([
   },
 ]);
 
-async function loadDashboard() {
+async function loadDashboard(isManualRefresh = false) {
   loading.value = true;
-  const startTime = Date.now();
   try {
-    const ovRes: any = await api.get('/api/v1/dashboard/overview');
-    const ov = ovRes.data || ovRes;
-    if (ov && ov.activeShipments !== undefined) {
-      kpis.value = { ...kpis.value, ...ov };
+    const promises: Promise<any>[] = [
+      api.get('/api/v1/dashboard/overview').then((res: any) => {
+        const ov = res.data ?? res;
+        if (ov && ov.activeShipments !== undefined) {
+          kpis.value = { ...kpis.value, ...ov };
+        }
+      }).catch((e: any) => {
+        console.warn('Overview telemetry fallback:', e?.message);
+      }),
+    ];
+
+    if (authStore.hasPermission('shipment:view')) {
+      promises.push(
+        api.get('/api/v1/dashboard/shipments').then((res: any) => {
+          const list = res.data ?? res;
+          if (Array.isArray(list) && list.length > 0) recentShipments.value = list;
+        }).catch((e: any) => {
+          console.warn('Shipments feed fallback:', e?.message);
+        })
+      );
     }
-  } catch {}
 
-  if (authStore.hasPermission('shipment:view')) {
-    try {
-      const shpRes: any = await api.get('/api/v1/dashboard/shipments');
-      const list = shpRes.data || shpRes;
-      if (Array.isArray(list) && list.length > 0) recentShipments.value = list;
-    } catch {}
-  }
+    if (authStore.hasPermission('tracking:view') || authStore.hasPermission('fleet:view')) {
+      promises.push(
+        api.get('/api/v1/dashboard/fleet').then((res: any) => {
+          const list = res.data ?? res;
+          if (Array.isArray(list) && list.length > 0) vehicles.value = list;
+        }).catch((e: any) => {
+          console.warn('Fleet status fallback:', e?.message);
+        })
+      );
+    }
 
-  if (authStore.hasPermission('tracking:view') || authStore.hasPermission('fleet:view')) {
-    try {
-      const fltRes: any = await api.get('/api/v1/dashboard/fleet');
-      const fList = fltRes.data || fltRes;
-      if (Array.isArray(fList) && fList.length > 0) vehicles.value = fList;
-    } catch {}
-  }
+    if (authStore.hasPermission('exception:view')) {
+      promises.push(
+        api.get('/api/v1/dashboard/exceptions').then((res: any) => {
+          const list = res.data ?? res;
+          if (Array.isArray(list) && list.length > 0) exceptions.value = list;
+        }).catch((e: any) => {
+          console.warn('Exceptions feed fallback:', e?.message);
+        })
+      );
+    }
 
-  if (authStore.hasPermission('exception:view')) {
-    try {
-      const excRes: any = await api.get('/api/v1/dashboard/exceptions');
-      const eList = excRes.data || excRes;
-      if (Array.isArray(eList) && eList.length > 0) exceptions.value = eList;
-    } catch {}
-  }
+    if (authStore.hasPermission('carrier:view')) {
+      promises.push(
+        api.get('/api/v1/carriers').then((res: any) => {
+          const list = res.data ?? res;
+          if (Array.isArray(list) && list.length > 0) carriers.value = list.slice(0, 5);
+        }).catch((e: any) => {
+          console.warn('Carriers feed fallback:', e?.message);
+        })
+      );
+    }
 
-  if (authStore.hasPermission('carrier:view')) {
-    try {
-      const cRes: any = await api.get('/api/v1/carriers');
-      const cList = cRes.data || cRes;
-      if (Array.isArray(cList) && cList.length > 0) carriers.value = cList.slice(0, 5);
-    } catch {}
-  }
-
-  const elapsed = Date.now() - startTime;
-  const remaining = Math.max(0, 600 - elapsed);
-  setTimeout(() => {
+    await Promise.allSettled(promises);
+  } finally {
     loading.value = false;
-    $q.notify({
-      type: 'positive',
-      icon: 'check_circle',
-      message: 'Telemetry Refreshed',
-      caption: 'Live fleet telemetry and active shipments synced.',
-      timeout: 1800,
-      position: 'top-right',
-    });
-  }, remaining);
+    if (isManualRefresh) {
+      $q.notify({
+        type: 'positive',
+        icon: 'check_circle',
+        message: 'Telemetry Refreshed',
+        caption: 'Live fleet telemetry and active shipments synced.',
+        timeout: 1800,
+        position: 'top-right',
+      });
+    }
+  }
 }
 
 function onOrgContextChange() {

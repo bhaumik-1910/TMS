@@ -18,12 +18,16 @@ const tyre_events_controller_1 = require("./tyre-events.controller");
 const job_cards_service_1 = require("./job-cards.service");
 const job_cards_controller_1 = require("./job-cards.controller");
 const models_1 = require("../database/models");
+const foundation_module_1 = require("../foundation/foundation.module");
+const ops_module_1 = require("../framework/ops/ops.module");
 let VehiclesModule = class VehiclesModule {
 };
 exports.VehiclesModule = VehiclesModule;
 exports.VehiclesModule = VehiclesModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            foundation_module_1.FoundationModule,
+            ops_module_1.OpsModule,
             sequelize_1.SequelizeModule.forFeature([
                 models_1.VehicleModel,
                 models_1.VehicleTypeModel,

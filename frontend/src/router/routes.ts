@@ -2,16 +2,22 @@ import { RouteRecordRaw } from 'vue-router';
 import { PERMISSIONS } from '../constants/permissions';
 
 export const routes: RouteRecordRaw[] = [
-  // Public Marketing Landing Page
+  // Direct Entry: Redirect unauthenticated users to Login, authenticated to Dashboard
   {
     path: '/',
-    name: 'landing',
-    component: () => import('../pages/landing/LandingPage.vue'),
-    meta: { public: true },
+    name: 'root',
+    redirect: () => {
+      const token = localStorage.getItem('tms_access_token');
+      return token ? '/dashboard' : '/auth/login';
+    },
   },
   {
     path: '/landing',
     redirect: '/',
+  },
+  {
+    path: '/login',
+    redirect: '/auth/login',
   },
 
   // 403 Forbidden Access Page
@@ -116,6 +122,12 @@ export const routes: RouteRecordRaw[] = [
         name: 'customers',
         component: () => import('../pages/customers/CustomersPage.vue'),
         meta: { requiresAuth: true, permission: PERMISSIONS.SHIPMENT_VIEW },
+      },
+      {
+        path: 'branches',
+        name: 'branches',
+        component: () => import('../pages/branches/BranchesPage.vue'),
+        meta: { requiresAuth: true },
       },
       {
         path: 'routes',

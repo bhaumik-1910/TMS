@@ -14,12 +14,16 @@ const dispatch_controller_1 = require("./dispatch.controller");
 const driver_advances_service_1 = require("./driver-advances.service");
 const driver_advances_controller_1 = require("./driver-advances.controller");
 const models_1 = require("../database/models");
+const foundation_module_1 = require("../foundation/foundation.module");
+const ops_module_1 = require("../framework/ops/ops.module");
 let DispatchModule = class DispatchModule {
 };
 exports.DispatchModule = DispatchModule;
 exports.DispatchModule = DispatchModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            foundation_module_1.FoundationModule,
+            ops_module_1.OpsModule,
             sequelize_1.SequelizeModule.forFeature([
                 models_1.DispatchModel,
                 models_1.ShipmentModel,

@@ -12,12 +12,18 @@ import {
   ShipmentItemModel,
   AuditLogModel,
 } from '../database/models';
+import { OpsRunnerService } from '../framework/ops/ops-runner.service';
+import { DocumentSequenceService } from '../foundation/document-sequences/document-sequence.service';
+import { checkPeriodLockStep } from './ops/save/010-check-period-lock';
+import { checkCreditLimitStep } from './ops/save/020-check-credit-limit';
 
 @Injectable()
 export class LorryReceiptsService {
   constructor(
     @InjectModel(LorryReceiptModel)
     private readonly lrModel: typeof LorryReceiptModel,
+    private readonly opsRunner: OpsRunnerService,
+    private readonly sequenceService: DocumentSequenceService,
   ) {}
 
   async findAll(organizationId?: string): Promise<any> {
@@ -90,6 +96,7 @@ export class LorryReceiptsService {
 
   async generateLR(data: {
     shipmentId: string;
+    lrNumber?: string;
     ewayBillNumber?: string;
     ewayBillExpiry?: Date;
     consignorName: string;
@@ -100,59 +107,58 @@ export class LorryReceiptsService {
     billingTerms?: string;
     userId?: string;
     organizationId?: string;
+    branchId?: number;
+    lrDate?: string;
   }) {
-    let lr = await this.lrModel.findOne({ where: { shipmentId: data.shipmentId } });
+    const orgId = data.organizationId || '1';
 
-    if (lr) {
-      const oldVal = { consignorName: lr.consignorName, consigneeName: lr.consigneeName };
-      await lr.update({
-        consignorName: data.consignorName,
-        consigneeName: data.consigneeName,
-      });
+    return this.opsRunner.run({
+      resource: 'LorryReceipt',
+      op: 'generate',
+      user: {
+        id: data.userId || '1',
+        organizationId: orgId,
+        branchId: data.branchId,
+      },
+      data,
+      steps: [checkPeriodLockStep, checkCreditLimitStep],
+      execute: async (c) => {
+        let lr = await this.lrModel.findOne({
+          where: { shipmentId: data.shipmentId },
+          transaction: c.t,
+        });
 
-      // Audit trail record inspired by Ops Framework entity_events
-      if (data.organizationId) {
-        await AuditLogModel.create({
-          organizationId: data.organizationId,
-          userId: data.userId,
-          action: 'UPDATE',
-          module: 'OPERATIONS',
-          entityType: 'LorryReceipt',
-          entityId: lr.id,
-          oldValue: JSON.stringify(oldVal),
-          newValue: JSON.stringify({ consignorName: data.consignorName, consigneeName: data.consigneeName }),
-        } as any);
-      }
-    } else {
-      // Deterministic sequential voucher numbering
-      const totalCount = await this.lrModel.count();
-      const currentYear = new Date().getFullYear();
-      const sequenceValue = String(totalCount + 1).padStart(4, '0');
-      const lrNumber = `LR-${currentYear}-${sequenceValue}`;
+        if (lr) {
+          c.state.existingRecord = lr.toJSON();
+          await lr.update(
+            {
+              consignorName: data.consignorName,
+              consigneeName: data.consigneeName,
+            },
+            { transaction: c.t },
+          );
+        } else {
+          // Gap-free atomic numbering from Ankpal DocumentSequenceService
+          const lrNumber =
+            data.lrNumber ||
+            (await this.sequenceService.next(c.organizationId, 'lr', data.lrDate, c.t));
 
-      lr = await this.lrModel.create({
-        lrNumber,
-        shipmentId: data.shipmentId,
-        consignorName: data.consignorName,
-        consigneeName: data.consigneeName,
-        chargedWeightKg: 0,
-        totalFreightAmount: data.declaredValue || 45000,
-        status: 'ISSUED',
-      });
+          lr = await this.lrModel.create(
+            {
+              lrNumber,
+              shipmentId: data.shipmentId,
+              consignorName: data.consignorName,
+              consigneeName: data.consigneeName,
+              chargedWeightKg: 0,
+              totalFreightAmount: data.declaredValue || 45000,
+              status: 'ISSUED',
+            },
+            { transaction: c.t },
+          );
+        }
 
-      if (data.organizationId) {
-        await AuditLogModel.create({
-          organizationId: data.organizationId,
-          userId: data.userId,
-          action: 'CREATE',
-          module: 'OPERATIONS',
-          entityType: 'LorryReceipt',
-          entityId: lr.id,
-          newValue: JSON.stringify({ lrNumber, shipmentId: data.shipmentId, status: 'ISSUED' }),
-        } as any);
-      }
-    }
-
-    return this.findOne(lr.id);
+        return lr;
+      },
+    });
   }
 }

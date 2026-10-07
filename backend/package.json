@@ -14,9 +14,14 @@
     "start:prod": "node dist/main",
     "db:sync": "ts-node src/database/sync.ts",
     "db:seed": "ts-node src/database/seed.ts",
-    "db:reset": "ts-node src/database/sync.ts && ts-node src/database/seed.ts"
+    "db:reset": "nest build && node dist/seed/seed.js && ts-node src/database/sync.ts && ts-node src/database/seed.ts",
+    "db:reset:tenant": "nest build && node dist/seed/seed.js",
+    "db:reset:ops": "ts-node src/database/sync.ts && ts-node src/database/seed.ts",
+    "flow": "nest build && node dist/tools/flow.js",
+    "company:move": "nest build && node dist/tools/move-company.js"
   },
   "dependencies": {
+    "nestjs-cls": "^7.0.1",
     "@nestjs/common": "^10.3.0",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.3.0",

@@ -1,6 +1,8 @@
 import { OnModuleInit } from '@nestjs/common';
 import { BaseSequelizeService } from '../common/base/base.service';
 import { DispatchModel, ShipmentModel, VehicleModel, DriverModel, TripExpenseModel, AuditLogModel } from '../database/models';
+import { OpsRunnerService } from '../framework/ops/ops-runner.service';
+import { DocumentSequenceService } from '../foundation/document-sequences/document-sequence.service';
 export declare class DispatchService extends BaseSequelizeService<DispatchModel> implements OnModuleInit {
     private readonly dispatchModel;
     private readonly shipmentModel;
@@ -8,11 +10,13 @@ export declare class DispatchService extends BaseSequelizeService<DispatchModel>
     private readonly driverModel;
     private readonly tripExpenseModel;
     private readonly auditLogModel;
-    constructor(dispatchModel: typeof DispatchModel, shipmentModel: typeof ShipmentModel, vehicleModel: typeof VehicleModel, driverModel: typeof DriverModel, tripExpenseModel: typeof TripExpenseModel, auditLogModel: typeof AuditLogModel);
+    private readonly opsRunner;
+    private readonly sequenceService;
+    constructor(dispatchModel: typeof DispatchModel, shipmentModel: typeof ShipmentModel, vehicleModel: typeof VehicleModel, driverModel: typeof DriverModel, tripExpenseModel: typeof TripExpenseModel, auditLogModel: typeof AuditLogModel, opsRunner: OpsRunnerService, sequenceService: DocumentSequenceService);
     onModuleInit(): Promise<void>;
     findAll(organizationId?: string, status?: string): Promise<any>;
     getDispatchBoard(organizationId: string): Promise<Record<string, any[]>>;
-    create(organizationId: string, data: any, userId?: string): Promise<DispatchModel>;
+    create(organizationId: string, data: any, userId?: string): Promise<any>;
     updateTrip(id: string, data: any): Promise<DispatchModel>;
     deleteTrip(id: string): Promise<{
         success: boolean;

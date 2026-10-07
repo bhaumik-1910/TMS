@@ -1,92 +1,78 @@
 <template>
-  <div class="documents-master-page p-3 sm:p-4 text-slate-800 font-sans">
-    <!-- Header with Title & Action Controls -->
-    <div class="row items-center justify-between no-wrap q-mb-md">
-      <div>
-        <div class="text-h6 text-weight-bold text-slate-900 relative-position inline-block q-pb-xs">
-          Documents & Regulatory Compliance
-          <div class="header-underline"></div>
-        </div>
-        <div class="text-caption text-slate-500 q-mt-xs font-sans">
-          Bills of Lading (BOL), carrier insurance policies, national permits, ePOD archives & statutory compliance vault
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Documents &amp; Vault</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <!-- Header Action Buttons -->
-      <div class="row items-center q-gutter-x-sm no-wrap">
+      <div class="flex items-center gap-3">
         <button
           type="button"
-          class="btn-hdr-export"
+          class="btn-secondary-action"
           @click="showAuditModal = true"
         >
-          <q-icon name="verified_user" size="15px" class="q-mr-xs text-sky-700" />
-          Audit Summary
+          <q-icon name="verified_user" size="16px" class="q-mr-xs text-sky-700" />
+          <span>Audit Summary</span>
         </button>
         <button
           type="button"
-          class="btn-hdr-export"
+          class="btn-secondary-action"
           @click="exportCsv"
         >
-          <q-icon name="download" size="15px" class="q-mr-xs text-slate-600" />
-          Export Vault CSV
+          <q-icon name="download" size="16px" class="q-mr-xs text-slate-600" />
+          <span>Export Vault CSV</span>
         </button>
         <button
           type="button"
-          class="btn-hdr-add"
+          class="btn-primary-cyan"
           @click="openUploadModal"
         >
-          <q-icon name="upload" size="16px" class="q-mr-xs text-white" />
-          Upload Document [Alt+C]
+          <q-icon name="upload" size="18px" />
+          <span>Document</span>
         </button>
       </div>
     </div>
 
     <!-- Documents Content Container with Loading Overlay -->
     <div class="relative min-h-[400px]">
-      <!-- 4 KPI Stat Cards matching Vehicle & Driver Master Pattern -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 q-mb-md">
-        <!-- Card 1: Total Documents in Vault -->
+      <!-- 4 KPI Stat Cards matching Billing Page -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div
-          class="stat-card p-4 rounded-xl border border-sky-200 bg-white relative overflow-hidden cursor-pointer"
+          class="kpi-box kpi-box--active cursor-pointer"
           @click="resetFilters"
         >
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">COMPLIANCE VAULT</div>
-          <div class="text-3xl font-extrabold font-mono text-sky-700 my-1">{{ documents.length }}</div>
-          <div class="text-xs text-slate-500 font-mono">Encrypted records & e-signatures</div>
-          <div class="accent-bar bg-sky-500"></div>
+          <div class="kpi-title text-sky-600">COMPLIANCE VAULT</div>
+          <div class="kpi-amount text-sky-700">{{ documents.length }}</div>
+          <div class="kpi-subtext">Encrypted records &amp; e-signatures</div>
         </div>
 
-        <!-- Card 2: Authenticated & Active -->
         <div
-          class="stat-card p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 relative overflow-hidden cursor-pointer"
+          class="kpi-box cursor-pointer"
           @click="filterStatusOnly('AUTHENTICATED')"
         >
-          <div class="text-[11px] font-mono uppercase tracking-wider text-emerald-700 mb-1">AUTHENTICATED & ACTIVE</div>
-          <div class="text-3xl font-extrabold font-mono text-emerald-700 my-1">{{ authenticatedCount }}</div>
-          <div class="text-xs text-emerald-600 font-mono">Statutory verified documents</div>
-          <div class="accent-bar bg-emerald-500"></div>
+          <div class="kpi-title text-emerald-700">AUTHENTICATED &amp; ACTIVE</div>
+          <div class="kpi-amount text-emerald-700">{{ authenticatedCount }}</div>
+          <div class="kpi-subtext">Statutory verified documents</div>
         </div>
 
-        <!-- Card 3: Expiry Alerts -->
         <div
-          class="stat-card p-4 rounded-xl border border-amber-200 bg-amber-50/50 relative overflow-hidden cursor-pointer"
+          class="kpi-box cursor-pointer"
           @click="filterExpiringOnly"
         >
-          <div class="text-[11px] font-mono uppercase tracking-wider text-amber-700 mb-1">EXPIRY ALERTS (&le;30D)</div>
-          <div class="text-3xl font-extrabold font-mono text-amber-600 my-1">{{ expiringCount }}</div>
-          <div class="text-xs text-amber-700 font-mono">Requires insurer / RTO renewal</div>
-          <div class="accent-bar bg-amber-500"></div>
+          <div class="kpi-title text-amber-700">EXPIRY ALERTS (&le;30D)</div>
+          <div class="kpi-amount text-amber-600">{{ expiringCount }}</div>
+          <div class="kpi-subtext">Requires insurer / RTO renewal</div>
         </div>
 
-        <!-- Card 4: Pending Audit Verification -->
         <div
-          class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden cursor-pointer"
+          class="kpi-box cursor-pointer"
           @click="filterStatusOnly('PENDING_VERIFICATION')"
         >
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">PENDING VERIFICATION</div>
-          <div class="text-3xl font-extrabold font-mono text-slate-800 my-1">{{ pendingCount }}</div>
-          <div class="text-xs text-slate-500 font-mono">Awaiting compliance review</div>
-          <div class="accent-bar bg-slate-400"></div>
+          <div class="kpi-title">PENDING VERIFICATION</div>
+          <div class="kpi-amount text-slate-800">{{ pendingCount }}</div>
+          <div class="kpi-subtext">Awaiting compliance review</div>
         </div>
       </div>
 
@@ -774,6 +760,7 @@ import {
   DeskDateInput,
   type GridColumn,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 const notify = useAppNotify();
 
@@ -1334,20 +1321,27 @@ function exportCsv() {
   notify.success('Regulatory documents vault CSV exported');
 }
 
-function handleGlobalKey(e: KeyboardEvent) {
-  if (e.altKey && e.key.toLowerCase() === 'c') {
-    e.preventDefault();
-    openUploadModal();
-  }
-}
+useDeskPageShortcuts({
+  gridRef,
+  onNewRecord: openUploadModal,
+  isModalOpen: () =>
+    showUploadModal.value ||
+    showCertModal.value ||
+    previewDialog.value ||
+    showAuditModal.value ||
+    showDeleteDialog.value,
+  onSave: saveDocument,
+  onEscape: () => {
+    if (showUploadModal.value) showUploadModal.value = false;
+    else if (showCertModal.value) showCertModal.value = false;
+    else if (previewDialog.value) previewDialog.value = false;
+    else if (showAuditModal.value) showAuditModal.value = false;
+    else if (showDeleteDialog.value) showDeleteDialog.value = false;
+  },
+});
 
 onMounted(() => {
   loadDocuments();
-  window.addEventListener('keydown', handleGlobalKey);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleGlobalKey);
 });
 </script>
 

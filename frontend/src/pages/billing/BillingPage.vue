@@ -30,38 +30,58 @@
     <!-- 4 KPI Stat Cards matching Image 1 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <!-- Card 1: THIS MONTH REVENUE (Active cyan glowing border) -->
-      <div class="kpi-box kpi-box--active">
+      <div
+        class="kpi-box cursor-pointer transition-all"
+        :class="{ 'kpi-box--active': activeKpiFilter === 'all' }"
+        @click="selectKpiTab('all')"
+        title="View all invoices (Alt+1 or [ / ])"
+      >
         <div class="kpi-title text-sky-600">THIS MONTH REVENUE</div>
         <div class="kpi-amount text-sky-700">₹{{ monthRevenue }}</div>
-        <div class="kpi-subtext">Billed Oct 2026</div>
+        <div class="kpi-subtext">Billed Oct 2026 (Alt+1)</div>
       </div>
 
       <!-- Card 2: OUTSTANDING -->
-      <div class="kpi-box">
+      <div
+        class="kpi-box cursor-pointer transition-all"
+        :class="{ 'kpi-box--active': activeKpiFilter === 'outstanding' }"
+        @click="selectKpiTab(activeKpiFilter === 'outstanding' ? 'all' : 'outstanding')"
+        title="Filter pending / unpaid (Alt+2 or [ / ])"
+      >
         <div class="kpi-title">OUTSTANDING</div>
         <div class="kpi-amount text-slate-800">₹{{ outstandingRevenue }}</div>
-        <div class="kpi-subtext">Pending invoices</div>
+        <div class="kpi-subtext">Pending invoices (Alt+2)</div>
       </div>
 
       <!-- Card 3: OVERDUE -->
-      <div class="kpi-box">
+      <div
+        class="kpi-box cursor-pointer transition-all"
+        :class="{ 'kpi-box--active': activeKpiFilter === 'overdue' }"
+        @click="selectKpiTab(activeKpiFilter === 'overdue' ? 'all' : 'overdue')"
+        title="Filter overdue invoices (Alt+3 or [ / ])"
+      >
         <div class="kpi-title">OVERDUE</div>
         <div class="kpi-amount text-amber-600">{{ overdueCount }}</div>
-        <div class="kpi-subtext">Past due date</div>
+        <div class="kpi-subtext">Past due date (Alt+3)</div>
       </div>
 
       <!-- Card 4: E-INVOICE (IRN) -->
-      <div class="kpi-box">
+      <div
+        class="kpi-box cursor-pointer transition-all"
+        :class="{ 'kpi-box--active': activeKpiFilter === 'irn' }"
+        @click="selectKpiTab(activeKpiFilter === 'irn' ? 'all' : 'irn')"
+        title="Filter IRN generated invoices (Alt+4 or [ / ])"
+      >
         <div class="kpi-title">E-INVOICE (IRN)</div>
         <div class="kpi-amount text-slate-800">{{ irnCount }}</div>
-        <div class="kpi-subtext">Generated this month</div>
+        <div class="kpi-subtext">Generated this month (Alt+4)</div>
       </div>
     </div>
 
     <!-- Search input matching Image 1 -->
     <div class="mb-5">
       <div class="relative max-w-sm">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-cyan-400">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-sky-500">
           <q-icon name="search" size="18px" />
         </span>
         <input
@@ -69,12 +89,16 @@
           v-model="searchQuery"
           type="text"
           class="search-input w-full pl-9 pr-4 py-2 text-sm rounded-lg"
-          placeholder="Search invoice no / customer..."
+          placeholder="Search invoice no / customer... (Alt+F)"
+          @keydown.down.prevent="focusFirstTableRow"
+          @keydown.enter.prevent="focusFirstTableRow"
+          @keydown.esc="searchQuery = ''"
         />
         <button
           v-if="searchQuery"
-          class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+          class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700"
           @click="searchQuery = ''"
+          title="Clear search (Esc)"
         >
           <q-icon name="close" size="16px" />
         </button>
@@ -84,60 +108,98 @@
     <!-- Table matching Image 1 -->
     <div class="table-container rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm">
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm border-collapse">
+        <table class="w-full text-left text-sm border-collapse" ref="tableRef">
           <thead>
             <tr class="table-head-row text-[12px] uppercase tracking-wider text-slate-700 border-b border-slate-200 bg-slate-50">
-              <th class="py-3 px-4 font-bold">INVOICE NO</th>
-              <th class="py-3 px-4 font-bold">LR REF</th>
-              <th class="py-3 px-4 font-bold">CUSTOMER</th>
-              <th class="py-3 px-4 font-bold">BASE AMT</th>
-              <th class="py-3 px-4 font-bold">GST</th>
-              <th class="py-3 px-4 font-bold">TOTAL</th>
-              <th class="py-3 px-4 font-bold">GST TYPE</th>
-              <th class="py-3 px-4 font-bold">IRN</th>
-              <th class="py-3 px-4 font-bold">DUE DATE</th>
-              <th class="py-3 px-4 font-bold">STATUS</th>
-              <th class="py-3 px-4 font-bold text-center">ACTION</th>
+              <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 0 }">INVOICE NO</th>
+              <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 1 }">LR REF</th>
+              <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 2 }">CUSTOMER</th>
+              <th class="py-3 px-4 font-bold text-right transition-colors" :class="{ 'excel-th-active': focusedCol === 3 }">BASE AMT</th>
+              <th class="py-3 px-4 font-bold text-right transition-colors" :class="{ 'excel-th-active': focusedCol === 4 }">GST</th>
+              <th class="py-3 px-4 font-bold text-right transition-colors" :class="{ 'excel-th-active': focusedCol === 5 }">TOTAL</th>
+              <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 6 }">GST TYPE</th>
+              <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 7 }">IRN</th>
+              <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 8 }">DUE DATE</th>
+              <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 9 }">STATUS</th>
+              <th class="py-3 px-4 font-bold text-center transition-colors" :class="{ 'excel-th-active': focusedCol === 10 }">ACTION</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200">
             <tr
-              v-for="inv in filteredInvoices"
+              v-for="(inv, rIdx) in filteredInvoices"
               :key="inv.id"
-              class="hover:bg-slate-50 transition-colors"
+              class="billing-table-row hover:bg-slate-50 transition-colors cursor-pointer outline-none"
+              :class="{ 'excel-row-active': isRowActive(rIdx) }"
+              tabindex="0"
+              @keydown="handleTableRowKeydown($event, inv, rIdx, focusedCol)"
             >
-              <!-- Invoice No (Cyan font-bold) -->
-              <td class="py-4 px-4 font-semibold text-sky-700 font-mono">
+              <!-- Cell 0: Invoice No (Cyan font-bold) -->
+              <td
+                class="py-4 px-4 font-semibold text-sky-700 font-mono transition-all"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 0) }"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 0)"
+              >
                 {{ inv.invoiceNo }}
               </td>
 
-              <!-- LR Ref (Light blue/slate font-mono) -->
-              <td class="py-4 px-4 font-mono text-slate-600">
+              <!-- Cell 1: LR Ref (Light blue/slate font-mono) -->
+              <td
+                class="py-4 px-4 font-mono text-slate-600 transition-all"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 1) }"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 1)"
+              >
                 {{ inv.lrRef }}
               </td>
 
-              <!-- Customer (White) -->
-              <td class="py-4 px-4 font-medium text-slate-900">
+              <!-- Cell 2: Customer -->
+              <td
+                class="py-4 px-4 font-medium text-slate-900 transition-all"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 2) }"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 2)"
+              >
                 {{ inv.customer }}
               </td>
 
-              <!-- Base Amt -->
-              <td class="py-4 px-4 font-mono text-slate-700">
+              <!-- Cell 3: Base Amt -->
+              <td
+                class="py-4 px-4 font-mono text-slate-700 text-right transition-all"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 3) }"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 3)"
+              >
                 {{ inv.baseAmt }}
               </td>
 
-              <!-- GST -->
-              <td class="py-4 px-4 font-mono text-slate-600">
+              <!-- Cell 4: GST -->
+              <td
+                class="py-4 px-4 font-mono text-slate-600 text-right transition-all"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 4) }"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 4)"
+              >
                 {{ inv.gst }}
               </td>
 
-              <!-- Total -->
-              <td class="py-4 px-4 font-mono font-medium text-slate-800">
+              <!-- Cell 5: Total -->
+              <td
+                class="py-4 px-4 font-mono font-medium text-slate-800 text-right transition-all"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 5) }"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 5)"
+              >
                 {{ inv.total }}
               </td>
 
-              <!-- GST Type (Badge) -->
-              <td class="py-4 px-4">
+              <!-- Cell 6: GST Type (Badge) -->
+              <td
+                class="py-4 px-4 transition-all"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 6) }"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 6)"
+              >
                 <span
                   class="badge-pill"
                   :class="getGstTypeBadgeClass(inv.gstType)"
@@ -146,18 +208,34 @@
                 </span>
               </td>
 
-              <!-- IRN -->
-              <td class="py-4 px-4 text-slate-500 text-xs font-mono max-w-[140px] truncate" :title="inv.irn">
+              <!-- Cell 7: IRN -->
+              <td
+                class="py-4 px-4 text-slate-500 text-xs font-mono max-w-[140px] truncate transition-all"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 7) }"
+                :title="inv.irn"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 7)"
+              >
                 {{ inv.irn || '—' }}
               </td>
 
-              <!-- Due Date -->
-              <td class="py-4 px-4 text-slate-600 font-mono text-xs">
+              <!-- Cell 8: Due Date -->
+              <td
+                class="py-4 px-4 text-slate-600 font-mono text-xs transition-all"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 8) }"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 8)"
+              >
                 {{ inv.dueDate }}
               </td>
 
-              <!-- Status (Pill) -->
-              <td class="py-4 px-4">
+              <!-- Cell 9: Status (Pill) -->
+              <td
+                class="py-4 px-4 transition-all"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 9) }"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 9)"
+              >
                 <span
                   class="badge-pill"
                   :class="getStatusBadgeClass(inv.status)"
@@ -166,23 +244,38 @@
                 </span>
               </td>
 
-              <!-- Action: Edit, Print, Delete -->
-              <td class="py-4 px-4 text-center">
+              <!-- Cell 10: Action: Edit, Print, Delete -->
+              <td
+                class="py-4 px-4 text-center transition-all action-cell"
+                :class="{ 'excel-cell-active': isCellActive(rIdx, 10) && focusedActionIndex === -1 }"
+                tabindex="-1"
+                @click="setFocusCell(rIdx, 10)"
+              >
                 <div class="row items-center q-gutter-x-xs no-wrap justify-center">
-                  <button class="btn-table-action" @click.stop="editInvoice(inv)">
+                  <button
+                    class="btn-table-action"
+                    :class="{ 'excel-btn-active': isActionBtnActive(rIdx, 10, 0) }"
+                    @click.stop="editInvoice(inv)"
+                    @focus="setActionFocus(rIdx, 10, 0)"
+                    title="Edit Invoice (Enter)"
+                  >
                     Edit
                   </button>
                   <button
                     class="btn-table-icon"
+                    :class="{ 'excel-btn-active': isActionBtnActive(rIdx, 10, 1) }"
                     @click.stop="viewInvoice(inv)"
-                    title="Print / View Tax Invoice"
+                    @focus="setActionFocus(rIdx, 10, 1)"
+                    title="Print / View Tax Invoice (Enter)"
                   >
                     <q-icon name="print" size="14px" />
                   </button>
                   <button
                     class="btn-table-icon btn-table-icon--danger"
+                    :class="{ 'excel-btn-active': isActionBtnActive(rIdx, 10, 2) }"
                     @click.stop="confirmDeleteInvoice(inv)"
-                    title="Delete Invoice"
+                    @focus="setActionFocus(rIdx, 10, 2)"
+                    title="Delete Invoice (Enter / Del)"
                   >
                     <q-icon name="delete" size="14px" />
                   </button>
@@ -200,6 +293,26 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Excel-Style Navigation Status Bar matching spreadsheet footer -->
+      <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between text-xs text-slate-600 font-mono select-none">
+        <div class="flex items-center gap-3">
+          <span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded font-bold border border-sky-300">
+            CELL: {{ String.fromCharCode(65 + focusedCol) }}{{ focusedRow + 1 }}
+          </span>
+          <span>Row <strong>{{ focusedRow + 1 }}</strong> of <strong>{{ filteredInvoices.length }}</strong></span>
+          <span>Col <strong>{{ focusedCol === 10 ? `Action [${['Edit', 'Print', 'Delete'][focusedActionIndex] || 'Edit'}]` : (columnLabels[focusedCol] || 'Cell') }}</strong></span>
+          <span class="text-slate-400">|</span>
+          <span class="text-sky-700">Tab: <strong>{{ activeKpiFilter.toUpperCase() }}</strong></span>
+        </div>
+        <div class="flex items-center gap-2 text-slate-500 text-[11px]">
+          <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded">↑ ↓ ← →</kbd> Move Cell</span>
+          <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded">Tab</kbd> Next Cell</span>
+          <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded">Enter</kbd> Open / Down</span>
+          <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded">[ / ]</kbd> Switch Tab</span>
+          <span><kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded">Alt+C</kbd> New</span>
+        </div>
       </div>
     </div>
 
@@ -278,6 +391,8 @@
             <input
               ref="hiddenNativeDateRef"
               type="date"
+              tabindex="-1"
+              aria-hidden="true"
               style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;"
               @change="onNativeDateChange"
             />
@@ -402,7 +517,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import api from '../../api/client';
 import { useAppNotify } from '../../composables/useAppNotify';
 import { exportToCsv } from '../../utils/exportCsv';
@@ -413,6 +528,7 @@ import {
   DeskCombo,
 } from '../../framework';
 import { useDeskPageShortcuts } from '../../desk';
+import { useTableNavigation } from '../../composables/useTableNavigation';
 
 export interface BillingInvoice {
   id: string;
@@ -483,12 +599,12 @@ const form = ref({
   status: 'Draft',
 });
 
-// Seed data matching Image 1
+// Seed data matching Ankpal FY Sequence Standard
 const defaultSeedInvoices: BillingInvoice[] = [
   {
-    id: 'INV/24/1089',
-    invoiceNo: 'INV/24/1089',
-    lrRef: 'LR/240044',
+    id: 'INV/24-25/0004',
+    invoiceNo: 'INV/24-25/0004',
+    lrRef: 'LR/24-25/0044',
     customer: 'HPCL',
     baseAmt: '₹48,500',
     gst: '₹0 (RCM)',
@@ -499,9 +615,9 @@ const defaultSeedInvoices: BillingInvoice[] = [
     status: 'Paid',
   },
   {
-    id: 'INV/24/1088',
-    invoiceNo: 'INV/24/1088',
-    lrRef: 'LR/240042',
+    id: 'INV/24-25/0003',
+    invoiceNo: 'INV/24-25/0003',
+    lrRef: 'LR/24-25/0042',
     customer: 'Marico',
     baseAmt: '₹62,000',
     gst: '₹7,440',
@@ -512,9 +628,9 @@ const defaultSeedInvoices: BillingInvoice[] = [
     status: 'Pending',
   },
   {
-    id: 'INV/24/1087',
-    invoiceNo: 'INV/24/1087',
-    lrRef: 'LR/240040',
+    id: 'INV/24-25/0002',
+    invoiceNo: 'INV/24-25/0002',
+    lrRef: 'LR/24-25/0040',
     customer: 'Pidilite',
     baseAmt: '₹35,000',
     gst: '₹4,200',
@@ -525,9 +641,9 @@ const defaultSeedInvoices: BillingInvoice[] = [
     status: 'Overdue',
   },
   {
-    id: 'INV/24/1086',
-    invoiceNo: 'INV/24/1086',
-    lrRef: 'LR/240038',
+    id: 'INV/24-25/0001',
+    invoiceNo: 'INV/24-25/0001',
+    lrRef: 'LR/24-25/0038',
     customer: 'Reliance',
     baseAmt: '₹1,20,000',
     gst: '₹0 (RCM)',
@@ -617,11 +733,25 @@ function persistCache() {
   localStorage.setItem('tms_billing_invoices', JSON.stringify(invoices.value));
 }
 
-// Filtered invoices by search query
+// KPI Filter and Table Navigation States
+const activeKpiFilter = ref<'all' | 'outstanding' | 'overdue' | 'irn'>('all');
+const tableRef = ref<HTMLElement | null>(null);
+
+// Filtered invoices by search query and active KPI card filter
 const filteredInvoices = computed(() => {
-  if (!searchQuery.value.trim()) return invoices.value;
+  let list = invoices.value;
+
+  if (activeKpiFilter.value === 'outstanding') {
+    list = list.filter((i) => i.status.toLowerCase() === 'pending' || i.status.toLowerCase() === 'overdue');
+  } else if (activeKpiFilter.value === 'overdue') {
+    list = list.filter((i) => i.status.toLowerCase() === 'overdue');
+  } else if (activeKpiFilter.value === 'irn') {
+    list = list.filter((i) => i.irn && i.irn !== '—');
+  }
+
+  if (!searchQuery.value.trim()) return list;
   const q = searchQuery.value.toLowerCase().trim();
-  return invoices.value.filter(
+  return list.filter(
     (inv) =>
       inv.invoiceNo.toLowerCase().includes(q) ||
       inv.customer.toLowerCase().includes(q) ||
@@ -629,6 +759,108 @@ const filteredInvoices = computed(() => {
       inv.gstType.toLowerCase().includes(q) ||
       inv.status.toLowerCase().includes(q)
   );
+});
+
+const columnLabels = [
+  'Invoice No',
+  'LR Ref',
+  'Customer',
+  'Base Amt',
+  'GST',
+  'Total',
+  'GST Type',
+  'IRN',
+  'Due Date',
+  'Status',
+  'Action',
+];
+
+const kpiTabs: Array<'all' | 'outstanding' | 'overdue' | 'irn'> = [
+  'all',
+  'outstanding',
+  'overdue',
+  'irn',
+];
+
+function selectKpiTab(tab: 'all' | 'outstanding' | 'overdue' | 'irn') {
+  activeKpiFilter.value = tab;
+  setFocusCell(0, 0);
+}
+
+function switchKpiTab(direction: 'next' | 'prev') {
+  const currentIdx = kpiTabs.indexOf(activeKpiFilter.value);
+  const nextIdx =
+    direction === 'next'
+      ? (currentIdx + 1) % kpiTabs.length
+      : (currentIdx - 1 + kpiTabs.length) % kpiTabs.length;
+  selectKpiTab(kpiTabs[nextIdx]);
+}
+
+// 2D Excel & Tally Table Navigation: Full cell-by-cell coordinates, Enter (edit), Alt+D (delete), Alt+P (print), Alt+C (new)
+const {
+  focusedRow,
+  focusedCol,
+  focusedIndex,
+  focusedActionIndex,
+  isCellActive,
+  isActionBtnActive,
+  isRowActive,
+  setFocusCell,
+  setActionFocus,
+  setFocusIndex,
+  handleKeydown: baseTableRowKeydown,
+  moveFirst: focusFirstTableRow,
+} = useTableNavigation<BillingInvoice>({
+  items: filteredInvoices,
+  colCount: columnLabels.length,
+  tableRef,
+  onEnter: (inv) => editInvoice(inv),
+  onPrint: (inv) => viewInvoice(inv),
+  onDelete: (inv) => confirmDeleteInvoice(inv),
+  onNew: () => openAddDrawer(),
+  onEscape: () => {
+    searchInputRef.value?.focus?.();
+  },
+});
+
+function handleTableRowKeydown(
+  e: KeyboardEvent,
+  inv: BillingInvoice,
+  rIdx: number,
+  cIdx?: number
+) {
+  if (e.key === '[') {
+    e.preventDefault();
+    e.stopPropagation();
+    switchKpiTab('prev');
+    return;
+  }
+  if (e.key === ']') {
+    e.preventDefault();
+    e.stopPropagation();
+    switchKpiTab('next');
+    return;
+  }
+  baseTableRowKeydown(e, inv, rIdx, cIdx);
+}
+
+// Standard Tally Page Shortcuts: Alt+C (New Record), Alt+F (Search), Ctrl+A (Accept/Save), Alt+1..4 (KPI filter jumps)
+useDeskPageShortcuts({
+  searchInputRef,
+  onNewRecord: () => openAddDrawer(),
+  isModalOpen: computed(() => showDrawer.value || showDeleteDialog.value || showPreviewDialog.value),
+  onSave: () => saveInvoice(),
+  onEscape: () => {
+    if (showDrawer.value) showDrawer.value = false;
+    else if (showDeleteDialog.value) showDeleteDialog.value = false;
+    else if (showPreviewDialog.value) showPreviewDialog.value = false;
+  },
+  filters: [
+    () => selectKpiTab('all'),
+    () => selectKpiTab('outstanding'),
+    () => selectKpiTab('overdue'),
+    () => selectKpiTab('irn'),
+  ],
 });
 
 // KPI Computations
@@ -682,12 +914,20 @@ function onNativeDateChange(e: Event) {
 }
 
 // Open Add Drawer matching Image 1
-function openAddDrawer() {
+async function openAddDrawer() {
   isEditing.value = false;
   editingId.value = null;
 
+  let nextNo = `INV/24/${1090 + invoices.value.length}`;
+  try {
+    const res: any = await api.get('/api/v1/foundation/sequences/next/invoice');
+    if (res?.next) {
+      nextNo = res.next;
+    }
+  } catch (_) {}
+
   form.value = {
-    invoiceNo: 'INV/24/1090',
+    invoiceNo: nextNo,
     lrRef: 'LR/240050',
     customer: '— Select —',
     dueDate: '', // empty so placeholder 'mm/dd/yyyy' is displayed
@@ -700,6 +940,15 @@ function openAddDrawer() {
   };
 
   showDrawer.value = true;
+  nextTick(() => {
+    setTimeout(() => {
+      const firstInput = document.querySelector<HTMLInputElement>(
+        '.desk-dialog-body input:not([tabindex="-1"]), .desk-dialog-body [tabindex="0"]'
+      );
+      firstInput?.focus();
+      firstInput?.select?.();
+    }, 120);
+  });
 }
 
 // Open Edit Drawer
@@ -721,6 +970,15 @@ function editInvoice(inv: BillingInvoice) {
   };
 
   showDrawer.value = true;
+  nextTick(() => {
+    setTimeout(() => {
+      const firstInput = document.querySelector<HTMLInputElement>(
+        '.desk-dialog-body input:not([tabindex="-1"]), .desk-dialog-body [tabindex="0"]'
+      );
+      firstInput?.focus();
+      firstInput?.select?.();
+    }, 120);
+  });
 }
 
 // Auto recalculate GST & Total when base amount or GST type changes
@@ -802,7 +1060,12 @@ async function saveInvoice() {
     } else {
       // Create in Backend Database
       const createRes: any = await api.post('/api/v1/billing/records', payload);
-      const newRec = normalizeInvoice(createRes?.data || createRes || payload);
+      const savedData = createRes?.data || createRes;
+      if (savedData?.invoiceNo) {
+        payload.invoiceNo = savedData.invoiceNo;
+        payload.id = savedData.id || savedData.invoiceNo;
+      }
+      const newRec = normalizeInvoice(savedData || payload);
 
       // Prepend to list
       invoices.value.unshift(newRec);
@@ -812,6 +1075,10 @@ async function saveInvoice() {
 
     showDrawer.value = false;
   } catch (err: any) {
+    if (err.response?.data?.message) {
+      notify.notifyError(err.response.data.message);
+      return;
+    }
     console.error('Database save error:', err);
     // If backend errors out, still save locally
     if (isEditing.value && editingId.value) {
@@ -949,12 +1216,19 @@ function getStatusBadgeClass(status: string) {
 useDeskPageShortcuts({
   searchInputRef,
   onNewRecord: openAddDrawer,
+  filters: [
+    () => { activeKpiFilter.value = 'all'; },
+    () => { activeKpiFilter.value = 'outstanding'; },
+    () => { activeKpiFilter.value = 'overdue'; },
+    () => { activeKpiFilter.value = 'irn'; },
+  ],
   isModalOpen: () => showDrawer.value || showDeleteDialog.value || showPreviewDialog.value,
   onSave: saveInvoice,
   onEscape: () => {
-    showDrawer.value = false;
-    showDeleteDialog.value = false;
-    showPreviewDialog.value = false;
+    if (showDrawer.value) showDrawer.value = false;
+    else if (showDeleteDialog.value) showDeleteDialog.value = false;
+    else if (showPreviewDialog.value) showPreviewDialog.value = false;
+    else if (searchQuery.value) searchQuery.value = '';
   },
 });
 </script>
@@ -1199,4 +1473,85 @@ useDeskPageShortcuts({
   border: 1px solid #d4d4d8;
 }
 
+/* High-contrast Excel & Tally ERP Cell & Row Navigation */
+.billing-table-row.excel-row-active {
+  background-color: #f0f9ff !important;
+}
+
+.billing-table-row.excel-row-active td:first-child {
+  position: relative;
+}
+
+.billing-table-row.excel-row-active td:first-child::before {
+  content: '▶';
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  color: #0284c7;
+  font-weight: bold;
+}
+
+/* Excel active cell border */
+.excel-cell-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: -2px !important;
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 1px #0284c7, 0 1px 4px rgba(2, 132, 199, 0.25) !important;
+}
+
+/* Individual active button highlight inside action cell */
+.btn-table-action.excel-btn-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 1px !important;
+  background-color: #bae6fd !important;
+  color: #0369a1 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.4), 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+  transform: scale(1.05);
+  z-index: 20;
+}
+
+.btn-table-icon.excel-btn-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 1px !important;
+  background-color: #e0f2fe !important;
+  color: #0284c7 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.4), 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+  transform: scale(1.08);
+  z-index: 20;
+}
+
+.btn-table-icon--danger.excel-btn-active {
+  outline: 2px solid #ef4444 !important;
+  outline-offset: 1px !important;
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4), 0 2px 6px rgba(239, 68, 68, 0.3) !important;
+  transform: scale(1.08);
+  z-index: 20;
+}
+
+/* Prevent outer cell border from obscuring individual active button */
+.action-cell:has(.excel-btn-active),
+.billing-table-row td.action-cell.excel-cell-active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.excel-th-active {
+  background-color: #e2e8f0 !important;
+  color: #0284c7 !important;
+  border-bottom: 2px solid #0284c7 !important;
+}
+
+/* Backward compatibility for focused row */
+.billing-table-row.tally-focused-row,
+.billing-table-row:focus {
+  background-color: #f0f9ff !important;
+  outline: none !important;
+}
 </style>

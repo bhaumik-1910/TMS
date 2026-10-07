@@ -85,10 +85,10 @@
               <th class="py-3 px-4 font-bold">TYPE</th>
               <th class="py-3 px-4 font-bold">BILL NO</th>
               <th class="py-3 px-4 font-bold">DATE</th>
-              <th class="py-3 px-4 font-bold">BASE AMT</th>
-              <th class="py-3 px-4 font-bold">GST</th>
-              <th class="py-3 px-4 font-bold">TOTAL</th>
-              <th class="py-3 px-4 font-bold">TDS</th>
+              <th class="py-3 px-4 font-bold text-right">BASE AMT</th>
+              <th class="py-3 px-4 font-bold text-right">GST</th>
+              <th class="py-3 px-4 font-bold text-right">TOTAL</th>
+              <th class="py-3 px-4 font-bold text-right">TDS</th>
               <th class="py-3 px-4 font-bold">LINKED TO</th>
               <th class="py-3 px-4 font-bold">STATUS</th>
               <th class="py-3 px-4 font-bold text-center">ACTION</th>
@@ -100,13 +100,13 @@
               :key="bill.id"
               class="hover:bg-slate-50 transition-colors"
             >
-              <!-- Bill ID (Cyan font-bold) -->
-              <td class="py-4 px-4 font-semibold text-cyan-400 font-mono">
+              <!-- Bill ID -->
+              <td class="py-4 px-4 font-semibold text-sky-700 font-mono">
                 {{ bill.id }}
               </td>
 
-              <!-- Supplier (White) -->
-              <td class="py-4 px-4 font-medium text-white">
+              <!-- Supplier -->
+              <td class="py-4 px-4 font-medium text-slate-900">
                 {{ bill.supplier }}
               </td>
 
@@ -120,38 +120,38 @@
                 </span>
               </td>
 
-              <!-- Bill No (Slate font-mono) -->
-              <td class="py-4 px-4 font-mono text-slate-300">
+              <!-- Bill No -->
+              <td class="py-4 px-4 font-mono text-slate-700">
                 {{ bill.billNo }}
               </td>
 
               <!-- Date -->
-              <td class="py-4 px-4 text-slate-300 font-mono text-xs">
+              <td class="py-4 px-4 text-slate-600 font-mono text-xs">
                 {{ bill.date }}
               </td>
 
               <!-- Base Amt -->
-              <td class="py-4 px-4 font-mono text-slate-200">
+              <td class="py-4 px-4 font-mono text-slate-700 text-right">
                 {{ bill.baseAmt }}
               </td>
 
               <!-- GST -->
-              <td class="py-4 px-4 font-mono text-slate-300">
+              <td class="py-4 px-4 font-mono text-slate-600 text-right">
                 {{ bill.gst }}
               </td>
 
               <!-- Total -->
-              <td class="py-4 px-4 font-mono font-medium text-slate-100">
+              <td class="py-4 px-4 font-mono font-semibold text-slate-900 text-right">
                 {{ bill.total }}
               </td>
 
               <!-- TDS -->
-              <td class="py-4 px-4 font-mono text-slate-400">
+              <td class="py-4 px-4 font-mono text-slate-600 text-right">
                 {{ bill.tds }}
               </td>
 
               <!-- Linked To -->
-              <td class="py-4 px-4 text-slate-300 font-mono text-xs">
+              <td class="py-4 px-4 text-slate-600 font-mono text-xs">
                 {{ bill.linkedRef || '—' }}
               </td>
 
@@ -688,12 +688,20 @@ function generateNextBillId(): string {
 }
 
 // Open Add Drawer matching Image 2
-function openAddDrawer() {
+async function openAddDrawer() {
   isEditing.value = false;
   editingId.value = null;
 
+  let nextId = generateNextBillId();
+  try {
+    const res: any = await api.get('/api/v1/foundation/sequences/next/purchase_bill');
+    if (res?.next) {
+      nextId = res.next;
+    }
+  } catch (_) {}
+
   form.value = {
-    id: generateNextBillId(),
+    id: nextId,
     supplier: '— Select —',
     type: '— Select —',
     billNo: '',
@@ -833,7 +841,12 @@ async function saveBill() {
         notify.notifySuccess(`Purchase Bill ${payload.id} updated in database`);
       } else {
         const createRes: any = await api.post('/api/v1/billing/purchase-bills', payload);
-        const newRec = normalizeBill(createRes?.data || createRes || payload);
+        const savedData = createRes?.data || createRes;
+        if (savedData?.billNo || savedData?.id) {
+          payload.id = savedData.id || savedData.billNo || payload.id;
+          payload.billNo = savedData.billNo || payload.billNo;
+        }
+        const newRec = normalizeBill(savedData || payload);
         bills.value.unshift(newRec);
         persistCache();
         notify.notifySuccess(`Purchase Bill ${payload.id} stored in database`);
@@ -841,6 +854,10 @@ async function saveBill() {
 
       showDrawer.value = false;
     } catch (err: any) {
+      if (err.response?.data?.message) {
+        notify.notifyError(err.response.data.message);
+        return;
+      }
       console.error('Error saving bill:', err);
       // Fallback local update
       if (isEditing.value && editingId.value) {

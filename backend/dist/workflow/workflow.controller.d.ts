@@ -3,7 +3,7 @@ export declare class WorkflowController {
     private readonly workflowService;
     constructor(workflowService: WorkflowService);
     getWorkflowState(entityType: 'ORDER' | 'SHIPMENT' | 'DISPATCH', entityId: string, req: any): Promise<{
-        entityType: "ORDER" | "SHIPMENT" | "DISPATCH";
+        entityType: "SHIPMENT" | "ORDER" | "DISPATCH";
         entityId: string;
         currentState: string;
         availableTransitions: import("./workflow.constants").WorkflowTransitionRule[];
@@ -15,7 +15,7 @@ export declare class WorkflowController {
         metadata?: any;
     }, req: any): Promise<{
         success: boolean;
-        entityType: "ORDER" | "SHIPMENT" | "DISPATCH";
+        entityType: "SHIPMENT" | "ORDER" | "DISPATCH";
         entityId: string;
         previousState: string;
         currentState: string;

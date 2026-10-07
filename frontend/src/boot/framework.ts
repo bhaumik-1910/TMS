@@ -15,6 +15,7 @@ import '../css/tailwind.css';
 import '../css/app.scss';
 
 import AppLoadingOverlay from '../components/AppLoadingOverlay.vue';
+import { setupGlobalDropdownNavigation } from '../desk/focus/useDeskFocus';
 
 export default defineBoot(({ app }) => {
   // Ensure clean white theme is active by default
@@ -22,4 +23,7 @@ export default defineBoot(({ app }) => {
 
   // Register shared enterprise components
   app.component('AppLoadingOverlay', AppLoadingOverlay);
+
+  // Initialize Tally-style rapid data entry keyboard navigation for all dropdowns
+  setupGlobalDropdownNavigation();
 });

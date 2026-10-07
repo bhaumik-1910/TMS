@@ -1,92 +1,78 @@
 <template>
-  <div class="lr-master-page p-3 sm:p-4 text-slate-800 font-sans">
-    <!-- Header with Title & Action Controls -->
-    <div class="row items-center justify-between no-wrap q-mb-md">
-      <div>
-        <div class="text-h6 text-weight-bold text-slate-900 relative-position inline-block q-pb-xs">
-          LR & Consignment Notes (Bilty)
-          <div class="header-underline"></div>
-        </div>
-        <div class="text-caption text-slate-500 q-mt-xs font-sans">
-          Statutory Lorry Receipts, multi-copy Bilty generation, GST E-Way Bill auto-validation & consignment ledger
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Lorry Receipt (LR / Bilty)</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <!-- Header Action Buttons -->
-      <div class="row items-center q-gutter-x-sm no-wrap">
+      <div class="flex items-center gap-3">
         <button
           type="button"
-          class="btn-hdr-export"
+          class="btn-secondary-action"
           @click="checkEWayValidity"
         >
-          <q-icon name="verified" size="15px" class="q-mr-xs text-emerald-600" />
-          E-Way Bill Sync
+          <q-icon name="verified" size="16px" class="q-mr-xs text-emerald-600" />
+          <span>E-Way Bill Sync</span>
         </button>
         <button
           type="button"
-          class="btn-hdr-export"
+          class="btn-secondary-action"
           @click="exportCsv"
         >
-          <q-icon name="download" size="15px" class="q-mr-xs text-slate-600" />
-          Export Bilty CSV
+          <q-icon name="download" size="16px" class="q-mr-xs text-slate-600" />
+          <span>Export Bilty CSV</span>
         </button>
         <button
           type="button"
-          class="btn-hdr-add"
+          class="btn-primary-cyan"
           @click="openCreateModal"
         >
-          <q-icon name="add" size="16px" class="q-mr-xs text-white" />
-          Issue LR / Bilty [Alt+C]
+          <q-icon name="add" size="18px" />
+          <span>Issue LR</span>
         </button>
       </div>
     </div>
 
     <!-- LR Workspace Container with Loading Overlay -->
     <div class="relative min-h-[400px]">
-      <!-- 4 KPI Stat Cards matching Vehicle & Driver Master Pattern -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 q-mb-md">
-        <!-- Card 1: Total LRs Issued -->
+      <!-- 4 KPI Stat Cards matching Billing Page -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div
-          class="stat-card p-4 rounded-xl border border-sky-200 bg-white relative overflow-hidden cursor-pointer"
+          class="kpi-box kpi-box--active cursor-pointer"
           @click="resetFilters"
         >
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">TOTAL LRs ISSUED</div>
-          <div class="text-3xl font-extrabold font-mono text-sky-700 my-1">{{ lrList.length }}</div>
-          <div class="text-xs text-slate-500 font-mono">Legally binding carriage notes</div>
-          <div class="accent-bar bg-sky-500"></div>
+          <div class="kpi-title text-sky-600">TOTAL LRs ISSUED</div>
+          <div class="kpi-amount text-sky-700">{{ lrList.length }}</div>
+          <div class="kpi-subtext">Legally binding carriage notes</div>
         </div>
 
-        <!-- Card 2: Active In-Transit -->
         <div
-          class="stat-card p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 relative overflow-hidden cursor-pointer"
+          class="kpi-box cursor-pointer"
           @click="filterStatusOnly('IN_TRANSIT')"
         >
-          <div class="text-[11px] font-mono uppercase tracking-wider text-emerald-700 mb-1">ACTIVE IN-TRANSIT</div>
-          <div class="text-3xl font-extrabold font-mono text-emerald-700 my-1">{{ inTransitCount }}</div>
-          <div class="text-xs text-emerald-600 font-mono">Freight on highway road</div>
-          <div class="accent-bar bg-emerald-500"></div>
+          <div class="kpi-title text-emerald-700">ACTIVE IN-TRANSIT</div>
+          <div class="kpi-amount text-emerald-700">{{ inTransitCount }}</div>
+          <div class="kpi-subtext">Freight on highway road</div>
         </div>
 
-        <!-- Card 3: E-Way Bills Active -->
         <div
-          class="stat-card p-4 rounded-xl border border-teal-200 bg-teal-50/40 relative overflow-hidden cursor-pointer"
+          class="kpi-box cursor-pointer"
           @click="filterEWayOnly"
         >
-          <div class="text-[11px] font-mono uppercase tracking-wider text-teal-700 mb-1">E-WAY BILL COMPLIANCE</div>
-          <div class="text-3xl font-extrabold font-mono text-teal-700 my-1">100%</div>
-          <div class="text-xs text-teal-600 font-mono">GST portal active &bull; 0 violations</div>
-          <div class="accent-bar bg-teal-500"></div>
+          <div class="kpi-title">E-WAY BILL COMPLIANCE</div>
+          <div class="kpi-amount text-slate-800">100%</div>
+          <div class="kpi-subtext">GST portal active &bull; 0 violations</div>
         </div>
 
-        <!-- Card 4: To-Pay Freight Receivable -->
         <div
-          class="stat-card p-4 rounded-xl border border-amber-200 bg-amber-50/50 relative overflow-hidden cursor-pointer"
+          class="kpi-box cursor-pointer"
           @click="filterTermsOnly('TO_PAY')"
         >
-          <div class="text-[11px] font-mono uppercase tracking-wider text-amber-700 mb-1">TO-PAY RECEIVABLE</div>
-          <div class="text-3xl font-extrabold font-mono text-amber-600 my-1">${{ totalToPayFreight.toLocaleString() }}</div>
-          <div class="text-xs text-amber-700 font-mono">Payable at destination delivery</div>
-          <div class="accent-bar bg-amber-500"></div>
+          <div class="kpi-title text-amber-700">TO-PAY RECEIVABLE</div>
+          <div class="kpi-amount text-amber-600">₹{{ totalToPayFreight.toLocaleString() }}</div>
+          <div class="kpi-subtext">Payable at destination delivery</div>
         </div>
       </div>
 
@@ -804,6 +790,7 @@ import {
   DeskDateInput,
   type GridColumn,
 } from '../../framework';
+import { useDeskPageShortcuts } from '../../desk';
 
 const notify = useAppNotify();
 
@@ -1103,10 +1090,18 @@ function normalizeLR(item: any, idx: number) {
   };
 }
 
-function openCreateModal() {
+async function openCreateModal() {
   isEditing.value = false;
   editingId.value = null;
   form.value = defaultForm();
+  try {
+    const res = await api.get('/foundation/sequences/next/lr');
+    if (res.data?.nextNumber) {
+      form.value.lrNumber = res.data.nextNumber;
+    }
+  } catch (e) {
+    // Keep default fallback
+  }
   showDrawer.value = true;
   nextTick(() => {
     firstInputRef.value?.focus?.();
@@ -1258,20 +1253,23 @@ function exportCsv() {
   notify.success('Lorry Receipts register exported to CSV');
 }
 
-function handleGlobalKey(e: KeyboardEvent) {
-  if (e.altKey && e.key.toLowerCase() === 'c') {
-    e.preventDefault();
-    openCreateModal();
-  }
-}
+useDeskPageShortcuts({
+  gridRef,
+  onNewRecord: openCreateModal,
+  isModalOpen: () =>
+    showDrawer.value ||
+    showDeleteDialog.value ||
+    printModalOpen.value,
+  onSave: saveLR,
+  onEscape: () => {
+    if (showDrawer.value) showDrawer.value = false;
+    else if (showDeleteDialog.value) showDeleteDialog.value = false;
+    else if (printModalOpen.value) printModalOpen.value = false;
+  },
+});
 
 onMounted(() => {
   loadLRs();
-  window.addEventListener('keydown', handleGlobalKey);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleGlobalKey);
 });
 </script>
 

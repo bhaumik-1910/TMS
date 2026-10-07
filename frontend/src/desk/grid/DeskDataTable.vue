@@ -6,6 +6,7 @@
     @keydown="onKeyDown"
     @focus="isFocused = true"
     @blur="isFocused = false"
+    @focusin="onGridFocusIn"
   >
     <!-- Grid Action Toolbar -->
     <div class="desk-grid-toolbar row items-center justify-between no-wrap q-gutter-x-sm">
@@ -195,7 +196,7 @@
           <span v-if="selectedRows.length > 0"> ({{ selectedRows.length }} selected)</span>
         </span>
         <span class="text-caption text-secondary">
-          Col: <strong>{{ columns[activeCol]?.label || activeCol + 1 }}</strong>
+          Col: <strong>{{ activeActionBtnLabel ? `Actions [${activeActionBtnLabel}]` : (columns[activeCol]?.label || activeCol + 1) }}</strong>
         </span>
       </div>
 
@@ -362,6 +363,7 @@ const {
   activeCol,
   activeRowIndex,
   activeColIndex,
+  activeActionIndex,
   isEditing,
   setFocus,
   moveRight,
@@ -369,6 +371,7 @@ const {
   startEdit,
   stopEdit,
   handleKeyDown: handleGridKey,
+  syncActionButtonFocus,
 } = useGridKeyboard({
   rowCount,
   colCount,
@@ -426,6 +429,68 @@ const {
       emit('delete', row);
     }
   },
+});
+
+function onGridFocusIn(event: FocusEvent) {
+  const target = event.target as HTMLElement | null;
+  if (!target) return;
+  // If focus entered the search input or a filter, don't interfere
+  if (target.closest('.desk-grid-toolbar')) return;
+
+  const btn = target.closest('button, .q-btn') as HTMLElement | null;
+  if (!btn) return;
+
+  const td = btn.closest('td') as HTMLElement | null;
+  if (!td) return;
+  const tr = td.closest('tr') as HTMLElement | null;
+  if (!tr) return;
+
+  const tbody = tr.parentElement;
+  if (!tbody) return;
+  const trs = Array.from(tbody.children).filter((el) => !el.classList.contains('q-table__loading'));
+  const rIdx = trs.indexOf(tr);
+  const tds = Array.from(tr.children);
+  const cIdx = tds.indexOf(td);
+
+  if (rIdx >= 0 && cIdx >= 0) {
+    activeRow.value = rIdx;
+    activeCol.value = cIdx;
+    const buttons = Array.from(
+      td.querySelectorAll<HTMLElement>(
+        'button:not([disabled]):not([tabindex="-1"]), .q-btn:not([disabled]):not([tabindex="-1"])'
+      )
+    );
+    const btnIdx = buttons.indexOf(btn);
+    if (btnIdx >= 0) {
+      activeActionIndex.value = btnIdx;
+      gridRootRef.value?.querySelectorAll('.desk-btn-active, .excel-btn-active').forEach((el) => {
+        el.classList.remove('desk-btn-active', 'excel-btn-active');
+      });
+      btn.classList.add('desk-btn-active', 'excel-btn-active');
+    }
+  }
+}
+
+const activeActionBtnLabel = computed(() => {
+  if (activeActionIndex.value < 0) return '';
+  const root = gridRootRef.value;
+  if (!root) return '';
+  const cell = root.querySelector('.desk-cell-active') as HTMLElement | null;
+  if (!cell) return '';
+  const buttons = Array.from(
+    cell.querySelectorAll<HTMLElement>(
+      'button:not([disabled]):not([tabindex="-1"]), .q-btn:not([disabled]):not([tabindex="-1"])'
+    )
+  );
+  const btn = buttons[activeActionIndex.value];
+  if (!btn) return '';
+  const text = btn.innerText?.trim();
+  if (text) return text;
+  const title = btn.getAttribute('title');
+  if (title) return title;
+  const aria = btn.getAttribute('aria-label');
+  if (aria) return aria;
+  return `Action ${activeActionIndex.value + 1}`;
 });
 
 function focusSearch() {

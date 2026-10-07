@@ -1,109 +1,68 @@
 <template>
-  <q-page class="p-4 sm:p-6 space-y-5 max-w-[1680px] mx-auto text-slate-800 font-sans overflow-y-auto" style="background-color: #ffffff;">
-    <!-- Compact Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
-      <div>
-        <div class="flex items-center space-x-1.5 text-xs text-slate-500 mb-1 font-sans">
-          <router-link to="/dashboard" class="hover:text-primary transition-colors text-slate-500">
-            Console
-          </router-link>
-          <span class="text-slate-400">/</span>
-          <span class="text-slate-700 font-medium">Operations / Live Telematics</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 m-0 leading-none">
-            Real-Time Telemetry &amp; Fleet Tracking
-          </h1>
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-sky-50 text-sky-700 border border-sky-200">
-            <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
-            RADAR 5G GNSS ACTIVE
-          </span>
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Live GPS &amp; Telematics Tracking</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="flex items-center gap-2">
-        <q-btn
-          flat
-          round
-          dense
-          icon="refresh"
-          color="cyan"
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="btn-secondary-action"
           @click="loadTrackingData"
-          :loading="loading"
         >
-          <q-tooltip>Refresh Live Telemetry</q-tooltip>
-        </q-btn>
+          <q-icon name="refresh" size="16px" :class="{ 'animate-spin': loading }" />
+          <span>Refresh</span>
+        </button>
 
-        <q-btn
-          outline
-          color="cyan"
-          icon="sync"
-          :label="autoTrack ? 'Auto-Polling: ON (5s)' : 'Enable Live Auto-Poll'"
-          no-caps
-          dense
-          size="sm"
-          class="q-px-sm font-bold"
-          :class="autoTrack ? 'bg-cyan-950/40 text-cyan-300' : ''"
+        <button
+          type="button"
+          class="btn-secondary-action"
+          :class="autoTrack ? 'text-sky-700 border-sky-300 bg-sky-50' : ''"
           @click="toggleAutoTrack"
-        />
+        >
+          <q-icon name="sync" size="16px" class="q-mr-xs text-sky-600" />
+          <span>{{ autoTrack ? 'Auto-Poll (5s): ON' : 'Enable Live Auto-Poll' }}</span>
+        </button>
 
-        <q-btn
-          class="desk-btn-primary"
-          icon="navigation"
-          label="Simulate Highway GPS Step"
-          no-caps
-          size="sm"
-          :loading="simulating"
+        <button
+          type="button"
+          class="btn-primary-cyan"
+          :disabled="simulating"
           @click="simulateGpsMove"
-        />
+        >
+          <q-icon name="navigation" size="18px" />
+          <span>Simulate GPS Step</span>
+        </button>
       </div>
     </div>
 
-    <!-- Top Telemetry KPI Bar -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-between">
-        <div>
-          <div class="text-xs text-slate-500 font-medium">Monitored Fleet</div>
-          <div class="text-lg font-bold font-mono text-sky-700 mt-0.5">{{ vehicles.length }} Trucks</div>
-          <div class="text-[11px] text-slate-400 font-mono">100% GNSS Transponders</div>
-        </div>
-        <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600">
-          <q-icon name="local_shipping" size="22px" />
-        </div>
+    <!-- 4 KPI Stat Cards matching Billing Page -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="kpi-box kpi-box--active">
+        <div class="kpi-title text-sky-600">MONITORED FLEET</div>
+        <div class="kpi-amount text-sky-700">{{ vehicles.length }} <span class="text-xs font-sans text-slate-500 font-normal">Trucks</span></div>
+        <div class="kpi-subtext">100% GNSS Transponders</div>
       </div>
 
-      <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-between">
-        <div>
-          <div class="text-xs text-slate-500 font-medium">In Transit Rolling</div>
-          <div class="text-lg font-bold font-mono text-emerald-600 mt-0.5">{{ movingVehiclesCount }} Units</div>
-          <div class="text-[11px] text-emerald-600 font-mono">Live on Western Corridor</div>
-        </div>
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
-          <q-icon name="speed" size="22px" />
-        </div>
+      <div class="kpi-box">
+        <div class="kpi-title text-emerald-700">IN TRANSIT ROLLING</div>
+        <div class="kpi-amount text-emerald-600">{{ movingVehiclesCount }} <span class="text-xs font-sans text-slate-500 font-normal">Units</span></div>
+        <div class="kpi-subtext">Live on Western Corridor</div>
       </div>
 
-      <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-between">
-        <div>
-          <div class="text-xs text-slate-500 font-medium">Active Geofence Hubs</div>
-          <div class="text-lg font-bold font-mono text-amber-700 mt-0.5">{{ geofences.length }} Monitored</div>
-          <div class="text-[11px] text-slate-400 font-mono">Ahmedabad &bull; Mumbai Port</div>
-        </div>
-        <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
-          <q-icon name="fence" size="22px" />
-        </div>
+      <div class="kpi-box">
+        <div class="kpi-title">ACTIVE GEOFENCE HUBS</div>
+        <div class="kpi-amount text-slate-800">{{ geofences.length }}</div>
+        <div class="kpi-subtext">Ahmedabad &bull; Mumbai Port</div>
       </div>
 
-      <div class="p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-between">
-        <div>
-          <div class="text-xs text-slate-500 font-medium">Avg Fleet Speed</div>
-          <div class="text-lg font-bold font-mono text-sky-700 mt-0.5">{{ avgFleetSpeed }} km/h</div>
-          <div class="text-[11px] text-slate-400 font-mono">NH-48 Freight Limit: 70</div>
-        </div>
-        <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600">
-          <q-icon name="trending_up" size="22px" />
-        </div>
+      <div class="kpi-box">
+        <div class="kpi-title">AVG FLEET SPEED</div>
+        <div class="kpi-amount text-slate-800">{{ avgFleetSpeed }} <span class="text-xs font-sans text-slate-500 font-normal">KM/H</span></div>
+        <div class="kpi-subtext">NH-48 Corridor benchmark</div>
       </div>
     </div>
 
@@ -228,7 +187,7 @@
         </div>
       </div>
     </div>
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -236,8 +195,13 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import api from '../../api/client';
 import { useAppNotify } from '../../composables/useAppNotify';
 import LiveMap from '../../components/LiveMap.vue';
+import { useDeskPageShortcuts } from '../../desk';
 
 const notify = useAppNotify();
+
+useDeskPageShortcuts({
+  onNewRecord: simulateGpsMove,
+});
 const loading = ref(false);
 const simulating = ref(false);
 const autoTrack = ref(false);

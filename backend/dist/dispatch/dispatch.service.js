@@ -17,8 +17,11 @@ const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const base_service_1 = require("../common/base/base.service");
 const models_1 = require("../database/models");
+const ops_runner_service_1 = require("../framework/ops/ops-runner.service");
+const document_sequence_service_1 = require("../foundation/document-sequences/document-sequence.service");
+const _010_check_dispatch_compliance_1 = require("./ops/dispatch/010-check-dispatch-compliance");
 let DispatchService = class DispatchService extends base_service_1.BaseSequelizeService {
-    constructor(dispatchModel, shipmentModel, vehicleModel, driverModel, tripExpenseModel, auditLogModel) {
+    constructor(dispatchModel, shipmentModel, vehicleModel, driverModel, tripExpenseModel, auditLogModel, opsRunner, sequenceService) {
         super(dispatchModel);
         this.dispatchModel = dispatchModel;
         this.shipmentModel = shipmentModel;
@@ -26,6 +29,8 @@ let DispatchService = class DispatchService extends base_service_1.BaseSequelize
         this.driverModel = driverModel;
         this.tripExpenseModel = tripExpenseModel;
         this.auditLogModel = auditLogModel;
+        this.opsRunner = opsRunner;
+        this.sequenceService = sequenceService;
     }
     async onModuleInit() {
         try {
@@ -313,48 +318,60 @@ let DispatchService = class DispatchService extends base_service_1.BaseSequelize
             });
             return this.findById(record.id);
         }
-        return this.withTransaction(async (transaction) => {
-            const shipment = await this.shipmentModel.findByPk(data.shipmentId, {
-                include: [{ model: models_1.TransportOrderModel }],
-                transaction,
-            });
-            if (!shipment)
-                throw new common_1.NotFoundException('Shipment not found');
-            if (data.vehicleId) {
-                const vehicle = await this.vehicleModel.findByPk(data.vehicleId, { transaction });
-                if (vehicle && vehicle.capacityWeight < (shipment.totalWeight || 0)) {
-                    throw new common_1.BadRequestException('Vehicle capacity exceeded');
+        const orgId = data.organizationId || '1';
+        return this.opsRunner.run({
+            resource: 'TripDispatch',
+            op: 'dispatch',
+            user: {
+                id: data.userId || '1',
+                organizationId: orgId,
+            },
+            data,
+            steps: [_010_check_dispatch_compliance_1.checkDispatchComplianceStep],
+            execute: async (c) => {
+                const shipment = await this.shipmentModel.findByPk(data.shipmentId, {
+                    include: [{ model: models_1.TransportOrderModel }],
+                    transaction: c.t,
+                });
+                if (!shipment)
+                    throw new common_1.NotFoundException('Shipment not found');
+                const resolvedTripId = data.tripId || (await this.sequenceService.next(c.organizationId, 'trip', undefined, c.t));
+                if (data.vehicleId) {
+                    const vehicle = await this.vehicleModel.findByPk(data.vehicleId, { transaction: c.t });
+                    if (vehicle && vehicle.capacityWeight < (shipment.totalWeight || 0)) {
+                        throw new common_1.BadRequestException('Vehicle capacity exceeded');
+                    }
+                    await this.vehicleModel.update({ status: 'ASSIGNED' }, { where: { id: data.vehicleId }, transaction: c.t });
                 }
-                await this.vehicleModel.update({ status: 'ASSIGNED' }, { where: { id: data.vehicleId }, transaction });
-            }
-            if (data.driverId) {
-                await this.driverModel.update({ status: 'ON_TRIP' }, { where: { id: data.driverId }, transaction });
-            }
-            await this.shipmentModel.update({
-                vehicleId: data.vehicleId || null,
-                driverId: data.driverId || null,
-                carrierId: data.carrierId || null,
-                status: 'DISPATCHED',
-            }, { where: { id: data.shipmentId }, transaction });
-            const dispatch = await this.dispatchModel.create({
-                dispatchNumber,
-                tripId,
-                shipmentId: data.shipmentId,
-                vehicleId: data.vehicleId || null,
-                driverId: data.driverId || null,
-                carrierId: data.carrierId || null,
-                dispatchTime: new Date(),
-                status: 'DISPATCHED',
-            }, { transaction });
-            return this.dispatchModel.findByPk(dispatch.id, {
-                include: [
-                    { model: models_1.ShipmentModel },
-                    { model: models_1.VehicleModel },
-                    { model: models_1.DriverModel },
-                    { model: models_1.CarrierModel },
-                ],
-                transaction,
-            });
+                if (data.driverId) {
+                    await this.driverModel.update({ status: 'ON_TRIP' }, { where: { id: data.driverId }, transaction: c.t });
+                }
+                await this.shipmentModel.update({
+                    vehicleId: data.vehicleId || null,
+                    driverId: data.driverId || null,
+                    carrierId: data.carrierId || null,
+                    status: 'DISPATCHED',
+                }, { where: { id: data.shipmentId }, transaction: c.t });
+                const dispatch = await this.dispatchModel.create({
+                    dispatchNumber,
+                    tripId: resolvedTripId,
+                    shipmentId: data.shipmentId,
+                    vehicleId: data.vehicleId || null,
+                    driverId: data.driverId || null,
+                    carrierId: data.carrierId || null,
+                    dispatchTime: new Date(),
+                    status: 'DISPATCHED',
+                }, { transaction: c.t });
+                return this.dispatchModel.findByPk(dispatch.id, {
+                    include: [
+                        { model: models_1.ShipmentModel },
+                        { model: models_1.VehicleModel },
+                        { model: models_1.DriverModel },
+                        { model: models_1.CarrierModel },
+                    ],
+                    transaction: c.t,
+                });
+            },
         });
     }
     async updateTrip(id, data) {
@@ -483,6 +500,7 @@ exports.DispatchService = DispatchService = __decorate([
     __param(3, (0, sequelize_1.InjectModel)(models_1.DriverModel)),
     __param(4, (0, sequelize_1.InjectModel)(models_1.TripExpenseModel)),
     __param(5, (0, sequelize_1.InjectModel)(models_1.AuditLogModel)),
-    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object, ops_runner_service_1.OpsRunnerService,
+        document_sequence_service_1.DocumentSequenceService])
 ], DispatchService);
 //# sourceMappingURL=dispatch.service.js.map

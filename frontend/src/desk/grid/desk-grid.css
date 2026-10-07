@@ -443,6 +443,53 @@
   color: #dc2626;
 }
 
+/* Active Action Button Focus when navigating inside action cells */
+.desk-grid .btn-table-action.desk-btn-active,
+.desk-grid .btn-table-edit.desk-btn-active,
+.desk-grid .btn-table-action.excel-btn-active,
+.desk-grid .btn-table-edit.excel-btn-active,
+.desk-grid .q-btn.desk-btn-active,
+.desk-grid .q-btn.excel-btn-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 1px !important;
+  background-color: #bae6fd !important;
+  color: #0369a1 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.4), 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+  transform: scale(1.05);
+  z-index: 20 !important;
+}
+
+.desk-grid .btn-table-icon.desk-btn-active,
+.desk-grid .btn-table-icon.excel-btn-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 1px !important;
+  background-color: #e0f2fe !important;
+  color: #0284c7 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.4), 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+  transform: scale(1.08);
+  z-index: 20 !important;
+}
+
+.desk-grid .btn-table-delete.desk-btn-active,
+.desk-grid .btn-table-delete.excel-btn-active,
+.desk-grid .btn-table-icon--danger.desk-btn-active,
+.desk-grid .btn-table-icon--danger.excel-btn-active {
+  outline: 2px solid #ef4444 !important;
+  outline-offset: 1px !important;
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4), 0 2px 6px rgba(239, 68, 68, 0.3) !important;
+  transform: scale(1.08);
+  z-index: 20 !important;
+}
+
+/* When an individual button is actively focused, relax cell outline */
+.desk-grid td.desk-cell-active:has(.desk-btn-active),
+.desk-grid td.desk-cell-active:has(.excel-btn-active) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Select menu popup */
 .desk-select-menu,
 .q-menu.q-position-engine {

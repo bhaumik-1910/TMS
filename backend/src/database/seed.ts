@@ -35,6 +35,10 @@ import {
   InvoiceItemModel,
   PaymentModel,
   NotificationModel,
+  BranchModel,
+  DocumentSequenceModel,
+  PeriodLockModel,
+  CompanySettingModel,
 } from './models';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -603,6 +607,108 @@ async function seedDatabase() {
       message: 'Shipment SHP-2026-1001 is en route to Dallas Hub.',
       type: 'INFO',
     });
+
+    // 13. Ankpal-style Foundation Data
+    // A. Branches
+    await BranchModel.findOrCreate({
+      where: { organizationId: org.id, code: 'HO-AHM' },
+      defaults: {
+        organizationId: org.id,
+        code: 'HO-AHM',
+        name: 'Ahmedabad Central Head Office',
+        city: 'Ahmedabad',
+        stateCode: 'GJ',
+        gstin: '24AAACT1234F1Z1',
+        isHeadOffice: true,
+        status: 'active',
+        address: 'Transport Nagar, Narol, Ahmedabad',
+      },
+    });
+
+    await BranchModel.findOrCreate({
+      where: { organizationId: org.id, code: 'HUB-MUM' },
+      defaults: {
+        organizationId: org.id,
+        code: 'HUB-MUM',
+        name: 'Mumbai Kalamboli Hub',
+        city: 'Navi Mumbai',
+        stateCode: 'MH',
+        gstin: '27AAACT1234F1Z2',
+        isHeadOffice: false,
+        status: 'active',
+        address: 'Steel Market Yard, Kalamboli, Navi Mumbai',
+      },
+    });
+
+    await BranchModel.findOrCreate({
+      where: { organizationId: org.id, code: 'BR-SUR' },
+      defaults: {
+        organizationId: org.id,
+        code: 'BR-SUR',
+        name: 'Surat Textile Logistics Hub',
+        city: 'Surat',
+        stateCode: 'GJ',
+        gstin: '24AAACT1234F1Z3',
+        isHeadOffice: false,
+        status: 'active',
+        address: 'Ring Road Logistics Park, Surat',
+      },
+    });
+
+    // B. Document Sequences
+    const initialSequences = [
+      { docType: 'lr', prefix: 'LR', nextValue: 1042, period: '24-25' },
+      { docType: 'trip', prefix: 'TRIP', nextValue: 512, period: '24-25' },
+      { docType: 'invoice', prefix: 'INV', nextValue: 201, period: '24-25' },
+      { docType: 'fuel', prefix: 'FUEL', nextValue: 88, period: '24-25' },
+      { docType: 'settlement', prefix: 'STL', nextValue: 45, period: '24-25' },
+      { docType: 'advance', prefix: 'ADV', nextValue: 310, period: '24-25' },
+    ];
+
+    for (const seq of initialSequences) {
+      await DocumentSequenceModel.findOrCreate({
+        where: { organizationId: org.id, docType: seq.docType, period: seq.period },
+        defaults: {
+          organizationId: org.id,
+          docType: seq.docType,
+          period: seq.period,
+          prefix: seq.prefix,
+          nextValue: seq.nextValue,
+        },
+      });
+    }
+
+    // C. Period Locks (Default baseline lock)
+    await PeriodLockModel.findOrCreate({
+      where: { organizationId: org.id, branchId: 0 },
+      defaults: {
+        organizationId: org.id,
+        branchId: 0,
+        lockedUntil: '2024-03-31',
+        createdById: userMap['ADMIN']?.id,
+      },
+    });
+
+    // D. Company Settings
+    const settingsList = [
+      { key: 'company.name', value: 'Apex Global Logistics Cloud' },
+      { key: 'company.currency', value: 'INR' },
+      { key: 'company.financial_year_start', value: '04-01' },
+      { key: 'operational.default_tax_rate', value: 18 },
+      { key: 'operational.auto_calc_fuel_mileage', value: true },
+      { key: 'compliance.strict_driver_license_check', value: true },
+    ];
+
+    for (const s of settingsList) {
+      await CompanySettingModel.findOrCreate({
+        where: { organizationId: org.id, key: s.key },
+        defaults: {
+          organizationId: org.id,
+          key: s.key,
+          value: s.value,
+        },
+      });
+    }
 
     console.log('🎉 Enterprise TMS Master Database Seeding Completed Successfully!');
     await sequelize.close();

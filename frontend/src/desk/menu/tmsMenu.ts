@@ -11,6 +11,7 @@ export const TMS_MENU_TREE: DeskMenuNode[] = [
     label: 'Masters',
     letter: 'm',
     children: [
+      { label: 'Branches & Hubs', letter: 'b', route: '/branches', icon: 'storefront' },
       { label: 'Vehicles & Fleet', letter: 'v', route: '/fleet', icon: 'local_shipping' },
       { label: 'Drivers Master', letter: 'd', route: '/drivers', icon: 'badge' },
       { label: 'Customers / Debtors', letter: 'c', route: '/customers', icon: 'people' },

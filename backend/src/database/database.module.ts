@@ -1,34 +1,31 @@
-import { Module, Global } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ALL_MODELS } from './models';
+import { appConfig, type AppConfig } from '../config/app.config.js';
+import { connectionOptions } from '../framework/tenancy/connection-registry.js';
 
-@Global()
+const logger = new Logger('Sequelize');
+
+/**
+ * Postgres via sequelize-typescript. Models register themselves through `forFeature`. The pool
+ * starts with an unusable `search_path`, so SQL that skips the tenant context fails loudly.
+ */
 @Module({
   imports: [
     SequelizeModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        const uri = config.get<string>('DATABASE_URL');
-        return {
-          dialect: 'postgres',
-          uri,
-          models: ALL_MODELS,
-          autoLoadModels: true,
-          synchronize: false, // controlled via sync script or manual sync
-          logging: false,
-          pool: {
-            max: 20,
-            min: 2,
-            acquire: 30000,
-            idle: 10000,
-          },
-        };
-      },
+      inject: [appConfig.KEY],
+      useFactory: (config: AppConfig) => ({
+        ...connectionOptions(10),
+        define: { underscored: false },
+        uri: config.databaseUri,
+        autoLoadModels: true,
+        dialectOptions: {
+          options: '-c search_path=public,platform',
+        },
+        // Tables are created per schema by the framework (`SchemaSync`), never by a blanket sync.
+        synchronize: false,
+        logging: config.dbLogging ? (sql: string) => logger.debug(sql) : false,
+      }),
     }),
-    SequelizeModule.forFeature(ALL_MODELS),
   ],
-  exports: [SequelizeModule],
 })
 export class DatabaseModule {}

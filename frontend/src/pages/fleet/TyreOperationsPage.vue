@@ -1,24 +1,48 @@
 <template>
-  <div class="tyre-operations-page p-3 sm:p-4 text-slate-800 font-sans">
-    <!-- Header matching Image 1 & Image 2 -->
-    <div class="row items-center justify-between q-mb-md">
-      <div>
-        <div class="text-h5 text-weight-bold text-slate-900 relative inline-block">
-          Tyre Operations
-          <div class="title-underline"></div>
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Tyre Inventory &amp; Operations</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <!-- + Tyre Event button only visible on Fit / Remove / Events tab matching Image 2 -->
-      <div v-if="activeTab === 'events'" class="row items-center q-gutter-x-sm">
+      <div class="flex items-center gap-3">
         <button
           type="button"
-          class="desk-btn-cyan-action"
+          class="btn-primary-cyan"
           @click="openAddEventDialog"
         >
           <q-icon name="add" size="18px" />
           <span>Tyre Event</span>
         </button>
+      </div>
+    </div>
+
+    <!-- 4 KPI Stat Cards matching Billing Page -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="kpi-box kpi-box--active">
+        <div class="kpi-title text-sky-600">TOTAL TYRE ASSETS</div>
+        <div class="kpi-amount text-sky-700">{{ tyres.length }}</div>
+        <div class="kpi-subtext">Tracked fleet inventory</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-title text-emerald-700">FITTED ON FLEET</div>
+        <div class="kpi-amount text-emerald-600">{{ fittedCount }}</div>
+        <div class="kpi-subtext">Axle mounted rolling units</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-title">WAREHOUSE STOCK</div>
+        <div class="kpi-amount text-slate-800">{{ stockCount }}</div>
+        <div class="kpi-subtext">Available unassigned tyres</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-title text-amber-700">RETREAD / SCRAP</div>
+        <div class="kpi-amount text-amber-600">{{ scrappedCount }}</div>
+        <div class="kpi-subtext">Retreaded or decommissioned</div>
       </div>
     </div>
 
@@ -70,9 +94,9 @@
           </thead>
           <tbody>
             <tr v-for="item in tyres" :key="item.serialNo || item.id">
-              <td class="font-mono font-bold text-cyan-400">{{ item.serialNo || item.id }}</td>
-              <td class="font-medium text-white">{{ item.brand }}</td>
-              <td class="font-mono text-slate-300">{{ item.size }}</td>
+              <td class="font-mono font-bold text-sky-700">{{ item.serialNo || item.id }}</td>
+              <td class="font-medium text-slate-900">{{ item.brand }}</td>
+              <td class="font-mono text-slate-700">{{ item.size }}</td>
               <td>
                 <span
                   class="type-pill"
@@ -81,12 +105,12 @@
                   {{ item.type }}
                 </span>
               </td>
-              <td class="text-slate-300">{{ item.supplier }}</td>
-              <td class="font-mono text-slate-300">{{ formatCost(item.cost) }}</td>
-              <td class="font-mono text-slate-300">{{ item.vehicle || '—' }}</td>
-              <td class="font-mono text-slate-300">{{ item.position || '—' }}</td>
-              <td class="font-mono text-slate-400">{{ item.fitDate || '—' }}</td>
-              <td class="font-mono text-slate-300">{{ formatOdometer(item.fitOdom) }}</td>
+              <td class="text-slate-800">{{ item.supplier }}</td>
+              <td class="font-mono text-slate-700">{{ formatCost(item.cost) }}</td>
+              <td class="font-mono text-slate-700">{{ item.vehicle || '—' }}</td>
+              <td class="font-mono text-slate-700">{{ item.position || '—' }}</td>
+              <td class="font-mono text-slate-600">{{ item.fitDate || '—' }}</td>
+              <td class="font-mono text-slate-700">{{ formatOdometer(item.fitOdom) }}</td>
               <td>
                 <span
                   class="status-pill"
@@ -123,18 +147,18 @@
           </thead>
           <tbody>
             <tr v-for="ev in events" :key="ev.id || ev.eventId">
-              <td class="font-mono font-bold text-cyan-400">{{ ev.eventId || ev.id }}</td>
-              <td class="font-mono text-slate-200">{{ ev.tyreSerial }}</td>
-              <td class="font-mono text-slate-200">{{ ev.vehicle }}</td>
+              <td class="font-mono font-bold text-sky-700">{{ ev.eventId || ev.id }}</td>
+              <td class="font-mono text-slate-800">{{ ev.tyreSerial }}</td>
+              <td class="font-mono text-slate-800">{{ ev.vehicle }}</td>
               <td>
                 <span class="event-pill" :class="getEventPillClass(ev.eventType)">
                   {{ ev.eventType }}
                 </span>
               </td>
-              <td class="font-mono text-slate-300">{{ ev.position }}</td>
-              <td class="font-mono text-slate-400">{{ ev.date }}</td>
-              <td class="font-mono text-slate-300">{{ formatOdometer(ev.odometer) }}</td>
-              <td class="text-slate-300">{{ ev.remarks || '—' }}</td>
+              <td class="font-mono text-slate-700">{{ ev.position }}</td>
+              <td class="font-mono text-slate-600">{{ ev.date }}</td>
+              <td class="font-mono text-slate-700">{{ formatOdometer(ev.odometer) }}</td>
+              <td class="text-slate-700">{{ ev.remarks || '—' }}</td>
               <td class="text-center">
                 <button class="btn-table-action" @click="editEvent(ev)">Edit</button>
               </td>
@@ -272,7 +296,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import api from '../../api/client';
 import { useAppNotify } from '../../composables/useAppNotify';
 import {
@@ -436,6 +460,9 @@ const defaultEvents: TyreEventItem[] = [
 ];
 
 const tyres = ref<TyreInventoryItem[]>([]);
+const fittedCount = computed(() => tyres.value.filter((t) => t.status === 'Fitted' || t.status === 'FITTED' || (t.vehicle && t.vehicle !== '—')).length);
+const stockCount = computed(() => tyres.value.filter((t) => t.status === 'Stock' || t.status === 'STOCK' || !t.vehicle || t.vehicle === '—').length);
+const scrappedCount = computed(() => tyres.value.filter((t) => t.status === 'Scrapped' || t.status === 'SCRAPPED').length);
 const events = ref<TyreEventItem[]>([]);
 
 // Event Dialog State

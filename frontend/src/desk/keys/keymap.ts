@@ -1,90 +1,77 @@
+import { presetToCombo, type DeskCombo } from './combo';
+
+/** Action id to key list, the same shape as the preset JSON files. An empty list means unbound. */
+export type DeskBindings = Record<string, string[]>;
+
+export type DeskBindingSource = 'preset' | 'custom' | 'desk';
+
+/** Desk-only actions with their default keys. Presets and user overrides win over these. */
+export const DESK_EXTRA: DeskBindings = {
+  'desk-keys': ['ctrl', 'alt', 'k'],
+  'grid-cell-dialog': ['ctrl', 'enter'],
+  'desk-jump': ['ctrl', 'enter'],
+  'desk-move-up': ['ctrl', 'arrowup'],
+  'desk-move-down': ['ctrl', 'arrowdown'],
+  'desk-move-left': ['ctrl', 'arrowleft'],
+  'desk-move-right': ['ctrl', 'arrowright'],
+  'desk-tab-prev': ['ctrl', 'shift', 'arrowleft'],
+  'desk-tab-next': ['ctrl', 'shift', 'arrowright'],
+};
+
+export function mergeBindings(preset: DeskBindings, overrides: DeskBindings): DeskBindings {
+  return { ...DESK_EXTRA, ...preset, ...overrides };
+}
+
+/** Combo to the action ids bound to it, in binding order. Built once per keymap change. */
+export function indexBindings(bindings: DeskBindings): Map<DeskCombo, string[]> {
+  const index = new Map<DeskCombo, string[]>();
+  for (const [id, keys] of Object.entries(bindings)) {
+    const combo = presetToCombo(keys);
+    if (!combo) continue;
+    const ids = index.get(combo);
+    if (ids) ids.push(id);
+    else index.set(combo, [id]);
+  }
+  return index;
+}
+
+export function bindingSource(id: string, overrides: DeskBindings): DeskBindingSource {
+  if (id in overrides) return 'custom';
+  if (id in DESK_EXTRA) return 'desk';
+  return 'preset';
+}
+
+/** Navigation runs from the shell; everything else runs on a page or dialog. */
+export function scopeClass(id: string): 'global' | 'page' {
+  return id.startsWith('nav-') || id.startsWith('quick-') || id.startsWith('desk-') ? 'global' : 'page';
+}
+
+/** Other actions in the same scope class that already use this combo. */
+export function comboConflicts(bindings: DeskBindings, actionId: string, combo: DeskCombo): string[] {
+  const scope = scopeClass(actionId);
+  return Object.entries(bindings)
+    .filter(([id, keys]) => id !== actionId && scopeClass(id) === scope && presetToCombo(keys) === combo)
+    .map(([id]) => id);
+}
+
+// Backward-compatible DeskCommand interface
 export interface DeskCommand {
   id: string;
   label: string;
   description?: string;
   category: 'NAVIGATION' | 'DATA' | 'WORKFLOW' | 'SYSTEM';
-  keys: string[]; // e.g. ['ctrl+s', 'cmd+s']
+  keys: string[];
   roleRequired?: string[];
   permissionRequired?: string;
   scope?: 'GLOBAL' | 'FORM' | 'GRID' | 'DIALOG';
 }
 
 export const DEFAULT_KEYMAP: Record<string, DeskCommand> = {
-  // Navigation & Search
-  GLOBAL_SEARCH: {
-    id: 'GLOBAL_SEARCH',
-    label: 'Open Command Palette',
-    category: 'NAVIGATION',
-    keys: ['ctrl+k', 'meta+k'],
-    scope: 'GLOBAL',
-  },
-  DISMISS_LAYER: {
-    id: 'DISMISS_LAYER',
-    label: 'Close Active Layer / Modal',
-    category: 'NAVIGATION',
-    keys: ['escape'],
-    scope: 'GLOBAL',
-  },
-
-  // Data & Forms
-  SAVE_FORM: {
-    id: 'SAVE_FORM',
-    label: 'Save Current Record (Tally Accept)',
-    category: 'DATA',
-    keys: ['ctrl+a', 'alt+s', 'ctrl+s', 'meta+s'],
-    scope: 'FORM',
-  },
-  NEW_RECORD: {
-    id: 'NEW_RECORD',
-    label: 'New Record / Voucher Create',
-    category: 'DATA',
-    keys: ['alt+c', 'ctrl+alt+n', 'insert', 'ctrl+n'],
-    scope: 'GLOBAL',
-  },
-  EDIT_CELL: {
-    id: 'EDIT_CELL',
-    label: 'Edit Grid Cell / Quick Date',
-    category: 'DATA',
-    keys: ['f2'],
-    scope: 'GRID',
-  },
-  SWITCH_TENANT: {
-    id: 'SWITCH_TENANT',
-    label: 'Switch Company / Tenant',
-    category: 'SYSTEM',
-    keys: ['f3'],
-    scope: 'GLOBAL',
-  },
-  FILTER_SEARCH: {
-    id: 'FILTER_SEARCH',
-    label: 'Filter Active Table / Search',
-    category: 'NAVIGATION',
-    keys: ['alt+f'],
-    scope: 'GLOBAL',
-  },
-
-  // Workflow Actions
-  PLAN_LOAD: {
-    id: 'PLAN_LOAD',
-    label: 'Consolidate & Plan Load',
-    category: 'WORKFLOW',
-    keys: ['ctrl+shift+p'],
-    roleRequired: ['TRANSPORT_PLANNER', 'SUPER_ADMIN', 'TMS_ADMIN'],
-    scope: 'GLOBAL',
-  },
-  RELEASE_DISPATCH: {
-    id: 'RELEASE_DISPATCH',
-    label: 'Release Dispatch to Driver',
-    category: 'WORKFLOW',
-    keys: ['ctrl+shift+d'],
-    roleRequired: ['DISPATCHER', 'SUPER_ADMIN', 'OPERATIONS_MANAGER'],
-    scope: 'GLOBAL',
-  },
-  PRINT_INVOICE: {
-    id: 'PRINT_INVOICE',
-    label: 'Preview / Print Invoice PDF',
-    category: 'WORKFLOW',
-    keys: ['ctrl+shift+i'],
-    scope: 'GLOBAL',
-  },
+  GLOBAL_SEARCH: { id: 'GLOBAL_SEARCH', label: 'Open Command Palette', category: 'NAVIGATION', keys: ['ctrl+k', 'meta+k'], scope: 'GLOBAL' },
+  DISMISS_LAYER: { id: 'DISMISS_LAYER', label: 'Close Active Layer / Modal', category: 'NAVIGATION', keys: ['escape'], scope: 'GLOBAL' },
+  SAVE_FORM: { id: 'SAVE_FORM', label: 'Save Record (Accept)', category: 'DATA', keys: ['ctrl+a', 'ctrl+s'], scope: 'FORM' },
+  NEW_RECORD: { id: 'NEW_RECORD', label: 'New Record (Create)', category: 'DATA', keys: ['alt+c', 'alt+n'], scope: 'GLOBAL' },
+  EDIT_CELL: { id: 'EDIT_CELL', label: 'Edit / Alter Cell', category: 'DATA', keys: ['f2', 'ctrl+enter'], scope: 'GRID' },
+  SWITCH_TENANT: { id: 'SWITCH_TENANT', label: 'Switch Company', category: 'SYSTEM', keys: ['alt+f3', 'f3'], scope: 'GLOBAL' },
+  FILTER_SEARCH: { id: 'FILTER_SEARCH', label: 'Filter / Search', category: 'NAVIGATION', keys: ['alt+f'], scope: 'GLOBAL' },
 };

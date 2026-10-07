@@ -20,9 +20,9 @@ async function syncDatabase() {
     try {
         await sequelize.authenticate();
         console.log('✅ Connected to PostgreSQL database successfully.');
-        console.log('⚠️  Wiping and re-synchronizing all tables (force: true)...');
-        await sequelize.sync({ force: true });
-        console.log('✅ Database schema cleanly synchronized.');
+        console.log('Synchronizing all tables (CREATE TABLE IF NOT EXISTS)...');
+        await sequelize.sync();
+        console.log('Database schema cleanly synchronized.');
         await sequelize.close();
         console.log('🔌 Connection closed.');
         process.exit(0);

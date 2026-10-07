@@ -16,6 +16,7 @@ export interface GridKeyboardOptions {
 export function useGridKeyboard(options: GridKeyboardOptions) {
   const activeRow = ref(0);
   const activeCol = ref(0);
+  const activeActionIndex = ref(-1);
   const isEditing = ref(false);
   const editInitialChar = ref<string | null>(null);
 
@@ -25,6 +26,48 @@ export function useGridKeyboard(options: GridKeyboardOptions) {
 
   const maxRow = computed(() => Math.max(0, options.rowCount.value - 1));
   const maxCol = computed(() => Math.max(0, options.colCount.value - 1));
+
+  function getActionButtonsInCurrentCell(): HTMLElement[] {
+    if (typeof document === 'undefined') return [];
+    const root = options.gridRootRef?.value || document;
+    const cell = root.querySelector('.desk-cell-active') as HTMLElement | null;
+    if (!cell) return [];
+    return Array.from(
+      cell.querySelectorAll<HTMLElement>(
+        'button:not([disabled]):not([tabindex="-1"]), .q-btn:not([disabled]):not([tabindex="-1"])'
+      )
+    );
+  }
+
+  function syncActionButtonFocus() {
+    if (typeof document === 'undefined') return;
+    nextTick(() => {
+      const root = options.gridRootRef?.value || document;
+      // Remove active classes on buttons throughout grid
+      root.querySelectorAll('.desk-btn-active, .excel-btn-active').forEach((el) => {
+        el.classList.remove('desk-btn-active', 'excel-btn-active');
+      });
+
+      const buttons = getActionButtonsInCurrentCell();
+      if (buttons.length === 0) {
+        activeActionIndex.value = -1;
+        return;
+      }
+
+      if (activeActionIndex.value < 0) {
+        activeActionIndex.value = 0;
+      } else if (activeActionIndex.value >= buttons.length) {
+        activeActionIndex.value = buttons.length - 1;
+      }
+
+      const currentBtn = buttons[activeActionIndex.value];
+      if (currentBtn) {
+        currentBtn.classList.add('desk-btn-active', 'excel-btn-active');
+        currentBtn.focus();
+        currentBtn.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+      }
+    });
+  }
 
   function scrollActiveCellIntoView() {
     if (typeof document === 'undefined') return;
@@ -39,43 +82,110 @@ export function useGridKeyboard(options: GridKeyboardOptions) {
 
   watch([activeRow, activeCol], () => {
     scrollActiveCellIntoView();
+    nextTick(() => {
+      const buttons = getActionButtonsInCurrentCell();
+      if (buttons.length > 0) {
+        if (activeActionIndex.value < 0) {
+          activeActionIndex.value = 0;
+        }
+        syncActionButtonFocus();
+      } else {
+        activeActionIndex.value = -1;
+        const root = options.gridRootRef?.value || document;
+        root.querySelectorAll('.desk-btn-active, .excel-btn-active').forEach((el) => {
+          el.classList.remove('desk-btn-active', 'excel-btn-active');
+        });
+      }
+    });
   });
 
-  function setFocus(row: number, col: number) {
+  function setFocus(row: number, col: number, actionIdx = -1) {
     activeRow.value = Math.max(0, Math.min(row, maxRow.value));
     activeCol.value = Math.max(0, Math.min(col, maxCol.value));
+    activeActionIndex.value = actionIdx;
     scrollActiveCellIntoView();
+    if (actionIdx >= 0) {
+      syncActionButtonFocus();
+    }
   }
 
   function moveUp(delta = 1) {
+    activeActionIndex.value = -1;
     if (activeRow.value > 0) {
       activeRow.value = Math.max(0, activeRow.value - delta);
     }
   }
 
   function moveDown(delta = 1) {
+    activeActionIndex.value = -1;
     if (activeRow.value < maxRow.value) {
       activeRow.value = Math.min(maxRow.value, activeRow.value + delta);
     }
   }
 
   function moveLeft() {
+    const buttons = getActionButtonsInCurrentCell();
+    // Step backwards through action buttons if in a multi-button cell
+    if (buttons.length > 1 && activeActionIndex.value > 0) {
+      activeActionIndex.value--;
+      syncActionButtonFocus();
+      return;
+    }
+
+    activeActionIndex.value = -1;
     if (activeCol.value > 0) {
       activeCol.value--;
+      nextTick(() => {
+        const prevButtons = getActionButtonsInCurrentCell();
+        if (prevButtons.length > 0) {
+          activeActionIndex.value = prevButtons.length - 1;
+          syncActionButtonFocus();
+        }
+      });
     } else if (activeRow.value > 0) {
       // Wrap to previous row's last column
       activeRow.value--;
       activeCol.value = maxCol.value;
+      nextTick(() => {
+        const prevButtons = getActionButtonsInCurrentCell();
+        if (prevButtons.length > 0) {
+          activeActionIndex.value = prevButtons.length - 1;
+          syncActionButtonFocus();
+        }
+      });
     }
   }
 
   function moveRight() {
+    const buttons = getActionButtonsInCurrentCell();
+    // Step forward through action buttons if in a multi-button cell
+    if (buttons.length > 1 && activeActionIndex.value >= 0 && activeActionIndex.value < buttons.length - 1) {
+      activeActionIndex.value++;
+      syncActionButtonFocus();
+      return;
+    }
+
+    activeActionIndex.value = -1;
     if (activeCol.value < maxCol.value) {
       activeCol.value++;
+      nextTick(() => {
+        const nextButtons = getActionButtonsInCurrentCell();
+        if (nextButtons.length > 0) {
+          activeActionIndex.value = 0;
+          syncActionButtonFocus();
+        }
+      });
     } else if (activeRow.value < maxRow.value) {
       // Wrap to next row's first column
       activeRow.value++;
       activeCol.value = 0;
+      nextTick(() => {
+        const nextButtons = getActionButtonsInCurrentCell();
+        if (nextButtons.length > 0) {
+          activeActionIndex.value = 0;
+          syncActionButtonFocus();
+        }
+      });
     }
   }
 
@@ -181,6 +291,13 @@ export function useGridKeyboard(options: GridKeyboardOptions) {
       case 'Enter':
         event.preventDefault();
         event.stopPropagation();
+        if (activeActionIndex.value >= 0) {
+          const currentButtons = getActionButtonsInCurrentCell();
+          if (currentButtons.length > 0 && currentButtons[activeActionIndex.value]) {
+            currentButtons[activeActionIndex.value].click();
+            return true;
+          }
+        }
         if (event.shiftKey) {
           moveLeft();
         } else {
@@ -213,10 +330,17 @@ export function useGridKeyboard(options: GridKeyboardOptions) {
         startEdit();
         return true;
 
-      case ' ': // Spacebar selects row
+      case ' ': // Spacebar selects row or clicks action button
         if (!isInsideInput) {
           event.preventDefault();
           event.stopPropagation();
+          if (activeActionIndex.value >= 0) {
+            const currentButtons = getActionButtonsInCurrentCell();
+            if (currentButtons.length > 0 && currentButtons[activeActionIndex.value]) {
+              currentButtons[activeActionIndex.value].click();
+              return true;
+            }
+          }
           options.onSelect?.(activeRow.value);
           return true;
         }
@@ -298,6 +422,7 @@ export function useGridKeyboard(options: GridKeyboardOptions) {
     activeCol,
     activeRowIndex,
     activeColIndex,
+    activeActionIndex,
     isEditing,
     editInitialChar,
     setFocus,
@@ -309,5 +434,7 @@ export function useGridKeyboard(options: GridKeyboardOptions) {
     stopEdit,
     handleKeyDown,
     scrollActiveCellIntoView,
+    syncActionButtonFocus,
+    getActionButtonsInCurrentCell,
   };
 }

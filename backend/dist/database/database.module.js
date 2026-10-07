@@ -9,39 +9,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DatabaseModule = void 0;
 const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
-const config_1 = require("@nestjs/config");
-const models_1 = require("./models");
+const app_config_js_1 = require("../config/app.config.js");
+const connection_registry_js_1 = require("../framework/tenancy/connection-registry.js");
+const logger = new common_1.Logger('Sequelize');
 let DatabaseModule = class DatabaseModule {
 };
 exports.DatabaseModule = DatabaseModule;
 exports.DatabaseModule = DatabaseModule = __decorate([
-    (0, common_1.Global)(),
     (0, common_1.Module)({
         imports: [
             sequelize_1.SequelizeModule.forRootAsync({
-                imports: [config_1.ConfigModule],
-                inject: [config_1.ConfigService],
-                useFactory: (config) => {
-                    const uri = config.get('DATABASE_URL');
-                    return {
-                        dialect: 'postgres',
-                        uri,
-                        models: models_1.ALL_MODELS,
-                        autoLoadModels: true,
-                        synchronize: false,
-                        logging: false,
-                        pool: {
-                            max: 20,
-                            min: 2,
-                            acquire: 30000,
-                            idle: 10000,
-                        },
-                    };
-                },
+                inject: [app_config_js_1.appConfig.KEY],
+                useFactory: (config) => ({
+                    ...(0, connection_registry_js_1.connectionOptions)(10),
+                    define: { underscored: false },
+                    uri: config.databaseUri,
+                    autoLoadModels: true,
+                    dialectOptions: {
+                        options: '-c search_path=public,platform',
+                    },
+                    synchronize: false,
+                    logging: config.dbLogging ? (sql) => logger.debug(sql) : false,
+                }),
             }),
-            sequelize_1.SequelizeModule.forFeature(models_1.ALL_MODELS),
         ],
-        exports: [sequelize_1.SequelizeModule],
     })
 ], DatabaseModule);
 //# sourceMappingURL=database.module.js.map

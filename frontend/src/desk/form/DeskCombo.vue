@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue';
-import { useDeskFocus } from '../focus/useDeskFocus';
+import { useDeskFocus, isElementVisible, isPlaceholderText } from '../focus/useDeskFocus';
 
 const props = withDefaults(
   defineProps<{
@@ -157,33 +157,48 @@ function onModelUpdate(val: any) {
   emit('update:modelValue', val);
 }
 
+
+function isPlaceholderOption(opt: any): boolean {
+  if (opt === undefined || opt === null) return true;
+  const label = getOptionLabel(opt);
+  if (isPlaceholderText(label)) return true;
+  const val = getOptionValue(opt);
+  if (val === '' || val === null || val === undefined) return true;
+  return false;
+}
+
+function getFirstValidOptionIndex(list: any[]): number {
+  if (!list || list.length === 0) return 0;
+  const idx = list.findIndex((opt) => !isPlaceholderOption(opt));
+  return idx >= 0 ? idx : 0;
+}
+
 function getInitialTargetIndex(): number {
   const currentList = filteredOptions.value;
   if (!currentList || currentList.length === 0) return 0;
 
   const currentVal = props.modelValue;
-  if (currentVal !== undefined && currentVal !== null && currentVal !== '— Select —') {
+  if (currentVal !== undefined && currentVal !== null && !isPlaceholderText(String(currentVal))) {
     const found = currentList.findIndex((opt) => getOptionValue(opt) === currentVal);
     if (found >= 0) return found;
   }
 
-  // If first item is placeholder '— Select —' and there are more options, highlight the first real option!
-  if (currentList[0] === '— Select —' && currentList.length > 1) {
-    return 1;
-  }
-
-  return 0;
+  return getFirstValidOptionIndex(currentList);
 }
 
 function highlightPopupItem(targetIdx: number) {
   setTimeout(() => {
-    const menuEl = document.querySelector('.desk-select-menu');
+    const menuEl = document.querySelector('.desk-select-menu, .q-menu:not([style*="display: none"])');
     if (menuEl) {
-      const items = menuEl.querySelectorAll<HTMLElement>('.q-item');
-      if (items[targetIdx]) {
+      const items = Array.from(menuEl.querySelectorAll<HTMLElement>('.q-item:not(.disabled)'));
+      let item = items[targetIdx];
+      if (!item || isPlaceholderText(item.textContent?.trim() || '')) {
+        item = items.find((it) => !isPlaceholderText(it.textContent?.trim() || '')) || items[0];
+      }
+      if (item) {
         items.forEach((it) => it.classList.remove('q-manual-focus--is-focused', 'desk-option-active'));
-        items[targetIdx].classList.add('q-manual-focus--is-focused', 'desk-option-active');
-        items[targetIdx].scrollIntoView({ block: 'nearest' });
+        item.classList.add('q-manual-focus--is-focused', 'desk-option-active');
+        item.scrollIntoView({ block: 'nearest' });
       }
     }
   }, 25);
@@ -209,11 +224,13 @@ function advanceFocus(direction: 1 | -1 = 1) {
     rootEl.closest('.desk-dialog') ||
     rootEl.closest('.q-dialog') ||
     rootEl.closest('.desk-form') ||
-    rootEl.closest('.q-card')) as HTMLElement | null;
+    rootEl.closest('.q-card') ||
+    document.querySelector('.q-dialog:not([style*="display: none"])') ||
+    document.body) as HTMLElement | null;
 
   if (container) {
     if (direction === 1) {
-      const advanced = focusNextInput(container);
+      const advanced = focusNextInput(container, rootEl);
       if (!advanced) {
         // Last field: trigger accept / confirm / save!
         const confirmBtn = container.querySelector<HTMLButtonElement>(
@@ -226,7 +243,7 @@ function advanceFocus(direction: 1 | -1 = 1) {
         }
       }
     } else {
-      focusPreviousInput(container);
+      focusPreviousInput(container, rootEl);
     }
     return;
   }
@@ -237,19 +254,20 @@ function advanceFocus(direction: 1 | -1 = 1) {
     const focusableList: HTMLElement[] = [];
 
     // Search input first
-    const searchInput = toolbar.querySelector<HTMLElement>('.desk-grid-search input');
-    if (searchInput && searchInput.offsetParent !== null) focusableList.push(searchInput);
+    const searchInput = toolbar.querySelector<HTMLElement>('.desk-grid-search input, .desk-search-input input');
+    if (searchInput && isElementVisible(searchInput)) focusableList.push(searchInput);
 
     // Each DeskCombo / filter combo in DOM order
-    const comboRoots = Array.from(toolbar.querySelectorAll<HTMLElement>('.desk-filter-select, .desk-combo'));
+    const comboRoots = Array.from(toolbar.querySelectorAll<HTMLElement>('.desk-filter-select, .desk-combo, .q-select'));
     const seen = new Set<HTMLElement>();
     for (const combo of comboRoots) {
       const native =
         combo.querySelector<HTMLElement>('.q-field__native[tabindex="0"]') ||
         combo.querySelector<HTMLElement>('.q-field__control[tabindex="0"]') ||
+        combo.querySelector<HTMLElement>('input:not([type="hidden"])') ||
         combo.querySelector<HTMLElement>('[tabindex="0"]') ||
         (combo.getAttribute('tabindex') !== null ? combo : null);
-      if (native && native.offsetParent !== null && !seen.has(native)) {
+      if (native && isElementVisible(native) && !seen.has(native)) {
         seen.add(native);
         focusableList.push(native);
       }
@@ -278,8 +296,8 @@ function advanceFocus(direction: 1 | -1 = 1) {
   }
 
   // Fallback
-  if (direction === 1) focusNextInput(document.body);
-  else focusPreviousInput(document.body);
+  if (direction === 1) focusNextInput(document.body, rootEl);
+  else focusPreviousInput(document.body, rootEl);
 }
 
 function onPopupHide() {
@@ -287,11 +305,8 @@ function onPopupHide() {
   filterText.value = '';
   if (shouldAdvanceOnClose) {
     shouldAdvanceOnClose = false;
-    nextTick(() => {
-      setTimeout(() => {
-        advanceFocus(1);
-      }, 50);
-    });
+    setTimeout(() => advanceFocus(1), 40);
+    setTimeout(() => advanceFocus(1), 120);
   }
 }
 
@@ -347,22 +362,27 @@ function handleKeyDown(e: KeyboardEvent) {
     e.stopPropagation();
 
     if (isPopupOpen.value) {
-      // Popup open: pick highlighted item, close and advance!
+      // Popup open: pick highlighted item (or first valid if placeholder), close and advance!
       let idx = typeof selectRef.value?.getOptionIndex === 'function'
         ? selectRef.value.getOptionIndex()
         : -1;
-      if (idx < 0) idx = getInitialTargetIndex();
 
       const currentList = filteredOptions.value;
+      if (idx < 0 || (currentList[idx] && isPlaceholderOption(currentList[idx]))) {
+        idx = getFirstValidOptionIndex(currentList);
+      }
+
       if (idx >= 0 && currentList && currentList[idx] !== undefined) {
         const val = getOptionValue(currentList[idx]);
         emit('update:modelValue', val);
       }
       shouldAdvanceOnClose = true;
       selectRef.value?.hidePopup();
+      setTimeout(() => advanceFocus(1), 40);
+      setTimeout(() => advanceFocus(1), 120);
     } else {
-      // Popup closed: user hit Enter to accept current value and move to next field!
-      advanceFocus(1);
+      // 1st Enter: Open popup so options are visible!
+      selectRef.value?.showPopup();
     }
     return;
   }

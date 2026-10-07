@@ -1,48 +1,57 @@
 <template>
-  <div class="party-master-page p-3 sm:p-4 text-slate-800 font-sans">
-    <!-- Header -->
-    <div class="row items-center justify-between no-wrap q-mb-md">
-      <div>
-        <div class="text-h6 text-weight-bold text-slate-900 relative-position inline-block q-pb-xs">
-          Party Master
-          <div class="header-underline"></div>
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Customers &amp; Debtors</h1>
+        <div class="billing-underline"></div>
       </div>
-      <div class="row items-center q-gutter-x-sm no-wrap">
-        <button type="button" class="btn-hdr-import" @click="exportCsv">
-          Export CSV
+
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="btn-secondary-action"
+          @click="exportCsv"
+        >
+          <q-icon name="download" size="16px" class="q-mr-xs text-slate-600" />
+          <span>Export CSV</span>
         </button>
-        <button type="button" class="btn-hdr-add" @click="openAddParty">
-          + Party
+
+        <button
+          type="button"
+          class="btn-primary-cyan"
+          @click="openAddParty"
+        >
+          <q-icon name="add" size="18px" />
+          <span>Party</span>
         </button>
       </div>
     </div>
 
-    <!-- KPI Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 q-mb-md">
-      <div class="stat-card p-4 rounded-xl border border-sky-200 bg-white relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">TOTAL PARTIES</div>
-        <div class="text-3xl font-extrabold font-mono text-sky-700 my-1">{{ parties.length }}</div>
-        <div class="text-xs text-slate-500 font-mono">Active {{ activeCount }}</div>
-        <div class="accent-bar bg-sky-500"></div>
+    <!-- 4 KPI Stat Cards matching Billing Page -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="kpi-box kpi-box--active">
+        <div class="kpi-title text-sky-600">TOTAL PARTIES</div>
+        <div class="kpi-amount text-sky-700">{{ parties.length }}</div>
+        <div class="kpi-subtext">Active {{ activeCount }} registered parties</div>
       </div>
-      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">CUSTOMERS</div>
-        <div class="text-3xl font-extrabold font-mono text-slate-800 my-1">{{ customerCount }}</div>
-        <div class="text-xs text-slate-500 font-mono">Consignors / Consignees</div>
-        <div class="accent-bar bg-slate-300"></div>
+
+      <div class="kpi-box">
+        <div class="kpi-title">CUSTOMERS (DEBTORS)</div>
+        <div class="kpi-amount text-slate-800">{{ customerCount }}</div>
+        <div class="kpi-subtext">Consignors / Consignees</div>
       </div>
-      <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">VENDORS</div>
-        <div class="text-3xl font-extrabold font-mono text-violet-600 my-1">{{ vendorCount }}</div>
-        <div class="text-xs text-slate-500 font-mono">Fuel / Tyre / Service</div>
-        <div class="accent-bar bg-violet-400"></div>
+
+      <div class="kpi-box">
+        <div class="kpi-title">VENDORS / SUPPLIERS</div>
+        <div class="kpi-amount text-slate-800">{{ vendorCount }}</div>
+        <div class="kpi-subtext">Fuel / Tyre / Workshop</div>
       </div>
-      <div class="stat-card p-4 rounded-xl border border-amber-200 bg-amber-50 relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-amber-700 mb-1">CREDIT EXPOSED</div>
-        <div class="text-3xl font-extrabold font-mono text-amber-600 my-1">{{ creditCount }}</div>
-        <div class="text-xs text-amber-600 font-mono">With credit limits</div>
-        <div class="accent-bar bg-amber-400"></div>
+
+      <div class="kpi-box">
+        <div class="kpi-title">CREDIT EXPOSED</div>
+        <div class="kpi-amount text-amber-600">{{ creditCount }}</div>
+        <div class="kpi-subtext">Parties with credit limits</div>
       </div>
     </div>
 

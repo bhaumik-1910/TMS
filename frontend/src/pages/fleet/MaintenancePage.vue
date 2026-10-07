@@ -1,105 +1,115 @@
 <template>
-  <div class="maintenance-page p-3 sm:p-4 text-slate-800 font-sans">
-    <!-- Header -->
-    <div class="row items-center justify-between q-mb-md">
-      <div>
-        <div class="text-h6 text-weight-bold text-slate-900 row items-center q-gutter-x-sm">
-          <q-icon name="build" color="primary" size="24px" />
-          <span>Maintenance / Job Cards</span>
-        </div>
-        <div class="text-caption text-slate-500">
-          Workshop repair orders, scheduled PM cycles, mechanical work orders &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> for job card
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Maintenance / Job Cards</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <div class="row items-center q-gutter-x-sm">
-        <q-btn
-          unelevated
-          icon="picture_as_pdf"
-          label="Export PDF"
-          class="desk-btn-secondary"
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="btn-secondary-action"
           @click="exportMaintenancePdf"
         >
-          <q-tooltip>Download Maintenance Register (PDF)</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="table_view"
-          label="Export CSV"
-          class="desk-btn-secondary"
+          <q-icon name="picture_as_pdf" size="16px" class="q-mr-xs text-rose-600" />
+          <span>Export PDF</span>
+        </button>
+        <button
+          type="button"
+          class="btn-secondary-action"
           @click="exportMaintenanceCsv"
         >
-          <q-tooltip>Export Job Cards to CSV</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="add"
-          label="Job Card"
-          class="desk-btn-primary"
+          <q-icon name="download" size="16px" class="q-mr-xs text-slate-600" />
+          <span>Export CSV</span>
+        </button>
+        <button
+          type="button"
+          class="btn-primary-cyan"
           @click="openAddDialog"
         >
-          <q-tooltip>Generate New Workshop Job Card (Ctrl+N)</q-tooltip>
-        </q-btn>
+          <q-icon name="add" size="18px" />
+          <span>New Job Card</span>
+        </button>
       </div>
     </div>
 
-    <!-- 4 KPI Summary Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">ACTIVE JOB CARDS</div>
-        <div class="text-3xl font-extrabold font-mono text-cyan-400 my-1">{{ activeCount }}</div>
-        <div class="text-xs text-slate-400 font-mono">Vehicles currently in workshop</div>
-        <div class="accent-bar bg-cyan-400"></div>
+    <!-- Maintenance Workspace Content with Loading Overlay -->
+    <div class="relative min-h-[400px]">
+      <!-- 4 KPI Stat Cards matching Billing Page -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div
+          class="kpi-box cursor-pointer transition-all"
+          :class="{ 'kpi-box--active': activeKpiFilter === 'all' }"
+          @click="selectKpiTab('all')"
+          title="View all job cards (Alt+1 or [ / ])"
+        >
+          <div class="kpi-title text-sky-600">TOTAL REPAIR EXPENSE</div>
+          <div class="kpi-amount text-sky-700">₹{{ formattedTotalCost }}</div>
+          <div class="kpi-subtext">{{ jobCards.length }} total records (Alt+1)</div>
+        </div>
+
+        <div
+          class="kpi-box cursor-pointer transition-all"
+          :class="{ 'kpi-box--active': activeKpiFilter === 'active' }"
+          @click="selectKpiTab(activeKpiFilter === 'active' ? 'all' : 'active')"
+          title="Filter active vehicles in workshop (Alt+2 or [ / ])"
+        >
+          <div class="kpi-title text-amber-700">ACTIVE JOB CARDS</div>
+          <div class="kpi-amount text-amber-600">{{ activeCount }}</div>
+          <div class="kpi-subtext">Vehicles in workshop (Alt+2)</div>
+        </div>
+
+        <div
+          class="kpi-box cursor-pointer transition-all"
+          :class="{ 'kpi-box--active': activeKpiFilter === 'downtime' }"
+          @click="selectKpiTab(activeKpiFilter === 'downtime' ? 'all' : 'downtime')"
+          title="Filter high downtime repairs (Alt+3 or [ / ])"
+        >
+          <div class="kpi-title text-slate-700">AVG DOWNTIME</div>
+          <div class="kpi-amount text-slate-800">2.1 Days</div>
+          <div class="kpi-subtext">Workshop turnaround time (Alt+3)</div>
+        </div>
+
+        <div
+          class="kpi-box cursor-pointer transition-all"
+          :class="{ 'kpi-box--active': activeKpiFilter === 'completed' }"
+          @click="selectKpiTab(activeKpiFilter === 'completed' ? 'all' : 'completed')"
+          title="Filter certified completed repairs (Alt+4 or [ / ])"
+        >
+          <div class="kpi-title text-emerald-700">COMPLETED REPAIRS</div>
+          <div class="kpi-amount text-emerald-600">{{ completedCount }}</div>
+          <div class="kpi-subtext">Road-tested &amp; certified (Alt+4)</div>
+        </div>
       </div>
 
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL REPAIR EXPENSE</div>
-        <div class="text-3xl font-extrabold font-mono text-white my-1">₹{{ formattedTotalCost }}</div>
-        <div class="text-xs text-slate-400 font-mono">Workshop repairs & parts</div>
-        <div class="accent-bar bg-cyan-400"></div>
-      </div>
-
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">AVG DOWNTIME</div>
-        <div class="text-3xl font-extrabold font-mono text-amber-400 my-1">2.1 Days</div>
-        <div class="text-xs text-amber-300 font-mono">Workshop turnaround time</div>
-        <div class="accent-bar bg-amber-400"></div>
-      </div>
-
-      <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">COMPLETED REPAIRS</div>
-        <div class="text-3xl font-extrabold font-mono text-emerald-400 my-1">{{ completedCount }}</div>
-        <div class="text-xs text-emerald-300 font-mono">Road-tested & certified</div>
-        <div class="accent-bar bg-emerald-400"></div>
-      </div>
-    </div>
-
-    <!-- Search and Custom Dropdown Filters Bar -->
-    <div class="cyber-card p-3 mb-4">
-      <div class="row items-center justify-between no-wrap">
-        <div class="row items-center q-gutter-x-sm no-wrap">
-          <q-input
-            ref="searchInputRef"
-            v-model="searchQuery"
-            dense
-            outlined
-            placeholder="Search vehicle / job card / complaint... (Alt+F)"
-            class="desk-search-input"
-            style="min-width: 260px;"
-          >
-            <template #prepend>
-              <q-icon name="search" size="18px" color="cyan" />
-            </template>
-            <template #append v-if="searchQuery">
-              <q-icon
-                name="cancel"
-                size="18px"
-                class="cursor-pointer text-slate-400 hover:text-white"
-                @click.stop.prevent="searchQuery = ''"
-                @mousedown.stop.prevent="searchQuery = ''"
-              />
-            </template>
-          </q-input>
+      <!-- Search & Filter Bar -->
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="relative min-w-[280px]">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-sky-500">
+              <q-icon name="search" size="18px" />
+            </span>
+            <input
+              ref="searchInputRef"
+              v-model="searchQuery"
+              type="text"
+              class="search-input w-full pl-9 pr-4 py-2 text-sm rounded-lg"
+              placeholder="Search vehicle / job card / complaint... (Alt+F)"
+              @keydown.down.prevent="focusFirstTableRow"
+              @keydown.enter.prevent="focusFirstTableRow"
+              @keydown.esc="searchQuery = ''"
+            />
+            <button
+              v-if="searchQuery"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700"
+              @click="searchQuery = ''"
+              title="Clear search (Esc)"
+            >
+              <q-icon name="close" size="16px" />
+            </button>
+          </div>
 
           <q-select
             v-model="statusFilter"
@@ -109,8 +119,7 @@
             emit-value
             map-options
             class="desk-filter-select"
-            popup-content-class="desk-select-menu"
-            style="min-width: 140px;"
+            style="min-width: 150px;"
           />
 
           <q-select
@@ -121,113 +130,240 @@
             emit-value
             map-options
             class="desk-filter-select"
-            popup-content-class="desk-select-menu"
             style="min-width: 180px;"
           />
         </div>
 
-        <div class="row items-center q-gutter-x-xs no-wrap">
-          <q-btn
-            flat
-            dense
-            icon="refresh"
-            class="desk-grid-refresh-btn"
-            :loading="isRefreshing"
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="btn-secondary-action flex items-center gap-1.5"
+            :disabled="isRefreshing"
             @click="onRefresh"
           >
-            <q-tooltip>Refresh Job Cards</q-tooltip>
-          </q-btn>
+            <q-icon name="refresh" size="16px" :class="{ 'rotate-180': isRefreshing }" />
+            <span>Refresh</span>
+          </button>
         </div>
       </div>
-    </div>
 
-    <!-- Job Cards Table -->
-    <div class="cyber-card table-wrap relative-position">
+      <!-- White Theme Table with 2D Excel Navigation matching Billing Page -->
+      <div class="table-container rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm border-collapse" ref="tableRef">
+            <thead>
+              <tr class="table-head-row text-[12px] uppercase tracking-wider text-slate-700 border-b border-slate-200 bg-slate-50">
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 0 }">JOB CARD</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 1 }">VEHICLE</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 2 }">COMPLAINT</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 3 }">WORK TYPE</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 4 }">SERVICE CENTRE</th>
+                <th class="py-3 px-4 font-bold text-right transition-colors" :class="{ 'excel-th-active': focusedCol === 5 }">COST</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 6 }">DOWNTIME</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 7 }">DATE</th>
+                <th class="py-3 px-4 font-bold text-center transition-colors" :class="{ 'excel-th-active': focusedCol === 8 }">STATUS</th>
+                <th class="py-3 px-4 font-bold text-center transition-colors" :class="{ 'excel-th-active': focusedCol === 9 }">ACTION</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr
+                v-for="(card, rIdx) in filteredJobCards"
+                :key="card.id || card.jobCardId"
+                class="billing-table-row hover:bg-slate-50 transition-colors cursor-pointer outline-none"
+                :class="{ 'excel-row-active': isRowActive(rIdx) }"
+                tabindex="0"
+                @keydown="handleTableRowKeydown($event, card, rIdx, focusedCol)"
+                @focus="setFocusIndex(rIdx)"
+              >
+                <!-- Col 0: JOB CARD -->
+                <td
+                  class="py-3 px-4 font-mono font-bold text-sky-600 transition-all select-none"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 0) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 0)"
+                >
+                  <span class="pl-2">{{ card.jobCardId || card.jobCard }}</span>
+                </td>
+
+                <!-- Col 1: VEHICLE -->
+                <td
+                  class="py-3 px-4 font-mono font-semibold text-slate-900 transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 1) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 1)"
+                >
+                  {{ card.vehicle }}
+                </td>
+
+                <!-- Col 2: COMPLAINT -->
+                <td
+                  class="py-3 px-4 text-slate-700 truncate max-w-[200px] transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 2) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 2)"
+                  :title="card.complaint"
+                >
+                  {{ card.complaint }}
+                </td>
+
+                <!-- Col 3: WORK TYPE -->
+                <td
+                  class="py-3 px-4 transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 3) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 3)"
+                >
+                  <span class="badge-pill" :class="getWorkTypeBadgeClass(card.workType)">
+                    {{ card.workType }}
+                  </span>
+                </td>
+
+                <!-- Col 4: SERVICE CENTRE -->
+                <td
+                  class="py-3 px-4 text-slate-800 transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 4) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 4)"
+                >
+                  {{ card.serviceCentre }}
+                </td>
+
+                <!-- Col 5: COST -->
+                <td
+                  class="py-3 px-4 font-mono font-bold text-slate-900 text-right transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 5) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 5)"
+                >
+                  {{ formatCostDisplay(card.totalCost || card.cost) }}
+                </td>
+
+                <!-- Col 6: DOWNTIME -->
+                <td
+                  class="py-3 px-4 font-mono text-slate-600 transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 6) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 6)"
+                >
+                  {{ card.expectedDowntime || card.downtime || '—' }}
+                </td>
+
+                <!-- Col 7: DATE -->
+                <td
+                  class="py-3 px-4 font-mono text-slate-600 transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 7) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 7)"
+                >
+                  {{ card.date }}
+                </td>
+
+                <!-- Col 8: STATUS -->
+                <td
+                  class="py-3 px-4 text-center transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 8) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 8)"
+                >
+                  <span class="badge-pill" :class="getStatusBadgeClass(card.status)">
+                    {{ card.status }}
+                  </span>
+                </td>
+
+                <!-- Col 9: ACTION -->
+                <td
+                  class="py-3 px-4 text-center transition-all action-cell"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 9) && focusedActionIndex === -1 }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 9)"
+                >
+                  <div class="flex items-center justify-center gap-1.5" @click.stop>
+                    <button
+                      class="btn-table-action"
+                      :class="{ 'excel-btn-active': isActionBtnActive(rIdx, 9, 0) }"
+                      @click="openDetails(card)"
+                      @focus="setActionFocus(rIdx, 9, 0)"
+                      title="View Details (Enter)"
+                    >
+                      View
+                    </button>
+                    <button
+                      class="btn-table-icon"
+                      :class="{ 'excel-btn-active': isActionBtnActive(rIdx, 9, 1) }"
+                      @click="printSingleJobCard(card)"
+                      @focus="setActionFocus(rIdx, 9, 1)"
+                      title="Print Job Card (Enter)"
+                    >
+                      <q-icon name="print" size="14px" />
+                    </button>
+                    <button
+                      class="btn-table-icon"
+                      :class="{ 'excel-btn-active': isActionBtnActive(rIdx, 9, 2) }"
+                      @click="editJobCard(card)"
+                      @focus="setActionFocus(rIdx, 9, 2)"
+                      title="Edit Job Card (Enter)"
+                    >
+                      <q-icon name="edit" size="14px" />
+                    </button>
+                    <button
+                      class="btn-table-icon btn-table-icon--danger"
+                      :class="{ 'excel-btn-active': isActionBtnActive(rIdx, 9, 3) }"
+                      @click="confirmDeleteCard(card)"
+                      @focus="setActionFocus(rIdx, 9, 3)"
+                      title="Delete Job Card (Enter / Del)"
+                    >
+                      <q-icon name="delete" size="14px" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Empty State -->
+              <tr v-if="filteredJobCards.length === 0">
+                <td colspan="10" class="text-center py-12">
+                  <div class="flex flex-col items-center justify-center text-center p-8">
+                    <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+                      <q-icon name="build_circle" size="28px" class="text-slate-400" />
+                    </div>
+                    <div class="text-base font-bold text-slate-800">No matching job cards found</div>
+                    <div class="text-xs text-slate-500 mt-1">Try adjusting search terms or clearing active filters.</div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Excel / Tally Keyboard Status Bar Footer -->
+        <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between text-xs text-slate-600 font-mono select-none">
+          <div class="flex items-center gap-3">
+            <span class="font-bold text-sky-600">CELL: {{ currentCellCoordinate }}</span>
+            <span class="text-slate-300">|</span>
+            <span>Row {{ focusedRow + 1 }} of {{ filteredJobCards.length }}</span>
+            <span class="text-slate-300">|</span>
+            <span class="text-slate-500">Col: {{ focusedColName }}</span>
+            <span class="text-slate-300">|</span>
+            <span class="text-sky-700 font-medium">Tab: {{ currentTabLabel }}</span>
+          </div>
+          <div class="flex items-center gap-3 text-slate-500">
+            <span><kbd class="desk-kbd">&uarr;&darr;&larr;&rarr;</kbd> Move Cell</span>
+            <span><kbd class="desk-kbd">Tab</kbd> Next</span>
+            <span><kbd class="desk-kbd">[ / ]</kbd> Switch Tab</span>
+            <span><kbd class="desk-kbd">Enter</kbd> Edit</span>
+            <span><kbd class="desk-kbd">Del</kbd> Delete</span>
+            <span><kbd class="desk-kbd">Alt+N</kbd> New</span>
+          </div>
+        </div>
+      </div>
+
       <AppLoadingOverlay
         :showing="isRefreshing"
         title="Syncing Workshop Records..."
         subtitle="Updating maintenance job cards from database"
       />
-      <table class="cyber-table">
-        <thead>
-          <tr>
-            <th>JOB CARD</th>
-            <th>VEHICLE</th>
-            <th>COMPLAINT</th>
-            <th>WORK TYPE</th>
-            <th>SERVICE CENTRE</th>
-            <th class="text-right">COST</th>
-            <th>DOWNTIME</th>
-            <th>DATE</th>
-            <th class="text-center">STATUS</th>
-            <th class="text-center">ACTION</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="card in filteredJobCards" :key="card.id || card.jobCardId">
-            <td class="font-mono font-bold text-cyan-400">{{ card.jobCardId || card.jobCard }}</td>
-            <td class="font-mono text-white font-semibold">{{ card.vehicle }}</td>
-            <td class="text-slate-300 max-w-[200px] truncate" :title="card.complaint">{{ card.complaint }}</td>
-            <td>
-              <span class="subtype-pill" :class="getWorkTypePillClass(card.workType)">
-                {{ card.workType }}
-              </span>
-            </td>
-            <td class="text-slate-200">{{ card.serviceCentre }}</td>
-            <td class="font-mono text-right font-bold text-white">{{ formatCostDisplay(card.totalCost || card.cost) }}</td>
-            <td class="font-mono text-slate-400">{{ card.expectedDowntime || card.downtime || '—' }}</td>
-            <td class="font-mono text-slate-400">{{ card.date }}</td>
-            <td class="text-center font-mono">
-              <span
-                class="desk-pill"
-                :class="card.status === 'Completed' ? 'desk-pill-success' : card.status === 'In Progress' ? 'desk-pill-active' : 'desk-pill-warning'"
-              >
-                {{ card.status }}
-              </span>
-            </td>
-            <td class="text-center">
-              <div class="row items-center q-gutter-x-xs no-wrap justify-center">
-                <button class="btn-table-action" @click="openDetails(card)">View</button>
-                <button
-                  class="btn-table-icon"
-                  @click="printSingleJobCard(card)"
-                  title="Print Official Job Card"
-                >
-                  <q-icon name="print" size="14px" />
-                </button>
-                <button
-                  class="btn-table-icon"
-                  @click="editJobCard(card)"
-                  title="Edit Job Card"
-                >
-                  <q-icon name="edit" size="14px" />
-                </button>
-                <button
-                  class="btn-table-icon btn-table-icon--danger"
-                  @click="confirmDeleteCard(card)"
-                  title="Delete Job Card"
-                >
-                  <q-icon name="delete" size="14px" />
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="filteredJobCards.length === 0">
-            <td colspan="10" class="text-center py-12">
-              <div class="column items-center justify-center text-center q-pa-xl">
-                <div class="q-mb-sm flex flex-center" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.15); margin: 0 auto;">
-                  <q-icon name="search_off" size="28px" class="text-slate-400" />
-                </div>
-                <div class="text-subtitle1 text-weight-bold text-slate-200">No matching records found</div>
-                <div class="text-caption text-slate-500 q-mt-xs">Try adjusting your search terms or clearing active filters.</div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
 
-    <!-- Create / Edit Job Card Right Drawer matching Images 1 & 5 -->
+    <!-- Create / Edit Job Card Right Drawer -->
     <DeskDialog
       v-model="showModal"
       :title="isEditing ? 'Edit Job Card' : 'New Job Card'"
@@ -243,7 +379,7 @@
         <div class="row q-col-gutter-md">
           <!-- SECTION 1: JOB DETAILS -->
           <div class="col-12">
-            <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mb-xs font-mono uppercase tracking-wider">
+            <div class="text-subtitle2 text-weight-bold text-sky-700 q-mb-xs font-mono uppercase tracking-wider">
               JOB DETAILS
             </div>
           </div>
@@ -334,8 +470,8 @@
 
           <!-- SECTION 2: COST & DOWNTIME -->
           <div class="col-12 q-mt-sm">
-            <div class="text-subtitle2 text-weight-bold text-cyan-4 q-mb-xs font-mono uppercase tracking-wider">
-              COST & DOWNTIME
+            <div class="text-subtitle2 text-weight-bold text-sky-700 q-mb-xs font-mono uppercase tracking-wider">
+              COST &amp; DOWNTIME
             </div>
           </div>
 
@@ -401,44 +537,44 @@
       <div v-if="selectedCard" class="q-py-xs">
         <div class="row q-col-gutter-md">
           <div class="col-6">
-            <div class="text-caption text-grey-5">Vehicle Registration</div>
-            <div class="text-h6 text-weight-bold text-white font-mono">{{ selectedCard.vehicle }}</div>
+            <div class="text-caption text-slate-500">Vehicle Registration</div>
+            <div class="text-h6 text-weight-bold text-slate-900 font-mono">{{ selectedCard.vehicle }}</div>
           </div>
           <div class="col-6">
-            <div class="text-caption text-grey-5">Work Type Category</div>
-            <div class="text-body1 text-cyan-3 text-weight-medium">{{ selectedCard.workType }}</div>
-          </div>
-
-          <div class="col-6">
-            <div class="text-caption text-grey-5">Authorized Workshop</div>
-            <div class="text-body2 text-white font-bold">{{ selectedCard.serviceCentre }}</div>
-          </div>
-          <div class="col-6">
-            <div class="text-caption text-grey-5">Approved Repair Cost</div>
-            <div class="text-h6 text-weight-bold text-white font-mono">{{ formatCostDisplay(selectedCard.totalCost || selectedCard.cost) }}</div>
+            <div class="text-caption text-slate-500">Work Type Category</div>
+            <div class="text-body1 text-sky-700 text-weight-medium">{{ selectedCard.workType }}</div>
           </div>
 
           <div class="col-6">
-            <div class="text-caption text-grey-5">Job Card Date</div>
-            <div class="text-body2 text-grey-3 font-mono">{{ selectedCard.date }}</div>
+            <div class="text-caption text-slate-500">Authorized Workshop</div>
+            <div class="text-body2 text-slate-900 font-bold">{{ selectedCard.serviceCentre }}</div>
           </div>
           <div class="col-6">
-            <div class="text-caption text-grey-5">Turnaround Downtime</div>
-            <div class="text-body2 text-grey-3 font-mono">{{ selectedCard.expectedDowntime || selectedCard.downtime }}</div>
+            <div class="text-caption text-slate-500">Approved Repair Cost</div>
+            <div class="text-h6 text-weight-bold text-slate-900 font-mono">{{ formatCostDisplay(selectedCard.totalCost || selectedCard.cost) }}</div>
+          </div>
+
+          <div class="col-6">
+            <div class="text-caption text-slate-500">Job Card Date</div>
+            <div class="text-body2 text-slate-700 font-mono">{{ selectedCard.date }}</div>
+          </div>
+          <div class="col-6">
+            <div class="text-caption text-slate-500">Turnaround Downtime</div>
+            <div class="text-body2 text-slate-700 font-mono">{{ selectedCard.expectedDowntime || selectedCard.downtime }}</div>
           </div>
 
           <div class="col-12">
-            <div class="text-caption text-grey-5 q-mb-xs">Reported Complaint / Defect Observation</div>
-            <div class="q-pa-sm rounded-borders bg-[#090f1d] text-grey-2 text-body2 border border-slate-700">
+            <div class="text-caption text-slate-500 q-mb-xs">Reported Complaint / Defect Observation</div>
+            <div class="q-pa-sm rounded-borders bg-slate-50 text-slate-800 text-body2 border border-slate-200">
               "{{ selectedCard.complaint }}"
             </div>
           </div>
 
           <div class="col-12">
-            <div class="text-caption text-grey-5 q-mb-xs">Current Maintenance Status</div>
+            <div class="text-caption text-slate-500 q-mb-xs">Current Maintenance Status</div>
             <span
-              class="desk-pill"
-              :class="selectedCard.status === 'Completed' ? 'desk-pill-success' : selectedCard.status === 'In Progress' ? 'desk-pill-active' : 'desk-pill-warning'"
+              class="badge-pill"
+              :class="getStatusBadgeClass(selectedCard.status)"
             >
               {{ selectedCard.status }}
             </span>
@@ -460,12 +596,12 @@
       @cancel="showDeleteDialog = false"
     >
       <div class="q-py-sm">
-        <div class="text-body1 text-white q-mb-sm">
+        <div class="text-body1 text-slate-800 q-mb-sm">
           Are you sure you want to permanently delete Job Card
-          <span class="text-cyan-4 text-weight-bold font-mono">{{ deletingCard?.jobCardId || deletingCard?.jobCard }}</span>
-          for Vehicle <strong class="text-white">{{ deletingCard?.vehicle }}</strong>?
+          <span class="text-sky-700 text-weight-bold font-mono">{{ deletingCard?.jobCardId || deletingCard?.jobCard }}</span>
+          for Vehicle <strong class="text-slate-900">{{ deletingCard?.vehicle }}</strong>?
         </div>
-        <div class="text-caption text-red-3">
+        <div class="text-caption text-rose-600">
           This operation will remove the maintenance record and related workshop costs.
         </div>
       </div>
@@ -477,8 +613,10 @@
 import { ref, computed, onMounted } from 'vue';
 import api from '../../api/client';
 import { useAppNotify } from '../../composables/useAppNotify';
+import { useTableNavigation } from '../../composables/useTableNavigation';
 import { exportToCsv } from '../../utils/exportCsv';
 import { exportToPdf } from '../../utils/exportPdf';
+import AppLoadingOverlay from '../../components/AppLoadingOverlay.vue';
 import {
   DeskDialog,
   DeskForm,
@@ -517,6 +655,24 @@ const selectedCard = ref<JobCard | null>(null);
 const showDeleteDialog = ref(false);
 const deletingCard = ref<JobCard | null>(null);
 
+// KPI Filter Tabs matching Billing Page design
+const activeKpiFilter = ref<'all' | 'active' | 'downtime' | 'completed'>('all');
+const kpiTabs: Array<'all' | 'active' | 'downtime' | 'completed'> = ['all', 'active', 'downtime', 'completed'];
+
+function selectKpiTab(tab: 'all' | 'active' | 'downtime' | 'completed') {
+  activeKpiFilter.value = tab;
+  setFocusCell(0, 0);
+}
+
+function switchKpiTab(direction: 'next' | 'prev') {
+  const currentIdx = kpiTabs.indexOf(activeKpiFilter.value);
+  const nextIdx =
+    direction === 'next'
+      ? (currentIdx + 1) % kpiTabs.length
+      : (currentIdx - 1 + kpiTabs.length) % kpiTabs.length;
+  selectKpiTab(kpiTabs[nextIdx]);
+}
+
 function openDetails(card: JobCard) {
   selectedCard.value = card;
   showDetailsModal.value = true;
@@ -531,7 +687,7 @@ const searchQuery = ref('');
 const statusFilter = ref('ALL');
 const workTypeFilter = ref('ALL');
 
-// Dropdown options matching Images 2, 3, 4
+// Dropdown options
 const vehicleOptions = ref<string[]>([
   '— Select —',
   'GJ-01-AB-1122',
@@ -583,6 +739,21 @@ const filterWorkTypeOptions = [
   { label: 'General Service', value: 'General Service' },
   { label: 'Preventive Service', value: 'Preventive Service' },
 ];
+
+const columnLabels = [
+  'Job Card',
+  'Vehicle',
+  'Complaint',
+  'Work Type',
+  'Service Centre',
+  'Cost',
+  'Downtime',
+  'Date',
+  'Status',
+  'Action',
+];
+
+const tableRef = ref<HTMLElement | null>(null);
 
 const defaultJobCards: JobCard[] = [
   {
@@ -756,7 +927,17 @@ const formattedTotalCost = computed(() => {
 
 const filteredJobCards = computed(() => {
   const q = (searchQuery.value || '').toLowerCase().trim();
-  return jobCards.value.filter((c) => {
+  let list = jobCards.value;
+
+  if (activeKpiFilter.value === 'active') {
+    list = list.filter((c) => c.status !== 'Completed' && c.status !== 'Cancelled');
+  } else if (activeKpiFilter.value === 'completed') {
+    list = list.filter((c) => c.status === 'Completed');
+  } else if (activeKpiFilter.value === 'downtime') {
+    list = list.filter((c) => (c.expectedDowntime || c.downtime || '').includes('day'));
+  }
+
+  return list.filter((c) => {
     const jcId = (c.jobCardId || c.jobCard || '').toLowerCase();
     const veh = (c.vehicle || '').toLowerCase();
     const comp = (c.complaint || '').toLowerCase();
@@ -768,18 +949,108 @@ const filteredJobCards = computed(() => {
   });
 });
 
-function getWorkTypePillClass(type: string) {
+// Full 2D Excel & Tally Table Navigation
+const {
+  focusedRow,
+  focusedCol,
+  focusedIndex,
+  focusedActionIndex,
+  isCellActive,
+  isActionBtnActive,
+  isRowActive,
+  setFocusCell,
+  setActionFocus,
+  setFocusIndex,
+  handleKeydown: baseTableRowKeydown,
+  moveFirst: focusFirstTableRow,
+} = useTableNavigation<JobCard>({
+  items: filteredJobCards,
+  colCount: columnLabels.length,
+  tableRef,
+  onEnter: (item) => editJobCard(item),
+  onDelete: (item) => confirmDeleteCard(item),
+  onNew: () => openAddDialog(),
+  onEscape: () => {
+    searchInputRef.value?.focus?.();
+  },
+});
+
+function handleTableRowKeydown(
+  e: KeyboardEvent,
+  item: JobCard,
+  rIdx: number,
+  cIdx?: number
+) {
+  if (e.key === '[') {
+    e.preventDefault();
+    e.stopPropagation();
+    switchKpiTab('prev');
+    return;
+  }
+  if (e.key === ']') {
+    e.preventDefault();
+    e.stopPropagation();
+    switchKpiTab('next');
+    return;
+  }
+  baseTableRowKeydown(e, item, rIdx, cIdx);
+}
+
+const colLetter = computed(() => String.fromCharCode(65 + (focusedCol.value || 0)));
+const currentCellCoordinate = computed(() => {
+  if (filteredJobCards.value.length === 0) return 'A1';
+  return `${colLetter.value}${focusedRow.value + 1}`;
+});
+
+const focusedColName = computed(() => {
+  if (focusedCol.value === 9) {
+    const actions = ['View', 'Print', 'Edit', 'Delete'];
+    const act = actions[focusedActionIndex.value] || 'View';
+    return `Action [${act}]`;
+  }
+  return columnLabels[focusedCol.value] || '—';
+});
+
+const currentTabLabel = computed(() => {
+  switch (activeKpiFilter.value) {
+    case 'active':
+      return 'Active Job Cards (Alt+2)';
+    case 'downtime':
+      return 'High Downtime (Alt+3)';
+    case 'completed':
+      return 'Completed Repairs (Alt+4)';
+    default:
+      return 'All Records (Alt+1)';
+  }
+});
+
+function getWorkTypeBadgeClass(type: string): string {
   switch (type) {
     case 'Engine Overhaul':
-      return 'sub-service-centre';
+      return 'badge-forward';
     case 'Tyre Replacement':
-      return 'sub-customer';
+      return 'badge-toll';
     case 'Brake Service':
-      return 'sub-fuel-station';
+      return 'badge-repair';
     case 'Oil Change':
-      return 'sub-driver';
+      return 'badge-bhatta';
     default:
-      return 'sub-customer';
+      return 'badge-exempt';
+  }
+}
+
+function getStatusBadgeClass(status: string): string {
+  switch (status) {
+    case 'Completed':
+      return 'badge-paid';
+    case 'In Progress':
+      return 'badge-pending';
+    case 'Open':
+      return 'badge-rcm';
+    case 'Cancelled':
+      return 'badge-overdue';
+    default:
+      return 'badge-exempt';
   }
 }
 
@@ -835,7 +1106,7 @@ async function saveJobCard() {
     cardForm.value.serviceCentre === '— Select —' ||
     cardForm.value.workType === '— Select —'
   ) {
-    notify.warning('Please select Vehicle, Service Centre, and Work Type.');
+    notify.notifyWarning('Please select Vehicle, Service Centre, and Work Type.');
     return;
   }
 
@@ -870,11 +1141,11 @@ async function saveJobCard() {
       if (idx !== -1) {
         jobCards.value[idx] = { ...jobCards.value[idx], ...payload };
       }
-      notify.success(`Job Card ${payload.jobCardId} updated successfully.`);
+      notify.notifySuccess(`Job Card ${payload.jobCardId} updated successfully.`);
     } else {
       await api.post('/api/v1/job-cards', payload);
       jobCards.value.unshift(payload);
-      notify.success(`Job Card ${payload.jobCardId} saved to database.`);
+      notify.notifySuccess(`Job Card ${payload.jobCardId} saved to database.`);
     }
     persistLocal();
   } catch (err: any) {
@@ -887,10 +1158,10 @@ async function saveJobCard() {
       if (idx !== -1) {
         jobCards.value[idx] = { ...jobCards.value[idx], ...payload };
       }
-      notify.success(`Job Card ${payload.jobCardId} updated locally.`);
+      notify.notifySuccess(`Job Card ${payload.jobCardId} updated locally.`);
     } else {
       jobCards.value.unshift(payload);
-      notify.success(`Job Card ${payload.jobCardId} created locally.`);
+      notify.notifySuccess(`Job Card ${payload.jobCardId} created locally.`);
     }
     persistLocal();
   }
@@ -917,13 +1188,13 @@ async function executeDeleteCard() {
     (c) => (c.id || c.jobCardId || c.jobCard) !== targetId,
   );
   persistLocal();
-  notify.success(`Job Card ${targetId} deleted.`);
+  notify.notifySuccess(`Job Card ${targetId} deleted.`);
   showDeleteDialog.value = false;
 }
 
 async function onRefresh() {
   await loadJobCards();
-  notify.success('Job Cards Refreshed from database.');
+  notify.notifySuccess('Job Cards Refreshed from database.');
 }
 
 function exportMaintenanceCsv() {
@@ -942,7 +1213,7 @@ function exportMaintenanceCsv() {
     ],
     filteredJobCards.value,
   );
-  notify.success(`${filteredJobCards.value.length} job cards exported to CSV.`);
+  notify.notifySuccess(`${filteredJobCards.value.length} job cards exported to CSV.`);
 }
 
 function exportMaintenancePdf() {
@@ -959,138 +1230,351 @@ function exportMaintenancePdf() {
     ],
     rows: filteredJobCards.value,
   });
+  notify.notifySuccess('PDF generated for Maintenance Job Cards');
 }
 
 // ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
 useDeskPageShortcuts({
   searchInputRef,
   onNewRecord: openAddDialog,
-  isModalOpen: () => showModal.value || showDetailsModal.value || showDeleteDialog.value,
+  isModalOpen: computed(() => showModal.value || showDetailsModal.value || showDeleteDialog.value),
   onSave: saveJobCard,
   onEscape: () => {
-    showModal.value = false;
-    showDetailsModal.value = false;
-    showDeleteDialog.value = false;
+    if (showModal.value) showModal.value = false;
+    else if (showDetailsModal.value) showDetailsModal.value = false;
+    else if (showDeleteDialog.value) showDeleteDialog.value = false;
   },
+  filters: [
+    () => selectKpiTab('all'),
+    () => selectKpiTab('active'),
+    () => selectKpiTab('downtime'),
+    () => selectKpiTab('completed'),
+  ],
 });
 </script>
 
 <style scoped>
-.maintenance-page {
+/* Page Layout */
+.billing-page-container {
   background-color: #f8fafc;
-  min-height: calc(100vh - 88px);
 }
 
-.stat-card {
-  transition: transform 0.2s ease, border-color 0.2s ease;
+.billing-title-wrap {
+  display: inline-block;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
+.billing-underline {
+  height: 3px;
+  background-color: #0284c7;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+/* Action Buttons */
+.btn-primary-cyan {
+  background-color: #0284c7;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary-cyan:hover {
+  background-color: #0369a1;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.btn-secondary-action {
+  background-color: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-action:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* KPI Box Cards */
+.kpi-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.kpi-box:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+}
+
+.kpi-box--active {
+  border-color: #0284c7 !important;
+  background-color: #f0f9ff !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2) !important;
+}
+
+.kpi-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.kpi-amount {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: monospace, -apple-system;
+  line-height: 1.2;
+  margin: 6px 0 2px 0;
+  color: #0f172a;
+}
+
+.kpi-subtext {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Search input */
+.search-input {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
   border-color: #0284c7;
 }
 
-.accent-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
+.search-input::placeholder {
+  color: #94a3b8;
 }
 
-.desk-kbd {
-  background: #f1f5f9;
-  padding: 1px 5px;
-  border-radius: 3px;
-  border: 1px solid #cbd5e1;
-  color: #0284c7;
-  font-family: var(--desk-font-mono, monospace);
-  font-size: 10px;
-  font-weight: 700;
+/* Table styling */
+.table-head-row th {
+  background-color: #f8fafc;
+  color: #475569;
 }
 
-/* Cyber Card & Table matching Enterprise Dark */
-.cyber-card {
-  background: #0d172b;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.table-wrap {
-  overflow-x: auto;
-}
-
-.cyber-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.cyber-table th {
-  background: rgba(255, 255, 255, 0.02);
-  color: #00f2fe;
-  font-weight: 700;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  padding: 0.85rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.cyber-table td {
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: #cbd5e1;
-  font-size: 0.82rem;
-}
-
-.cyber-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.025);
-}
-
-.subtype-pill {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.2rem 0.6rem;
-  border-radius: 6px;
-}
-
-.sub-customer {
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
-}
-
-.sub-fuel-station {
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
-}
-
-.sub-driver {
-  background: rgba(251, 191, 36, 0.12);
-  color: #fbbf24;
-}
-
-.sub-service-centre {
-  background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
-}
-
+/* Table Action Buttons */
 .btn-table-action {
-  height: 28px;
-  padding: 0 10px;
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  padding: 3px 10px;
+  border-radius: 4px;
   font-size: 12px;
-  font-weight: 500;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 242, 254, 0.4);
-  background: rgba(0, 242, 254, 0.08);
-  color: #00f2fe;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.2s ease;
 }
 
 .btn-table-action:hover {
-  background: rgba(0, 242, 254, 0.2);
-  border-color: #00f2fe;
+  background: #bae6fd;
+}
+
+.btn-table-icon {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  height: 28px;
+  width: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  outline: none;
+  padding: 0;
+}
+
+.btn-table-icon:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.btn-table-icon--danger {
+  color: #94a3b8;
+}
+
+.btn-table-icon--danger:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* Badges */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-paid {
+  background-color: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #86efac;
+}
+
+.badge-pending {
+  background-color: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fde047;
+}
+
+.badge-overdue {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+.badge-rcm {
+  background-color: #ecfeff;
+  color: #0e7490;
+  border: 1px solid #a5f3fc;
+}
+
+.badge-forward {
+  background-color: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
+}
+
+.badge-exempt {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.badge-toll {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.badge-bhatta {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.badge-repair {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* 2D Excel Grid Navigation Styles */
+.billing-table-row.excel-row-active {
+  background-color: #f0f9ff !important;
+}
+
+.billing-table-row.excel-row-active td:first-child {
+  position: relative;
+}
+
+.billing-table-row.excel-row-active td:first-child::before {
+  content: '▶';
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  color: #0284c7;
+  font-weight: bold;
+}
+
+.excel-cell-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: -2px !important;
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 1px #0284c7, 0 1px 4px rgba(2, 132, 199, 0.25) !important;
+}
+
+/* Individual active button highlight inside action cell */
+.btn-table-action.excel-btn-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 1px !important;
+  background-color: #bae6fd !important;
+  color: #0369a1 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.4), 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+  transform: scale(1.05);
+  z-index: 20;
+}
+
+.btn-table-icon.excel-btn-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 1px !important;
+  background-color: #e0f2fe !important;
+  color: #0284c7 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.4), 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+  transform: scale(1.08);
+  z-index: 20;
+}
+
+.btn-table-icon--danger.excel-btn-active {
+  outline: 2px solid #ef4444 !important;
+  outline-offset: 1px !important;
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4), 0 2px 6px rgba(239, 68, 68, 0.3) !important;
+  transform: scale(1.08);
+  z-index: 20;
+}
+
+/* Prevent outer cell border from obscuring individual active button */
+.action-cell:has(.excel-btn-active),
+.billing-table-row td.action-cell.excel-cell-active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.excel-th-active {
+  background-color: #e2e8f0 !important;
+  color: #0284c7 !important;
+  border-bottom: 2px solid #0284c7 !important;
+}
+
+.desk-kbd {
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 10px;
+  color: #475569;
+  font-family: monospace;
 }
 </style>

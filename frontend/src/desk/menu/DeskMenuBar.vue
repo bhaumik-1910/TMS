@@ -59,21 +59,25 @@
 
           <!-- High-Contrast Clean White Dropdown Menu -->
           <q-menu
+            :ref="(el) => registerMenuRef(item.label, el)"
             anchor="bottom start"
             self="top start"
             :offset="[0, 2]"
             auto-close
             class="tally-prime-dropdown-menu"
+            @show="onMenuShow(item)"
+            @hide="onMenuHide(item)"
           >
             <q-list dense class="tally-menu-dropdown-list">
               <q-item
-                v-for="sub in item.children"
+                v-for="(sub, subIdx) in item.children"
                 :key="sub.label"
                 clickable
                 v-close-popup
                 :to="sub.route"
                 :disable="sub.disabled"
                 class="tally-dropdown-item"
+                :class="{ 'is-highlighted': activeOpenMenu?.label === item.label && activeHighlightedIdx === subIdx }"
               >
                 <q-item-section avatar v-if="sub.icon" class="tally-sub-icon">
                   <q-icon :name="sub.icon" size="16px" color="primary" />
@@ -135,6 +139,39 @@ const emit = defineEmits<{
 const router = useRouter();
 const root = ref<HTMLElement | null>(null);
 
+const menuRefs = new Map<string, any>();
+const activeOpenMenu = ref<DeskMenuNode | null>(null);
+const activeHighlightedIdx = ref<number>(0);
+
+function registerMenuRef(label: string, el: any) {
+  if (el) {
+    menuRefs.set(label, el);
+  } else {
+    menuRefs.delete(label);
+  }
+}
+
+function onMenuShow(item: DeskMenuNode) {
+  activeOpenMenu.value = item;
+  activeHighlightedIdx.value = 0;
+}
+
+function onMenuHide(item: DeskMenuNode) {
+  if (activeOpenMenu.value?.label === item.label) {
+    activeOpenMenu.value = null;
+    activeHighlightedIdx.value = 0;
+  }
+}
+
+function closeAllMenus() {
+  menuRefs.forEach((m) => {
+    try {
+      m?.hide?.();
+    } catch (_) {}
+  });
+  activeOpenMenu.value = null;
+}
+
 function isCurrent(item: DeskMenuNode | undefined): boolean {
   if (!item) return false;
   if (item.route && (props.currentPath === item.route || props.currentPath.startsWith(`${item.route}/`))) {
@@ -150,17 +187,118 @@ function navigate(path?: string) {
 }
 
 function handleGlobalKey(e: KeyboardEvent) {
-  // Alt + single letter accelerator
-  if (e.altKey && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
-    const letter = e.key.toLowerCase();
-    const idx = props.items.findIndex((item) => item.letter?.toLowerCase() === letter);
-    if (idx >= 0 && root.value) {
+  // 1. When a dropdown menu is currently open:
+  if (activeOpenMenu.value) {
+    const children = activeOpenMenu.value.children || [];
+
+    // Accelerator key navigation: user presses single letter (e.g. 'b', 'v', 'd', 'c', 'p', 'r', 'o', etc.)
+    if (!e.altKey && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
+      const pressed = e.key.toLowerCase();
+      const matched = children.find((c) => c.letter?.toLowerCase() === pressed);
+      if (matched && matched.route) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeAllMenus();
+        navigate(matched.route);
+        return;
+      }
+    }
+
+    // Arrow Down -> next submenu item
+    if (e.key === 'ArrowDown') {
       e.preventDefault();
       e.stopPropagation();
-      const btns = root.value.querySelectorAll<HTMLElement>('.desk-top-btn');
-      if (btns[idx]) {
-        btns[idx].click();
+      activeHighlightedIdx.value = (activeHighlightedIdx.value + 1) % children.length;
+      return;
+    }
+
+    // Arrow Up -> previous submenu item
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      e.stopPropagation();
+      activeHighlightedIdx.value =
+        (activeHighlightedIdx.value - 1 + children.length) % children.length;
+      return;
+    }
+
+    // Enter -> activate highlighted item
+    if (e.key === 'Enter') {
+      const target = children[activeHighlightedIdx.value];
+      if (target && target.route) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeAllMenus();
+        navigate(target.route);
+        return;
       }
+    }
+
+    // Arrow Right / Arrow Left -> switch to next / previous top menu bar dropdown
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      e.stopPropagation();
+      const topItemsWithChildren = props.items.filter((it) => it.children && it.children.length > 0);
+      const curIdx = topItemsWithChildren.findIndex((it) => it.label === activeOpenMenu.value?.label);
+      if (curIdx >= 0) {
+        const nextIdx =
+          e.key === 'ArrowRight'
+            ? (curIdx + 1) % topItemsWithChildren.length
+            : (curIdx - 1 + topItemsWithChildren.length) % topItemsWithChildren.length;
+        const nextMenu = topItemsWithChildren[nextIdx];
+        closeAllMenus();
+        setTimeout(() => {
+          menuRefs.get(nextMenu.label)?.show?.();
+        }, 40);
+        return;
+      }
+    }
+
+    // Escape closes the active menu
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      closeAllMenus();
+      return;
+    }
+  }
+
+  // Alt+F3: Switch Company Dialog
+  if (e.altKey && (e.key === 'F3' || e.key === 'f3')) {
+    e.preventDefault();
+    e.stopPropagation();
+    window.dispatchEvent(new CustomEvent('desk:open-org-switcher'));
+    return;
+  }
+
+  // 2. Alt + letter top-level menu shortcuts (e.g. Alt+M, Alt+O, Alt+E, Alt+F, Alt+A, Alt+G):
+  if (e.altKey && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
+    const letter = e.key.toLowerCase();
+
+    // Map common aliases (e.g. 'g' -> dashboard, 'm' -> masters, 'o' -> operations, 'e' / 'f' -> fleet, 'n' / 'b' -> finance)
+    let matchedItem = props.items.find((item) => item.letter?.toLowerCase() === letter);
+    if (!matchedItem) {
+      if (letter === 'g') {
+        matchedItem = props.items.find((item) => item.label.toLowerCase().includes('dashboard'));
+      } else if (letter === 'e') {
+        matchedItem = props.items.find((item) => item.label.toLowerCase().includes('fleet'));
+      } else if (letter === 'f') {
+        matchedItem = props.items.find((item) => item.label.toLowerCase().includes('finance') || item.label.toLowerCase().includes('fleet'));
+      } else if (letter === 'b') {
+        matchedItem = props.items.find((item) => item.label.toLowerCase().includes('finance'));
+      }
+    }
+
+    if (matchedItem) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeAllMenus();
+      if (matchedItem.children && matchedItem.children.length > 0) {
+        const m = menuRefs.get(matchedItem.label);
+        m?.show?.();
+      } else if (matchedItem.route) {
+        navigate(matchedItem.route);
+      }
+      return;
     }
   }
 }
@@ -283,6 +421,7 @@ onUnmounted(() => {
 }
 
 .tally-dropdown-item:hover,
+.tally-dropdown-item.is-highlighted,
 .tally-dropdown-item.q-router-link--active,
 .tally-dropdown-item.q-manual-focus--is-focused {
   background: #e0f2fe !important;

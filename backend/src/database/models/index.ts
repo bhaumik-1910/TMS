@@ -80,6 +80,14 @@ import {
   DemoRequestModel,
 } from './system/system.model';
 
+import { BranchModel } from './foundation/branch.model';
+import { DocumentSequenceModel } from './foundation/document-sequence.model';
+import { PeriodLockModel } from './foundation/period-lock.model';
+import { CompanySettingModel } from './foundation/company-setting.model';
+import { EntityEventModel } from './foundation/entity-event.model';
+import { ExceptionModel } from './foundation/exception.model';
+import { UserBranchModel } from './foundation/user-branch.model';
+
 export {
   OrganizationModel,
   UserModel,
@@ -143,6 +151,13 @@ export {
   DocumentTypeModel,
   DocumentModel,
   DemoRequestModel,
+  BranchModel,
+  DocumentSequenceModel,
+  PeriodLockModel,
+  CompanySettingModel,
+  EntityEventModel,
+  ExceptionModel,
+  UserBranchModel,
 };
 
 export const ALL_MODELS = [
@@ -208,4 +223,12 @@ export const ALL_MODELS = [
   DocumentTypeModel,
   DocumentModel,
   DemoRequestModel,
+  BranchModel,
+  DocumentSequenceModel,
+  PeriodLockModel,
+  CompanySettingModel,
+  EntityEventModel,
+  ExceptionModel,
+  UserBranchModel,
 ];
+

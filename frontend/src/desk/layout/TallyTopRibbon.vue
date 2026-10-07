@@ -278,22 +278,46 @@
 
       <!-- Quick Command Tip on Right -->
       <div class="tally-quick-hint">
-        <kbd>Alt+G</kbd> Go To &bull; <kbd>Alt+F</kbd> Search &bull; <kbd>Ctrl+A</kbd> Accept
+        <kbd>Alt+G</kbd> Go To &bull; <kbd>Alt+F</kbd> Search &bull; <kbd>Alt+F3</kbd> Company &bull; <kbd>Ctrl+A</kbd> Accept
       </div>
     </div>
+
+    <!-- Company Picker Modal (Alt+F3 / Alt+K) -->
+    <CompanyPickerDialog
+      v-model="showCompanySwitcher"
+      :companies="availableCompanies"
+      :current-company-id="currentCompanyId"
+      :user-name="userName"
+      :user-email="userEmail"
+      :allow-close="true"
+      @select="onSwitchCompany"
+    />
+
+    <!-- Keyboard Shortcuts Dialog (F1 / Ctrl+Alt+K) -->
+    <DeskKeysDialog v-model="showKeysDialog" />
   </header>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
+import CompanyPickerDialog from '../components/CompanyPickerDialog.vue';
+import DeskKeysDialog from '../keys/DeskKeysDialog.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
 
+const showCompanySwitcher = ref(false);
+const showKeysDialog = ref(false);
+const availableCompanies = ref<any[]>([]);
+
 const activeOrgName = computed(() => {
-  return authStore.user?.organization?.name || 'ANKPAL FREIGHT SYSTEM';
+  return authStore.user?.organization?.name || 'Demo Roadways Pvt Ltd';
+});
+
+const currentCompanyId = computed(() => {
+  return Number(authStore.user?.organization?.id) || 1;
 });
 
 const userName = computed(() => {
@@ -303,12 +327,39 @@ const userName = computed(() => {
   return name || u.email || 'ADMIN';
 });
 
+const userEmail = computed(() => {
+  return authStore.user?.email || 'admin@demo.test';
+});
+
 function openGoTo() {
   window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }));
 }
 
-function openOrgDialog() {
-  window.dispatchEvent(new CustomEvent('desk:open-org-switcher'));
+async function openOrgDialog() {
+  const list = await authStore.fetchCompanies();
+  if (list && list.length) {
+    availableCompanies.value = list;
+  } else if (authStore.availableOrganizations?.length) {
+    availableCompanies.value = authStore.availableOrganizations;
+  } else {
+    // Default demo list fallback
+    availableCompanies.value = [
+      { companyId: 1, code: 'demo', name: 'Demo Roadways Pvt Ltd', role: 'Admin', licenseValidTo: '2027-10-07' },
+      { companyId: 2, code: 'demo2', name: 'Second Logistics LLP', role: 'Admin', licenseValidTo: '2027-10-07' },
+      { companyId: 3, code: 'swift', name: 'Swift Logistics Pvt Ltd', role: 'Admin', licenseValidTo: '2027-10-07' },
+    ];
+  }
+  showCompanySwitcher.value = true;
+}
+
+async function onSwitchCompany(companyId: number) {
+  try {
+    await authStore.switchCompany(companyId);
+    showCompanySwitcher.value = false;
+    window.location.reload();
+  } catch (err) {
+    console.error('Failed to switch company:', err);
+  }
 }
 
 function openDateDialog() {
@@ -320,10 +371,19 @@ function triggerExport() {
 }
 
 function openKeysDialog() {
+  showKeysDialog.value = true;
   window.dispatchEvent(new CustomEvent('desk:open-keys-dialog'));
 }
 
 function handleGlobalRibbonKeys(e: KeyboardEvent) {
+  // Alt+F3 or Alt+K -> Switch Company
+  if (e.altKey && (e.key === 'F3' || e.key === 'k' || e.key === 'K')) {
+    e.preventDefault();
+    e.stopPropagation();
+    openOrgDialog();
+    return;
+  }
+
   if (e.altKey && !e.ctrlKey && !e.metaKey) {
     const key = e.key.toLowerCase();
     switch (key) {

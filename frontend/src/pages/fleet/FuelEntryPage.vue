@@ -1,184 +1,347 @@
 <template>
-  <div class="fuel-entry-page p-3 sm:p-4 text-slate-800 font-sans">
-    <!-- Header -->
-    <div class="row items-center justify-between q-mb-md">
-      <div>
-        <div class="text-h6 text-weight-bold text-slate-900 row items-center q-gutter-x-sm">
-          <q-icon name="local_gas_station" color="primary" size="24px" />
-          <span>Fuel Entry & Fleet Consumption</span>
-        </div>
-        <div class="text-caption text-slate-500">
-          Diesel dispense logging, mileage KM/L verification, variance tracking &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> for fuel entry
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Fuel Entries &amp; Logs</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <div class="row items-center q-gutter-x-sm">
-        <q-btn
-          unelevated
-          icon="add"
-          label="Fuel Entry"
-          class="desk-btn-primary"
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="btn-secondary-action"
+          @click="exportFuelPdf"
+        >
+          <q-icon name="picture_as_pdf" size="16px" class="q-mr-xs text-rose-600" />
+          <span>Export PDF</span>
+        </button>
+        <button
+          type="button"
+          class="btn-secondary-action"
+          @click="exportFuelCsv"
+        >
+          <q-icon name="download" size="16px" class="q-mr-xs text-slate-600" />
+          <span>Export CSV</span>
+        </button>
+        <button
+          type="button"
+          class="btn-primary-cyan"
           @click="openAddDialog"
         >
-          <q-tooltip>Record New Fuel Dispense (Ctrl+N)</q-tooltip>
-        </q-btn>
+          <q-icon name="add" size="18px" />
+          <span>Fuel Entry</span>
+        </button>
       </div>
     </div>
 
     <!-- Fuel Workspace Content with Loading Overlay -->
     <div class="relative min-h-[400px]">
-      <!-- 4 KPI Stat Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL FUEL COST</div>
-          <div class="text-3xl font-extrabold font-mono text-cyan-400 my-1">₹{{ formattedTotalCost }}</div>
-          <div class="text-xs text-slate-400 font-mono">{{ entries.length }} entries recorded</div>
-          <div class="accent-bar bg-cyan-400"></div>
+      <!-- 4 KPI Stat Cards matching Billing Page -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div
+          class="kpi-box cursor-pointer transition-all"
+          :class="{ 'kpi-box--active': activeKpiFilter === 'all' }"
+          @click="selectKpiTab('all')"
+          title="View all fuel vouchers (Alt+1 or [ / ])"
+        >
+          <div class="kpi-title text-sky-600">TOTAL FUEL COST</div>
+          <div class="kpi-amount text-sky-700">₹{{ formattedTotalCost }}</div>
+          <div class="kpi-subtext">{{ entries.length }} vouchers (Alt+1)</div>
         </div>
 
-        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">AVG KM/L</div>
-          <div class="text-3xl font-extrabold font-mono text-white my-1">{{ avgKml }}</div>
-          <div class="text-xs text-emerald-400 font-mono">Target: 5.5 (Fleet Optimal)</div>
-          <div class="accent-bar bg-cyan-400"></div>
+        <div
+          class="kpi-box cursor-pointer transition-all"
+          :class="{ 'kpi-box--active': activeKpiFilter === 'optimal' }"
+          @click="selectKpiTab(activeKpiFilter === 'optimal' ? 'all' : 'optimal')"
+          title="Filter fleet optimal efficiency (Alt+2 or [ / ])"
+        >
+          <div class="kpi-title text-emerald-700">AVG FLEET KM/L</div>
+          <div class="kpi-amount text-emerald-600">{{ avgKml }}</div>
+          <div class="kpi-subtext">Optimal &ge; 5.5 KM/L (Alt+2)</div>
         </div>
 
-        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">TOTAL CONSUMPTION</div>
-          <div class="text-3xl font-extrabold font-mono text-white my-1">{{ totalLitres.toLocaleString() }} L</div>
-          <div class="text-xs text-slate-400 font-mono">Fleet Diesel Dispensed</div>
-          <div class="accent-bar bg-cyan-400"></div>
+        <div
+          class="kpi-box cursor-pointer transition-all"
+          :class="{ 'kpi-box--active': activeKpiFilter === 'high' }"
+          @click="selectKpiTab(activeKpiFilter === 'high' ? 'all' : 'high')"
+          title="Filter high volume diesel dispense (Alt+3 or [ / ])"
+        >
+          <div class="kpi-title">TOTAL DIESEL DISPENSED</div>
+          <div class="kpi-amount text-slate-800">{{ totalLitres.toLocaleString() }} <span class="text-xs font-sans text-slate-500 font-normal">L</span></div>
+          <div class="kpi-subtext">High volume &ge; 350L (Alt+3)</div>
         </div>
 
-        <div class="stat-card p-4 rounded-xl border border-slate-800 bg-[#0d172b] relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1">ANOMALY FLAGS</div>
-          <div class="text-3xl font-extrabold font-mono text-amber-400 my-1">{{ anomalyCount }}</div>
-          <div class="text-xs text-amber-300 font-mono">Efficiency &lt; 4.5 KM/L</div>
-          <div class="accent-bar bg-amber-400"></div>
+        <div
+          class="kpi-box cursor-pointer transition-all"
+          :class="{ 'kpi-box--active': activeKpiFilter === 'anomaly' }"
+          @click="selectKpiTab(activeKpiFilter === 'anomaly' ? 'all' : 'anomaly')"
+          title="Filter anomaly fuel efficiency (Alt+4 or [ / ])"
+        >
+          <div class="kpi-title text-amber-700">ANOMALY FLAGS</div>
+          <div class="kpi-amount text-amber-600">{{ anomalyCount }}</div>
+          <div class="kpi-subtext">Efficiency &lt; 4.5 KM/L (Alt+4)</div>
         </div>
       </div>
 
-      <!-- Filter & Search Bar -->
-      <div class="cyber-card p-3 mb-4">
-        <div class="row items-center justify-between no-wrap">
-          <div class="row items-center q-gutter-x-sm no-wrap">
-            <q-input
+      <!-- Search & Station Filter Bar -->
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="relative min-w-[280px]">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-sky-500">
+              <q-icon name="search" size="18px" />
+            </span>
+            <input
               ref="searchInputRef"
               v-model="search"
-              dense
-              outlined
+              type="text"
+              class="search-input w-full pl-9 pr-4 py-2 text-sm rounded-lg"
               placeholder="Search vehicle / station / trip... (Alt+F)"
-              class="desk-search-input"
-              style="min-width: 260px;"
-            >
-              <template #prepend>
-                <q-icon name="search" size="18px" color="cyan" />
-              </template>
-              <template #append v-if="search">
-                <q-icon
-                  name="cancel"
-                  size="18px"
-                  class="cursor-pointer text-slate-400 hover:text-white"
-                  @click.stop.prevent="clearSearch"
-                  @mousedown.stop.prevent="clearSearch"
-                />
-              </template>
-            </q-input>
-
-            <q-select
-              v-model="stationFilter"
-              :options="stationFilterOptions"
-              dense
-              outlined
-              emit-value
-              map-options
-              class="desk-filter-select"
-              style="min-width: 160px;"
+              @keydown.down.prevent="focusFirstTableRow"
+              @keydown.enter.prevent="focusFirstTableRow"
+              @keydown.esc="search = ''"
             />
+            <button
+              v-if="search"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700"
+              @click="search = ''"
+              title="Clear search (Esc)"
+            >
+              <q-icon name="close" size="16px" />
+            </button>
           </div>
 
-          <div class="row items-center q-gutter-x-xs no-wrap">
-            <q-btn
-              flat
-              dense
-              icon="refresh"
-              class="desk-grid-refresh-btn"
-              :loading="isRefreshing"
-              @click="onRefresh"
-            >
-              <q-tooltip>Refresh Fuel Entries</q-tooltip>
-            </q-btn>
-          </div>
+          <q-select
+            v-model="stationFilter"
+            :options="stationFilterOptions"
+            dense
+            outlined
+            emit-value
+            map-options
+            class="desk-filter-select"
+            style="min-width: 170px;"
+          />
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="btn-secondary-action flex items-center gap-1.5"
+            :disabled="isRefreshing"
+            @click="onRefresh"
+          >
+            <q-icon name="refresh" size="16px" :class="{ 'rotate-180': isRefreshing }" />
+            <span>Refresh</span>
+          </button>
         </div>
       </div>
 
-      <!-- Pure Cyber-Dark Table matching Reference Images -->
-      <div class="cyber-card table-wrap relative-position">
-        <table class="cyber-table">
-          <thead>
-            <tr>
-              <th>ENTRY ID</th>
-              <th>VEHICLE</th>
-              <th>TRIP</th>
-              <th>STATION</th>
-              <th class="text-right">LITRES</th>
-              <th class="text-right">RATE/L</th>
-              <th class="text-right">AMOUNT</th>
-              <th class="text-right">ODOMETER</th>
-              <th class="text-center">KM/L</th>
-              <th>PAY MODE</th>
-              <th>DATE</th>
-              <th class="text-center">ACTION</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in filteredEntries" :key="item.id">
-              <td class="font-mono font-bold text-cyan-400">{{ item.id }}</td>
-              <td class="font-mono text-white font-semibold">{{ item.vehicle }}</td>
-              <td class="font-mono text-slate-400">{{ item.trip || '—' }}</td>
-              <td class="text-slate-200">{{ item.station }}</td>
-              <td class="font-mono text-right text-slate-200">{{ item.litres }} L</td>
-              <td class="font-mono text-right text-slate-400">₹{{ item.rate }}</td>
-              <td class="font-mono text-right font-bold text-white">₹{{ item.amount.toLocaleString() }}</td>
-              <td class="font-mono text-right text-slate-300">{{ item.odometer || '—' }}</td>
-              <td class="text-center font-mono">
-                <span
-                  class="desk-pill"
-                  :class="item.kml < 4.5 ? 'desk-pill-danger' : 'desk-pill-success'"
+      <!-- White Theme Table with 2D Excel Navigation matching Billing Page -->
+      <div class="table-container rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm border-collapse" ref="tableRef">
+            <thead>
+              <tr class="table-head-row text-[12px] uppercase tracking-wider text-slate-700 border-b border-slate-200 bg-slate-50">
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 0 }">ENTRY ID</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 1 }">VEHICLE</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 2 }">TRIP</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 3 }">STATION</th>
+                <th class="py-3 px-4 font-bold text-right transition-colors" :class="{ 'excel-th-active': focusedCol === 4 }">LITRES</th>
+                <th class="py-3 px-4 font-bold text-right transition-colors" :class="{ 'excel-th-active': focusedCol === 5 }">RATE/L</th>
+                <th class="py-3 px-4 font-bold text-right transition-colors" :class="{ 'excel-th-active': focusedCol === 6 }">AMOUNT</th>
+                <th class="py-3 px-4 font-bold text-right transition-colors" :class="{ 'excel-th-active': focusedCol === 7 }">ODOMETER</th>
+                <th class="py-3 px-4 font-bold text-center transition-colors" :class="{ 'excel-th-active': focusedCol === 8 }">KM/L</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 9 }">PAY MODE</th>
+                <th class="py-3 px-4 font-bold transition-colors" :class="{ 'excel-th-active': focusedCol === 10 }">DATE</th>
+                <th class="py-3 px-4 font-bold text-center transition-colors" :class="{ 'excel-th-active': focusedCol === 11 }">ACTION</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr
+                v-for="(item, rIdx) in filteredEntries"
+                :key="item.id"
+                class="billing-table-row hover:bg-slate-50 transition-colors cursor-pointer outline-none"
+                :class="{ 'excel-row-active': isRowActive(rIdx) }"
+                tabindex="0"
+                @keydown="handleTableRowKeydown($event, item, rIdx, focusedCol)"
+              >
+                <!-- Cell 0: Entry ID -->
+                <td
+                  class="py-4 px-4 font-semibold text-sky-700 font-mono transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 0) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 0)"
                 >
-                  {{ item.kml }} KM/L
-                </span>
-              </td>
-              <td>
-                <span class="subtype-pill sub-customer">{{ item.payMode }}</span>
-              </td>
-              <td class="font-mono text-slate-400">{{ item.date }}</td>
-              <td class="text-center">
-                <div class="row items-center q-gutter-x-xs no-wrap justify-center">
-                  <button class="btn-table-action" @click="editEntry(item)">Edit</button>
-                  <button
-                    class="btn-table-icon btn-table-icon--danger"
-                    @click="confirmDeleteEntry(item)"
-                    title="Delete Entry"
+                  {{ item.id }}
+                </td>
+
+                <!-- Cell 1: Vehicle -->
+                <td
+                  class="py-4 px-4 font-mono font-medium text-slate-900 transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 1) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 1)"
+                >
+                  {{ item.vehicle }}
+                </td>
+
+                <!-- Cell 2: Trip -->
+                <td
+                  class="py-4 px-4 font-mono text-slate-600 transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 2) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 2)"
+                >
+                  {{ item.trip || '—' }}
+                </td>
+
+                <!-- Cell 3: Station -->
+                <td
+                  class="py-4 px-4 text-slate-800 transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 3) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 3)"
+                >
+                  {{ item.station }}
+                </td>
+
+                <!-- Cell 4: Litres -->
+                <td
+                  class="py-4 px-4 font-mono text-slate-700 text-right transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 4) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 4)"
+                >
+                  {{ item.litres }} L
+                </td>
+
+                <!-- Cell 5: Rate -->
+                <td
+                  class="py-4 px-4 font-mono text-slate-600 text-right transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 5) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 5)"
+                >
+                  ₹{{ item.rate }}
+                </td>
+
+                <!-- Cell 6: Amount -->
+                <td
+                  class="py-4 px-4 font-mono font-bold text-slate-900 text-right transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 6) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 6)"
+                >
+                  ₹{{ item.amount.toLocaleString() }}
+                </td>
+
+                <!-- Cell 7: Odometer -->
+                <td
+                  class="py-4 px-4 font-mono text-slate-600 text-right transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 7) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 7)"
+                >
+                  {{ item.odometer || '—' }}
+                </td>
+
+                <!-- Cell 8: KM/L -->
+                <td
+                  class="py-4 px-4 text-center font-mono transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 8) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 8)"
+                >
+                  <span
+                    class="badge-pill"
+                    :class="item.kml < 4.5 ? 'badge-overdue' : 'badge-paid'"
                   >
-                    <q-icon name="delete" size="15px" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="filteredEntries.length === 0">
-              <td colspan="12" class="text-center py-12">
-                <div class="column items-center justify-center text-center q-pa-xl">
-                  <div class="q-mb-sm flex flex-center" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.15); margin: 0 auto;">
-                    <q-icon name="search_off" size="28px" class="text-slate-400" />
+                    {{ item.kml }} KM/L
+                  </span>
+                </td>
+
+                <!-- Cell 9: Pay Mode -->
+                <td
+                  class="py-4 px-4 transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 9) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 9)"
+                >
+                  <span class="badge-pill badge-forward">{{ item.payMode }}</span>
+                </td>
+
+                <!-- Cell 10: Date -->
+                <td
+                  class="py-4 px-4 font-mono text-slate-600 text-xs transition-all"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 10) }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 10)"
+                >
+                  {{ item.date }}
+                </td>
+
+                <!-- Cell 11: Action -->
+                <td
+                  class="py-4 px-4 text-center transition-all action-cell"
+                  :class="{ 'excel-cell-active': isCellActive(rIdx, 11) && focusedActionIndex === -1 }"
+                  tabindex="-1"
+                  @click="setFocusCell(rIdx, 11)"
+                >
+                  <div class="row items-center q-gutter-x-xs no-wrap justify-center" @click.stop>
+                    <button
+                      class="btn-table-action"
+                      :class="{ 'excel-btn-active': isActionBtnActive(rIdx, 11, 0) }"
+                      @click.stop="editEntry(item)"
+                      @focus="setActionFocus(rIdx, 11, 0)"
+                      title="Edit Entry (Enter)"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="btn-table-icon btn-table-icon--danger"
+                      :class="{ 'excel-btn-active': isActionBtnActive(rIdx, 11, 1) }"
+                      @click.stop="confirmDeleteEntry(item)"
+                      @focus="setActionFocus(rIdx, 11, 1)"
+                      title="Delete Entry (Enter / Del)"
+                    >
+                      <q-icon name="delete" size="14px" />
+                    </button>
                   </div>
-                  <div class="text-subtitle1 text-weight-bold text-slate-200">No matching records found</div>
-                  <div class="text-caption text-slate-500 q-mt-xs">Try adjusting your search terms or clearing active filters.</div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                </td>
+              </tr>
+
+              <!-- Empty state -->
+              <tr v-if="filteredEntries.length === 0">
+                <td colspan="12" class="py-12 text-center text-slate-400">
+                  <q-icon name="local_gas_station" size="40px" class="text-slate-400 mb-2" />
+                  <div class="text-base font-medium text-slate-700">No fuel entries found</div>
+                  <div class="text-xs text-slate-500 mt-1">Try adjusting search terms or clearing active filters</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Excel / Tally Keyboard Status Bar Footer -->
+        <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between text-xs text-slate-600 font-mono select-none">
+          <div class="flex items-center gap-3">
+            <span class="font-bold text-sky-600">CELL: {{ currentCellCoordinate }}</span>
+            <span class="text-slate-300">|</span>
+            <span>Row {{ focusedRow + 1 }} of {{ filteredEntries.length }}</span>
+            <span class="text-slate-300">|</span>
+            <span class="text-slate-500">Col: {{ focusedColName }}</span>
+            <span class="text-slate-300">|</span>
+            <span class="text-sky-700 font-medium">Tab: {{ currentTabLabel }}</span>
+          </div>
+          <div class="flex items-center gap-3 text-slate-500">
+            <span><kbd class="desk-kbd">&uarr;&darr;&larr;&rarr;</kbd> Move Cell</span>
+            <span><kbd class="desk-kbd">Tab</kbd> Next</span>
+            <span><kbd class="desk-kbd">[ / ]</kbd> Switch Tab</span>
+            <span><kbd class="desk-kbd">Enter</kbd> Edit</span>
+            <span><kbd class="desk-kbd">Del</kbd> Delete</span>
+            <span><kbd class="desk-kbd">Alt+N</kbd> New</span>
+          </div>
+        </div>
       </div>
 
       <!-- Inner Loading Overlay on Fuel Refresh -->
@@ -381,6 +544,9 @@
 import { ref, computed, onMounted } from 'vue';
 import api from '../../api/client';
 import { useAppNotify } from '../../composables/useAppNotify';
+import { exportToCsv } from '../../utils/exportCsv';
+import { exportToPdf } from '../../utils/exportPdf';
+import AppLoadingOverlay from '../../components/AppLoadingOverlay.vue';
 import {
   DeskDialog,
   DeskForm,
@@ -388,6 +554,7 @@ import {
   DeskNumberInput,
 } from '../../framework';
 import { useDeskPageShortcuts } from '../../desk';
+import { useTableNavigation } from '../../composables/useTableNavigation';
 
 export interface FuelEntry {
   id: string;
@@ -575,9 +742,53 @@ function calcAmount() {
   }
 }
 
+const activeKpiFilter = ref<'all' | 'optimal' | 'high' | 'anomaly'>('all');
+const kpiTabs: Array<'all' | 'optimal' | 'high' | 'anomaly'> = ['all', 'optimal', 'high', 'anomaly'];
+
+function selectKpiTab(tab: 'all' | 'optimal' | 'high' | 'anomaly') {
+  activeKpiFilter.value = tab;
+  setFocusCell(0, 0);
+}
+
+function switchKpiTab(direction: 'next' | 'prev') {
+  const currentIdx = kpiTabs.indexOf(activeKpiFilter.value);
+  const nextIdx =
+    direction === 'next'
+      ? (currentIdx + 1) % kpiTabs.length
+      : (currentIdx - 1 + kpiTabs.length) % kpiTabs.length;
+  selectKpiTab(kpiTabs[nextIdx]);
+}
+
+const columnLabels = [
+  'Entry ID',
+  'Vehicle',
+  'Trip',
+  'Station',
+  'Litres',
+  'Rate/L',
+  'Amount',
+  'Odometer',
+  'KM/L',
+  'Pay Mode',
+  'Date',
+  'Action',
+];
+
+const tableRef = ref<HTMLElement | null>(null);
+
 const filteredEntries = computed(() => {
   const q = (search.value || '').toLowerCase().trim();
-  return entries.value.filter((e) => {
+  let list = entries.value;
+
+  if (activeKpiFilter.value === 'optimal') {
+    list = list.filter((e) => (e.kml || 0) >= 5.5);
+  } else if (activeKpiFilter.value === 'high') {
+    list = list.filter((e) => (e.litres || 0) >= 350);
+  } else if (activeKpiFilter.value === 'anomaly') {
+    list = list.filter((e) => (e.kml || 0) < 4.5);
+  }
+
+  return list.filter((e) => {
     const matchSearch =
       !q ||
       e.id.toLowerCase().includes(q) ||
@@ -587,6 +798,81 @@ const filteredEntries = computed(() => {
     const matchStation = stationFilter.value === 'ALL' || e.station === stationFilter.value;
     return matchSearch && matchStation;
   });
+});
+
+// Full 2D Excel & Tally Table Navigation
+const {
+  focusedRow,
+  focusedCol,
+  focusedIndex,
+  focusedActionIndex,
+  isCellActive,
+  isActionBtnActive,
+  isRowActive,
+  setFocusCell,
+  setActionFocus,
+  setFocusIndex,
+  handleKeydown: baseTableRowKeydown,
+  moveFirst: focusFirstTableRow,
+} = useTableNavigation<FuelEntry>({
+  items: filteredEntries,
+  colCount: columnLabels.length,
+  tableRef,
+  onEnter: (item) => editEntry(item),
+  onDelete: (item) => confirmDeleteEntry(item),
+  onNew: () => openAddDialog(),
+  onEscape: () => {
+    searchInputRef.value?.focus?.();
+  },
+});
+
+function handleTableRowKeydown(
+  e: KeyboardEvent,
+  item: FuelEntry,
+  rIdx: number,
+  cIdx?: number
+) {
+  if (e.key === '[') {
+    e.preventDefault();
+    e.stopPropagation();
+    switchKpiTab('prev');
+    return;
+  }
+  if (e.key === ']') {
+    e.preventDefault();
+    e.stopPropagation();
+    switchKpiTab('next');
+    return;
+  }
+  baseTableRowKeydown(e, item, rIdx, cIdx);
+}
+
+const colLetter = computed(() => String.fromCharCode(65 + (focusedCol.value || 0)));
+const currentCellCoordinate = computed(() => {
+  if (filteredEntries.value.length === 0) return 'A1';
+  return `${colLetter.value}${focusedRow.value + 1}`;
+});
+
+const focusedColName = computed(() => {
+  if (focusedCol.value === 11) {
+    const actions = ['Edit', 'Delete'];
+    const act = actions[focusedActionIndex.value] || 'Edit';
+    return `Action [${act}]`;
+  }
+  return columnLabels[focusedCol.value] || '—';
+});
+
+const currentTabLabel = computed(() => {
+  switch (activeKpiFilter.value) {
+    case 'optimal':
+      return 'Optimal Efficiency (Alt+2)';
+    case 'high':
+      return 'High Volume Dispense (Alt+3)';
+    case 'anomaly':
+      return 'Anomaly Flags (Alt+4)';
+    default:
+      return 'All Vouchers (Alt+1)';
+  }
 });
 
 const formattedTotalCost = computed(() => {
@@ -611,12 +897,19 @@ const anomalyCount = computed(() => {
   return entries.value.filter((e) => (e.kml || 0) < 4.5).length;
 });
 
-function openAddDialog() {
+async function openAddDialog() {
   isEditing.value = false;
   editingItem.value = null;
-  const seq = 2400090 + entries.value.length;
+  let nextSeq = `FE/${2400090 + entries.value.length}`;
+  try {
+    const res: any = await api.get('/api/v1/foundation/sequences/next/fuel');
+    if (res?.next) {
+      nextSeq = res.next;
+    }
+  } catch (_) {}
+
   form.value = {
-    id: `FE/${seq}`,
+    id: nextSeq,
     date: new Date().toISOString().slice(0, 10),
     vehicle: '— Select —',
     trip: 'TR/240079',
@@ -695,18 +988,33 @@ async function saveFuelEntry() {
     }
     try {
       await api.patch(`/api/v1/fuel/${editingItem.value.id}`, payload);
-    } catch (e) {
+    } catch (e: any) {
+      if (e.response?.data?.message) {
+        notify.notifyError(e.response.data.message);
+        return;
+      }
       console.warn('API fuel update error, saved locally:', e);
     }
     notify.notifySuccess(`Fuel entry ${payload.id} updated in database.`);
   } else {
-    entries.value.unshift(payload);
-    persist();
     try {
-      await api.post('/api/v1/fuel', payload);
-    } catch (e) {
+      const res: any = await api.post('/api/v1/fuel', payload);
+      const savedRecord = res?.data || res;
+      if (savedRecord?.entryId || savedRecord?.id) {
+        payload.id = savedRecord.entryId || savedRecord.id;
+      }
+      if (res?.issues?.warnings?.length) {
+        notify.notifyWarning(res.issues.warnings[0].message);
+      }
+    } catch (e: any) {
+      if (e.response?.data?.message) {
+        notify.notifyError(e.response.data.message);
+        return;
+      }
       console.warn('API fuel create error, saved locally:', e);
     }
+    entries.value.unshift(payload);
+    persist();
     notify.notifySuccess(`Fuel entry ${payload.id} saved in database.`);
   }
 
@@ -735,109 +1043,282 @@ async function executeDeleteEntry() {
   deletingItem.value = null;
 }
 
+function exportFuelCsv() {
+  exportToCsv(
+    'fuel_entries_and_logs',
+    [
+      { label: 'Entry ID', field: 'id' },
+      { label: 'Vehicle', field: 'vehicle' },
+      { label: 'Trip', field: 'trip' },
+      { label: 'Station', field: 'station' },
+      { label: 'Litres', field: 'litres' },
+      { label: 'Rate/L', field: 'rate' },
+      { label: 'Amount', field: 'amount' },
+      { label: 'Odometer', field: 'odometer' },
+      { label: 'KM/L', field: 'kml' },
+      { label: 'Pay Mode', field: 'payMode' },
+      { label: 'Date', field: 'date' },
+    ],
+    filteredEntries.value,
+  );
+  notify.notifySuccess(`${filteredEntries.value.length} fuel entries exported to CSV`);
+}
+
+function exportFuelPdf() {
+  exportToPdf({
+    title: 'Fuel Entries & Logs Registry',
+    subtitle: `Station: ${stationFilter.value} | Total Records: ${filteredEntries.value.length}`,
+    columns: [
+      { label: 'ID', field: 'id' },
+      { label: 'Vehicle', field: 'vehicle' },
+      { label: 'Trip', field: 'trip' },
+      { label: 'Station', field: 'station' },
+      { label: 'Litres', field: 'litres', align: 'right' },
+      { label: 'Amount', field: 'amount', align: 'right' },
+      { label: 'KM/L', field: 'kml', align: 'center' },
+      { label: 'Date', field: 'date' },
+    ],
+    rows: filteredEntries.value,
+  });
+  notify.notifySuccess('PDF generated for Fuel Entries & Logs');
+}
+
 // ─── Tally-Style Page Keyboard Shortcuts ─────────────────────────────────────
 useDeskPageShortcuts({
   searchInputRef,
   onNewRecord: openAddDialog,
-  isModalOpen: () => showDialog.value || showDeleteDialog.value,
+  isModalOpen: computed(() => showDialog.value || showDeleteDialog.value),
   onSave: saveFuelEntry,
   onEscape: () => {
-    showDialog.value = false;
-    showDeleteDialog.value = false;
+    if (showDialog.value) showDialog.value = false;
+    else if (showDeleteDialog.value) showDeleteDialog.value = false;
   },
+  filters: [
+    () => selectKpiTab('all'),
+    () => selectKpiTab('optimal'),
+    () => selectKpiTab('high'),
+    () => selectKpiTab('anomaly'),
+  ],
 });
 </script>
 
 <style scoped>
-.fuel-entry-page {
+/* Page Layout */
+.billing-page-container {
   background-color: #f8fafc;
-  min-height: calc(100vh - 88px);
 }
 
-.stat-card {
-  transition: transform 0.2s ease, border-color 0.2s ease;
+.billing-title-wrap {
+  display: inline-block;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  border-color: #0284c7;
-}
-
-.accent-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+.billing-underline {
   height: 3px;
+  background-color: #0284c7;
+  border-radius: 2px;
+  margin-top: 4px;
 }
 
-.cyber-card {
+/* Action Buttons */
+.btn-primary-cyan {
+  background-color: #0284c7;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary-cyan:hover {
+  background-color: #0369a1;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.btn-secondary-action {
+  background-color: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary-action:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* 4 KPI Stat Cards */
+.kpi-box {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.kpi-box--active {
+  border: 2px solid #0284c7;
+  box-shadow: 0 0 0 1px #0284c7, 0 4px 12px rgba(2, 132, 199, 0.15);
+}
+
+.kpi-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.kpi-amount {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: monospace;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.kpi-subtext {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Search Input */
+.search-input {
   background: #ffffff;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.15s ease;
 }
 
-.table-wrap {
-  overflow-x: auto;
+.search-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
 }
 
-.cyber-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+/* Table */
+.table-container {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.cyber-table th {
-  background: #0b1120;
-  color: #00f2fe;
-  font-family: monospace;
+.table-head-row th {
   font-size: 11px;
-  letter-spacing: 0.05em;
-  padding: 10px 14px;
-  text-align: left;
-  border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+  font-family: monospace;
+  color: #475569;
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.cyber-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.billing-table-row {
+  background-color: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.cyber-table tbody tr:hover {
-  background: rgba(0, 242, 254, 0.03);
+/* Excel & Tally 2D Navigation Styles */
+.billing-table-row.excel-row-active {
+  background-color: #f0f9ff !important;
 }
 
-.desk-btn-primary {
-  background: #00bcd4;
-  color: #000;
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: none;
-  border-radius: 6px;
-  padding: 6px 14px;
+.billing-table-row.excel-row-active td:first-child {
+  position: relative;
 }
 
+.billing-table-row.excel-row-active td:first-child::before {
+  content: '▶';
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  color: #0284c7;
+  font-weight: bold;
+}
+
+.excel-cell-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: -2px !important;
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 1px #0284c7, 0 1px 4px rgba(2, 132, 199, 0.25) !important;
+}
+
+/* Individual active button highlight inside action cell */
+.btn-table-action.excel-btn-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 1px !important;
+  background-color: #bae6fd !important;
+  color: #0369a1 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.4), 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+  transform: scale(1.05);
+  z-index: 20;
+}
+
+.btn-table-icon.excel-btn-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 1px !important;
+  background-color: #e0f2fe !important;
+  color: #0284c7 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.4), 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+  transform: scale(1.08);
+  z-index: 20;
+}
+
+.btn-table-icon--danger.excel-btn-active {
+  outline: 2px solid #ef4444 !important;
+  outline-offset: 1px !important;
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4), 0 2px 6px rgba(239, 68, 68, 0.3) !important;
+  transform: scale(1.08);
+  z-index: 20;
+}
+
+/* Prevent outer cell border from obscuring individual active button */
+.action-cell:has(.excel-btn-active),
+.billing-table-row td.action-cell.excel-cell-active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.excel-th-active {
+  background-color: #e2e8f0 !important;
+  color: #0284c7 !important;
+  border-bottom: 2px solid #0284c7 !important;
+}
+
+/* Table Action Buttons */
 .btn-table-action {
-  background: rgba(0, 242, 254, 0.1);
-  color: #00f2fe;
-  border: 1px solid rgba(0, 242, 254, 0.3);
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
   padding: 3px 10px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .btn-table-action:hover {
-  background: rgba(0, 242, 254, 0.25);
-  border-color: #00f2fe;
+  background: #bae6fd;
 }
 
 .btn-table-icon {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
   height: 28px;
   width: 28px;
   border-radius: 6px;
@@ -851,8 +1332,8 @@ useDeskPageShortcuts({
 }
 
 .btn-table-icon:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: #e2e8f0;
+  color: #334155;
 }
 
 .btn-table-icon--danger {
@@ -860,52 +1341,44 @@ useDeskPageShortcuts({
 }
 
 .btn-table-icon--danger:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #f87171;
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 
-.desk-pill {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.desk-pill-success {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.desk-pill-danger {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.subtype-pill {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
+/* Badges */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
   font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
-.sub-customer {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+.badge-paid {
+  background-color: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #86efac;
 }
 
-.desk-kbd {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
-  padding: 1px 4px;
-  font-size: 10px;
-  font-family: monospace;
+.badge-pending {
+  background-color: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fde047;
+}
+
+.badge-overdue {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+.badge-forward {
+  background-color: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
 }
 </style>

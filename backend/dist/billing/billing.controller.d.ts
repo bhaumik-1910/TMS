@@ -3,21 +3,21 @@ export declare class BillingController {
     private billingService;
     constructor(billingService: BillingService);
     getBillingRecords(query: any): Promise<import("../database/models").BillingInvoiceModel[]>;
-    createBillingRecord(body: any): Promise<import("../database/models").BillingInvoiceModel>;
+    createBillingRecord(body: any): Promise<any>;
     updateBillingRecord(id: string, body: any): Promise<import("../database/models").BillingInvoiceModel>;
     deleteBillingRecord(id: string): Promise<{
         success: boolean;
         message: string;
     }>;
     getPurchaseBills(query: any): Promise<import("../database/models").PurchaseBillModel[]>;
-    createPurchaseBill(body: any): Promise<import("../database/models").PurchaseBillModel>;
+    createPurchaseBill(body: any): Promise<any>;
     updatePurchaseBill(id: string, body: any): Promise<import("../database/models").PurchaseBillModel>;
     deletePurchaseBill(id: string): Promise<{
         success: boolean;
         message: string;
     }>;
     getSettlements(query: any): Promise<import("../database/models").SettlementModel[]>;
-    createSettlement(body: any): Promise<import("../database/models").SettlementModel>;
+    createSettlement(body: any): Promise<any>;
     updateSettlement(id: string, body: any): Promise<import("../database/models").SettlementModel>;
     deleteSettlement(id: string): Promise<{
         success: boolean;

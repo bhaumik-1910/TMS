@@ -2,12 +2,17 @@ import { Injectable, OnModuleInit, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { DriverAdvanceModel } from '../database/models';
+import { OpsRunnerService } from '../framework/ops/ops-runner.service';
+import { DocumentSequenceService } from '../foundation/document-sequences/document-sequence.service';
+import { checkAdvanceLimitStep } from './ops/advances/010-check-advance-limit';
 
 @Injectable()
 export class DriverAdvancesService implements OnModuleInit {
   constructor(
     @InjectModel(DriverAdvanceModel)
     private readonly driverAdvanceModel: typeof DriverAdvanceModel,
+    private readonly opsRunner: OpsRunnerService,
+    private readonly sequenceService: DocumentSequenceService,
   ) {}
 
   async onModuleInit() {
@@ -141,23 +146,47 @@ export class DriverAdvancesService implements OnModuleInit {
   }
 
   async create(data: any) {
-    const entryId = data.entryId || data.id || `ADV/${240056 + Math.floor(Math.random() * 1000)}`;
-    const amount = parseFloat(String(data.amount || '0').replace(/[^0-9.]/g, '')) || 0;
+    const orgId = data.organizationId || '1';
 
-    const record = await this.driverAdvanceModel.create({
-      id: data.id || entryId,
-      entryId,
-      date: data.date || new Date().toISOString().slice(0, 10),
-      driver: data.driver && data.driver !== '— Select —' ? data.driver : 'Ramesh Alumar',
-      tripRef: data.tripRef && data.tripRef !== '—' ? data.tripRef : '',
-      entryType: data.entryType || 'Advance',
-      expenseHead: data.expenseHead && data.expenseHead !== '— Select —' ? data.expenseHead : 'Advance',
-      amount,
-      paymentMode: data.paymentMode || 'Cash',
-      status: data.status && data.status !== '— Select —' ? data.status : 'Pending',
-      remarks: data.remarks || '',
+    return this.opsRunner.run({
+      resource: 'DriverAdvance',
+      op: 'create',
+      user: {
+        id: data.userId || '1',
+        organizationId: orgId,
+        branchId: data.branchId,
+      },
+      data,
+      steps: [checkAdvanceLimitStep],
+      execute: async (c) => {
+        const amount = parseFloat(String(data.amount || '0').replace(/[^0-9.]/g, '')) || 0;
+        const dateStr = data.date || new Date().toISOString().slice(0, 10);
+
+        const resolvedEntryId =
+          data.entryId ||
+          data.id ||
+          (await this.sequenceService.next(c.organizationId, 'advance', dateStr, c.t));
+
+        const record = await this.driverAdvanceModel.create(
+          {
+            id: resolvedEntryId,
+            entryId: resolvedEntryId,
+            date: dateStr,
+            driver: data.driver && data.driver !== '— Select —' ? data.driver : 'Ramesh Alumar',
+            tripRef: data.tripRef && data.tripRef !== '—' ? data.tripRef : '',
+            entryType: data.entryType || 'Advance',
+            expenseHead: data.expenseHead && data.expenseHead !== '— Select —' ? data.expenseHead : 'Advance',
+            amount,
+            paymentMode: data.paymentMode || 'Cash',
+            status: data.status && data.status !== '— Select —' ? data.status : 'Pending',
+            remarks: data.remarks || '',
+          },
+          { transaction: c.t },
+        );
+
+        return record;
+      },
     });
-    return record;
   }
 
   async update(id: string, data: any) {

@@ -1,63 +1,59 @@
 <template>
-  <div class="vehicle-master-page p-3 sm:p-4 text-slate-800 font-sans">
-    <!-- Header with Title & Action Buttons matching Image 4 -->
-    <div class="row items-center justify-between no-wrap q-mb-md">
-      <div>
-        <div class="text-h6 text-weight-bold text-slate-900 relative-position inline-block q-pb-xs">
-          Vehicle Master
-          <div class="header-underline"></div>
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Vehicles &amp; Fleet</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <!-- Header Action Buttons -->
-      <div class="row items-center q-gutter-x-sm no-wrap">
+      <div class="flex items-center gap-3">
         <button
           type="button"
-          class="btn-hdr-import"
+          class="btn-secondary-action"
           @click="showImportModal = true"
         >
-          Import Excel
+          <q-icon name="upload_file" size="16px" class="q-mr-xs text-slate-600" />
+          <span>Import Excel</span>
         </button>
+
         <button
           type="button"
-          class="btn-hdr-add"
+          class="btn-primary-cyan"
           @click="openAddModal"
         >
-          + Vehicle
+          <q-icon name="add" size="18px" />
+          <span>Vehicle</span>
         </button>
       </div>
     </div>
 
     <!-- Fleet Content Container with Loading Overlay -->
     <div class="relative min-h-[400px]">
-      <!-- 4 KPI Stat Cards matching Image 4 -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 q-mb-md">
-        <div class="stat-card p-4 rounded-xl border border-sky-200 bg-white relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">TOTAL FLEET</div>
-          <div class="text-3xl font-extrabold font-mono text-sky-700 my-1">{{ vehicles.length }}</div>
-          <div class="text-xs text-slate-500 font-mono">Active {{ activeCount }} - Idle {{ idleCount }}</div>
-          <div class="accent-bar bg-sky-500"></div>
+      <!-- 4 KPI Stat Cards matching Billing Page -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="kpi-box kpi-box--active">
+          <div class="kpi-title text-sky-600">TOTAL FLEET</div>
+          <div class="kpi-amount text-sky-700">{{ vehicles.length }}</div>
+          <div class="kpi-subtext">Active {{ activeCount }} &bull; Idle {{ idleCount }}</div>
         </div>
 
-        <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">UTILISATION</div>
-          <div class="text-3xl font-extrabold font-mono text-slate-800 my-1">86%</div>
-          <div class="text-xs text-slate-500 font-mono">This month</div>
-          <div class="accent-bar bg-slate-400"></div>
+        <div class="kpi-box">
+          <div class="kpi-title">FLEET UTILISATION</div>
+          <div class="kpi-amount text-slate-800">86%</div>
+          <div class="kpi-subtext">This month operations</div>
         </div>
 
-        <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">AVG KM/L</div>
-          <div class="text-3xl font-extrabold font-mono text-slate-800 my-1">5.7</div>
-          <div class="text-xs text-slate-500 font-mono">vs 5.5 target</div>
-          <div class="accent-bar bg-slate-300"></div>
+        <div class="kpi-box">
+          <div class="kpi-title">AVG FUEL ECONOMY</div>
+          <div class="kpi-amount text-slate-800">5.7 <span class="text-xs text-slate-500 font-sans font-normal">KM/L</span></div>
+          <div class="kpi-subtext">vs 5.5 target benchmark</div>
         </div>
 
-        <div class="stat-card p-4 rounded-xl border border-amber-200 bg-amber-50 relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-amber-700 mb-1">COMPLIANCE ALERTS</div>
-          <div class="text-3xl font-extrabold font-mono text-amber-600 my-1">{{ complianceAlertCount }}</div>
-          <div class="text-xs text-amber-600 font-mono">Expiry issues</div>
-          <div class="accent-bar bg-amber-400"></div>
+        <div class="kpi-box">
+          <div class="kpi-title">COMPLIANCE ALERTS</div>
+          <div class="kpi-amount text-amber-600">{{ complianceAlertCount }}</div>
+          <div class="kpi-subtext">Fitness / Insurance renewal</div>
         </div>
       </div>
 

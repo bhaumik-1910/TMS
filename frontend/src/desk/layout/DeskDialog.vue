@@ -238,6 +238,10 @@ function handleKeyDown(event: KeyboardEvent) {
     if (activeEl && activeEl.closest('form.desk-form, form.desk-form-container')) {
       return;
     }
+    // Let dropdowns be handled by global dropdown navigation (1st Enter opens, 2nd Enter selects + advances)
+    if (activeEl && activeEl.closest('.q-select, .desk-combo, .desk-filter-select, [role="combobox"]')) {
+      return;
+    }
     // Let textarea handle normal Enter unless Ctrl+Enter
     if (activeEl && activeEl.tagName === 'TEXTAREA' && !event.ctrlKey) {
       return;

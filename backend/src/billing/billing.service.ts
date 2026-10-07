@@ -18,6 +18,13 @@ import {
   PurchaseBillModel,
   SettlementModel,
 } from '../database/models';
+import { OpsRunnerService } from '../framework/ops/ops-runner.service';
+import { DocumentSequenceService } from '../foundation/document-sequences/document-sequence.service';
+import { checkInvoicePeriodLockStep } from './ops/invoices/010-check-period-lock';
+import { validateInvoiceLrStep } from './ops/invoices/020-validate-lrs';
+import { checkPurchaseBillPeriodLockStep } from './ops/purchase-bills/010-check-period-lock';
+import { checkSettlementPeriodLockStep } from './ops/settlements/010-check-period-lock';
+import { validateSettlementBalanceStep } from './ops/settlements/020-validate-trip-balance';
 
 @Injectable()
 export class BillingService implements OnModuleInit {
@@ -42,6 +49,8 @@ export class BillingService implements OnModuleInit {
     private readonly purchaseBillModel: typeof PurchaseBillModel,
     @InjectModel(SettlementModel)
     private readonly settlementModel: typeof SettlementModel,
+    private readonly opsRunner: OpsRunnerService,
+    private readonly sequenceService: DocumentSequenceService,
   ) {}
 
   async onModuleInit() {
@@ -328,20 +337,43 @@ export class BillingService implements OnModuleInit {
   }
 
   async createSettlement(data: any) {
-    const id = data.id || `STL/${Math.floor(240089 + Math.random() * 500)}`;
-    return this.settlementModel.create({
-      id,
-      settlementType: data.settlementType || 'Owner',
-      party: data.party || '',
-      tripRef: data.tripRef || '',
-      grossAmt: data.grossAmt || '₹0',
-      advance: data.advance || '₹0',
-      tds: data.tds || '₹0',
-      shortage: data.shortage || '₹0',
-      netPayable: data.netPayable || '₹0',
-      date: data.date || '',
-      status: data.status || 'Draft',
-      remarks: data.remarks || '',
+    const orgId = data.organizationId || '1';
+
+    return this.opsRunner.run({
+      resource: 'Settlement',
+      op: 'create',
+      user: {
+        id: data.userId || '1',
+        organizationId: orgId,
+        branchId: data.branchId,
+      },
+      data,
+      steps: [checkSettlementPeriodLockStep, validateSettlementBalanceStep],
+      execute: async (c) => {
+        const dateStr = data.date || new Date().toISOString().slice(0, 10);
+        const resolvedId =
+          data.id ||
+          (await this.sequenceService.next(c.organizationId, 'settlement', dateStr, c.t));
+
+        const record = await this.settlementModel.create(
+          {
+            id: resolvedId,
+            settlementType: data.settlementType || 'Owner',
+            party: data.party || '',
+            tripRef: data.tripRef || '',
+            grossAmt: data.grossAmt || '₹0',
+            advance: data.advance || '₹0',
+            tds: data.tds || '₹0',
+            shortage: data.shortage || '₹0',
+            netPayable: data.netPayable || '₹0',
+            date: dateStr,
+            status: data.status || 'Draft',
+            remarks: data.remarks || '',
+          },
+          { transaction: c.t },
+        );
+        return record;
+      },
     });
   }
 
@@ -395,20 +427,45 @@ export class BillingService implements OnModuleInit {
   }
 
   async createPurchaseBill(data: any) {
-    const id = data.id || `PB/${Math.floor(240050 + Math.random() * 500)}`;
-    return this.purchaseBillModel.create({
-      id,
-      supplier: data.supplier || '',
-      type: data.type || 'Fuel Station',
-      billNo: data.billNo || '',
-      date: data.date || '',
-      baseAmt: data.baseAmt || '₹0',
-      gst: data.gst || '₹0',
-      total: data.total || '₹0',
-      tds: data.tds || '—',
-      tdsSection: data.tdsSection || '194C',
-      linkedRef: data.linkedRef || '—',
-      status: data.status || 'Pending',
+    const orgId = data.organizationId || '1';
+
+    return this.opsRunner.run({
+      resource: 'PurchaseBill',
+      op: 'create',
+      user: {
+        id: data.userId || '1',
+        organizationId: orgId,
+        branchId: data.branchId,
+      },
+      data,
+      steps: [checkPurchaseBillPeriodLockStep],
+      execute: async (c) => {
+        const dateStr = data.date || new Date().toISOString().slice(0, 10);
+        const billNo =
+          data.billNo ||
+          data.id ||
+          (await this.sequenceService.next(c.organizationId, 'purchase_bill', dateStr, c.t));
+        const id = data.id || billNo;
+
+        const record = await this.purchaseBillModel.create(
+          {
+            id,
+            supplier: data.supplier || '',
+            type: data.type || 'Fuel Station',
+            billNo,
+            date: dateStr,
+            baseAmt: data.baseAmt || '₹0',
+            gst: data.gst || '₹0',
+            total: data.total || '₹0',
+            tds: data.tds || '—',
+            tdsSection: data.tdsSection || '194C',
+            linkedRef: data.linkedRef || '—',
+            status: data.status || 'Pending',
+          },
+          { transaction: c.t },
+        );
+        return record;
+      },
     });
   }
 
@@ -458,20 +515,55 @@ export class BillingService implements OnModuleInit {
   }
 
   async createBillingInvoice(data: any) {
-    const invoiceNo = data.invoiceNo || `INV/24/${Math.floor(1000 + Math.random() * 9000)}`;
-    const id = data.id || invoiceNo;
-    return this.billingInvoiceModel.create({
-      id,
-      invoiceNo,
-      lrRef: data.lrRef || '',
-      customer: data.customer || '',
-      baseAmt: data.baseAmt || '₹0',
-      gst: data.gst || '₹0 (RCM)',
-      total: data.total || '₹0',
-      gstType: data.gstType || 'RCM 5%',
-      irn: data.irn || '—',
-      dueDate: data.dueDate || '',
-      status: data.status || 'Draft',
+    const orgId = data.organizationId || '1';
+
+    return this.opsRunner.run({
+      resource: 'BillingInvoice',
+      op: 'create',
+      user: {
+        id: data.userId || '1',
+        organizationId: orgId,
+        branchId: data.branchId,
+      },
+      data,
+      steps: [checkInvoicePeriodLockStep, validateInvoiceLrStep],
+      execute: async (c) => {
+        const dateStr = data.dueDate || data.date || new Date().toISOString().slice(0, 10);
+        const invoiceNo =
+          data.invoiceNo ||
+          data.id ||
+          (await this.sequenceService.next(c.organizationId, 'invoice', dateStr, c.t));
+        const id = data.id || invoiceNo;
+
+        const record = await this.billingInvoiceModel.create(
+          {
+            id,
+            invoiceNo,
+            lrRef: data.lrRef || '',
+            customer: data.customer || '',
+            baseAmt: data.baseAmt || '₹0',
+            gst: data.gst || '₹0 (RCM)',
+            total: data.total || '₹0',
+            gstType: data.gstType || 'RCM 5%',
+            irn: data.irn || '—',
+            dueDate: dateStr,
+            status: data.status || 'Draft',
+          },
+          { transaction: c.t },
+        );
+
+        // Link LR and update status if LR was found
+        if (c.state.lrRecord) {
+          try {
+            await c.state.lrRecord.update(
+              { billingStatus: 'Invoiced', invoiceNo },
+              { transaction: c.t },
+            );
+          } catch (_) {}
+        }
+
+        return record;
+      },
     });
   }
 

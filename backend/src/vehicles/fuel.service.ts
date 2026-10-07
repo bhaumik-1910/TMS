@@ -2,12 +2,17 @@ import { Injectable, OnModuleInit, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { FuelEntryModel } from '../database/models';
+import { OpsRunnerService } from '../framework/ops/ops-runner.service';
+import { DocumentSequenceService } from '../foundation/document-sequences/document-sequence.service';
+import { checkFuelAnomalyStep } from './ops/fuel/010-check-fuel-anomaly';
 
 @Injectable()
 export class FuelService implements OnModuleInit {
   constructor(
     @InjectModel(FuelEntryModel)
     private readonly fuelEntryModel: typeof FuelEntryModel,
+    private readonly opsRunner: OpsRunnerService,
+    private readonly sequenceService: DocumentSequenceService,
   ) {}
 
   async onModuleInit() {
@@ -143,28 +148,51 @@ export class FuelService implements OnModuleInit {
   }
 
   async create(data: any) {
-    const entryId = data.entryId || data.id || `FE/${2400090 + Math.floor(Math.random() * 1000)}`;
-    const litres = parseFloat(String(data.litres || 0)) || 0;
-    const rate = parseFloat(String(data.rate || 0)) || 0;
-    const amount = parseFloat(String(data.amount || litres * rate)) || Math.round(litres * rate);
-    const kml = parseFloat(String(data.kml || 0)) || 0;
+    const orgId = data.organizationId || '1';
 
-    const record = await this.fuelEntryModel.create({
-      id: data.id || entryId,
-      entryId,
-      dateTime: data.dateTime || data.date || new Date().toISOString().slice(0, 10),
-      vehicle: data.vehicle,
-      trip: data.trip || '',
-      station: data.station,
-      litres,
-      rate,
-      amount,
-      paymentMode: data.paymentMode || data.payMode || 'Cash',
-      odometer: data.odometer ? String(data.odometer) : '—',
-      kml,
-      flagged: kml < 4.5,
+    return this.opsRunner.run({
+      resource: 'FuelEntry',
+      op: 'create',
+      user: {
+        id: data.userId || '1',
+        organizationId: orgId,
+        branchId: data.branchId,
+      },
+      data,
+      steps: [checkFuelAnomalyStep],
+      execute: async (c) => {
+        const litres = parseFloat(String(data.litres || 0)) || 0;
+        const rate = parseFloat(String(data.rate || 0)) || 0;
+        const amount = parseFloat(String(data.amount || litres * rate)) || Math.round(litres * rate);
+        const kml = parseFloat(String(data.kml || 0)) || 0;
+
+        const resolvedEntryId =
+          data.entryId ||
+          data.id ||
+          (await this.sequenceService.next(c.organizationId, 'fuel', data.dateTime, c.t));
+
+        const record = await this.fuelEntryModel.create(
+          {
+            id: resolvedEntryId,
+            entryId: resolvedEntryId,
+            dateTime: data.dateTime || data.date || new Date().toISOString().slice(0, 10),
+            vehicle: data.vehicle,
+            trip: data.trip || '',
+            station: data.station,
+            litres,
+            rate,
+            amount,
+            paymentMode: data.paymentMode || data.payMode || 'Cash',
+            odometer: data.odometer ? String(data.odometer) : '—',
+            kml,
+            flagged: kml < 4.0 || litres > 500,
+          },
+          { transaction: c.t },
+        );
+
+        return record;
+      },
     });
-    return record;
   }
 
   async update(id: string, data: any) {

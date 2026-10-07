@@ -1,72 +1,59 @@
 <template>
-  <div class="driver-master-page p-3 sm:p-4 text-slate-800 font-sans">
-    <!-- Header with Title & Action Controls -->
-    <div class="row items-center justify-between no-wrap q-mb-md">
-      <div>
-        <div class="text-h6 text-weight-bold text-slate-900 relative-position inline-block q-pb-xs">
-          Driver Personnel & CDL Licenses
-          <div class="header-underline"></div>
-        </div>
-        <div class="text-caption text-slate-500 q-mt-xs font-sans">
-          Commercial Driver Licenses, Sarathi verification, compliance expiries & fleet allocations
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Drivers Master</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <!-- Header Action Buttons -->
-      <div class="row items-center q-gutter-x-sm no-wrap">
+      <div class="flex items-center gap-3">
         <button
           type="button"
-          class="btn-hdr-export"
+          class="btn-secondary-action"
           @click="exportCsv"
         >
-          <q-icon name="download" size="15px" class="q-mr-xs text-slate-600" />
-          Export CSV
+          <q-icon name="download" size="16px" class="q-mr-xs text-slate-600" />
+          <span>Export CSV</span>
         </button>
+
         <button
           type="button"
-          class="btn-hdr-add"
+          class="btn-primary-cyan"
           @click="openAddModal"
         >
-          <q-icon name="add" size="16px" class="q-mr-xs text-white" />
-          Add Driver [Alt+C]
+          <q-icon name="add" size="18px" />
+          <span>Driver</span>
         </button>
       </div>
     </div>
 
     <!-- Drivers Content Container with Loading Overlay -->
     <div class="relative min-h-[400px]">
-      <!-- 4 KPI Stat Cards matching Vehicle Master Aesthetic -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 q-mb-md">
-        <!-- Card 1: Total Fleet Drivers -->
-        <div class="stat-card p-4 rounded-xl border border-sky-200 bg-white relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">TOTAL OPERATORS</div>
-          <div class="text-3xl font-extrabold font-mono text-sky-700 my-1">{{ drivers.length }}</div>
-          <div class="text-xs text-slate-500 font-mono">Active {{ onDutyCount }} &bull; Available {{ availableCount }}</div>
-          <div class="accent-bar bg-sky-500"></div>
+      <!-- 4 KPI Stat Cards matching Billing Page -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="kpi-box kpi-box--active">
+          <div class="kpi-title text-sky-600">TOTAL OPERATORS</div>
+          <div class="kpi-amount text-sky-700">{{ drivers.length }}</div>
+          <div class="kpi-subtext">Active {{ onDutyCount }} &bull; Available {{ availableCount }}</div>
         </div>
 
-        <!-- Card 2: Active on Duty -->
-        <div class="stat-card p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-emerald-700 mb-1">PILOTING ON-DUTY</div>
-          <div class="text-3xl font-extrabold font-mono text-emerald-700 my-1">{{ onDutyCount }}</div>
-          <div class="text-xs text-emerald-600 font-mono">In transit linehaul trips</div>
-          <div class="accent-bar bg-emerald-500"></div>
+        <div class="kpi-box">
+          <div class="kpi-title">PILOTING ON-DUTY</div>
+          <div class="kpi-amount text-emerald-600">{{ onDutyCount }}</div>
+          <div class="kpi-subtext">In-transit linehaul trips</div>
         </div>
 
-        <!-- Card 3: Ready for Dispatch -->
-        <div class="stat-card p-4 rounded-xl border border-slate-200 bg-white relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-slate-500 mb-1">READY FOR DISPATCH</div>
-          <div class="text-3xl font-extrabold font-mono text-slate-800 my-1">{{ availableCount }}</div>
-          <div class="text-xs text-slate-500 font-mono">Available for vehicle allocation</div>
-          <div class="accent-bar bg-slate-400"></div>
+        <div class="kpi-box">
+          <div class="kpi-title">READY FOR DISPATCH</div>
+          <div class="kpi-amount text-slate-800">{{ availableCount }}</div>
+          <div class="kpi-subtext">Available for allocation</div>
         </div>
 
-        <!-- Card 4: CDL Expiry Alerts -->
-        <div class="stat-card p-4 rounded-xl border border-amber-200 bg-amber-50/50 relative overflow-hidden">
-          <div class="text-[11px] font-mono uppercase tracking-wider text-amber-700 mb-1">COMPLIANCE ALERTS</div>
-          <div class="text-3xl font-extrabold font-mono text-amber-600 my-1">{{ complianceAlertCount }}</div>
-          <div class="text-xs text-amber-700 font-mono">License expiry issues</div>
-          <div class="accent-bar bg-amber-500"></div>
+        <div class="kpi-box">
+          <div class="kpi-title">COMPLIANCE ALERTS</div>
+          <div class="kpi-amount text-amber-600">{{ complianceAlertCount }}</div>
+          <div class="kpi-subtext">License / Sarathi expiry</div>
         </div>
       </div>
 

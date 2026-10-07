@@ -4,7 +4,7 @@ export declare class DispatchController {
     constructor(dispatchService: DispatchService);
     findAll(orgId: string, status?: string): Promise<any>;
     getDispatchBoard(orgId: string): Promise<Record<string, any[]>>;
-    create(user: any, body: any): Promise<import("../database/models").DispatchModel>;
+    create(user: any, body: any): Promise<any>;
     updateTrip(id: string, body: any): Promise<import("../database/models").DispatchModel>;
     deleteTrip(id: string): Promise<{
         success: boolean;

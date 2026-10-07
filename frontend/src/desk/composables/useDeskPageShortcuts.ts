@@ -1,5 +1,5 @@
 import { onMounted, onBeforeUnmount, unref, Ref } from 'vue';
-import { useDeskFocus } from '../focus/useDeskFocus';
+import { useDeskFocus, getOpenMenu } from '../focus/useDeskFocus';
 
 export interface DeskPageShortcutsOptions {
   /** Reference to DeskDataTable or search input element */
@@ -73,6 +73,11 @@ export function useDeskPageShortcuts(options: DeskPageShortcutsOptions) {
 
     // 1. If Modal / Drawer is Open:
     if (modalOpen) {
+      // If a select menu, combo popup, or datepicker popup is currently open in DOM,
+      // allow the popup to process Enter / Escape first!
+      const activePopup = document.querySelector('.desk-select-menu, .q-menu:not(.hidden), .q-dialog--modal');
+      const inComboPopup = activePopup && (activePopup.contains(activeEl) || activePopup.classList.contains('desk-select-menu'));
+
       // Ctrl+A, Alt+S or Ctrl+S -> Form Save / Tally Accept
       if (
         ((e.ctrlKey || e.metaKey) && (key === 'a' || key === 's')) ||
@@ -86,8 +91,12 @@ export function useDeskPageShortcuts(options: DeskPageShortcutsOptions) {
         }
       }
 
-      // Escape -> Close Modal
+      // Escape -> Close Modal (unless a dropdown popup is currently open)
       if (key === 'escape') {
+        if (inComboPopup || document.querySelector('.desk-select-menu, .q-menu:not(.hidden)')) {
+          // Allow Quasar/DeskCombo to close its popup first
+          return;
+        }
         if (options.onEscape) {
           e.preventDefault();
           e.stopPropagation();
@@ -98,6 +107,13 @@ export function useDeskPageShortcuts(options: DeskPageShortcutsOptions) {
 
       // Enter key navigation inside open modal
       if (key === 'enter') {
+        const isDropdown = activeEl?.closest('.q-select, .desk-combo, .desk-filter-select, [role="combobox"]');
+        const openMenu = getOpenMenu();
+        // If a dropdown or its popup menu is active, let global dropdown navigation handle 1st enter & 2nd enter!
+        if (openMenu || isDropdown || inComboPopup || document.querySelector('.desk-select-menu')) {
+          return;
+        }
+
         const modalContainer = (document.querySelector('.desk-dialog, .q-dialog:not(.hidden)') || document.body) as HTMLElement;
         const tag = activeEl?.tagName?.toLowerCase();
 
@@ -197,13 +213,13 @@ export function useDeskPageShortcuts(options: DeskPageShortcutsOptions) {
   }
 
   onMounted(() => {
-    window.addEventListener('keydown', handleKeydown, { capture: true });
+    window.addEventListener('keydown', handleKeydown, false);
     window.addEventListener('desk:new-record', onDeskNewRecord);
     window.addEventListener('desk:focus-search', onDeskFocusSearch);
   });
 
   onBeforeUnmount(() => {
-    window.removeEventListener('keydown', handleKeydown, { capture: true });
+    window.removeEventListener('keydown', handleKeydown, false);
     window.removeEventListener('desk:new-record', onDeskNewRecord);
     window.removeEventListener('desk:focus-search', onDeskFocusSearch);
   });

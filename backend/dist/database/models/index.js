@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InvoiceModel = exports.LorryReceiptModel = exports.ProofOfDeliveryModel = exports.GeofenceEventModel = exports.GeofenceModel = exports.TrackingEventModel = exports.SettlementModel = exports.PurchaseBillModel = exports.BillingInvoiceModel = exports.PodRecordModel = exports.JobCardModel = exports.TyreInventoryModel = exports.TyreEventModel = exports.DriverAdvanceModel = exports.TenderRequestModel = exports.DispatchModel = exports.LoadPlanItemModel = exports.LoadPlanModel = exports.RouteStopModel = exports.RouteModel = exports.ShipmentItemModel = exports.ShipmentModel = exports.OrderItemModel = exports.TransportOrderModel = exports.FuelEntryModel = exports.DriverAssignmentModel = exports.DriverDocumentModel = exports.DriverModel = exports.VehicleMaintenanceModel = exports.VehicleDocumentModel = exports.VehicleModel = exports.CarrierDocumentModel = exports.CarrierRateModel = exports.CarrierContractModel = exports.CarrierModel = exports.CustomerModel = exports.AppointmentModel = exports.DockModel = exports.FacilityModel = exports.PackageTypeModel = exports.CargoTypeModel = exports.VehicleTypeModel = exports.LocationModel = exports.LocationTypeModel = exports.UserRoleModel = exports.RolePermissionModel = exports.PermissionModel = exports.RoleModel = exports.UserModel = exports.OrganizationModel = void 0;
-exports.ALL_MODELS = exports.DemoRequestModel = exports.DocumentModel = exports.DocumentTypeModel = exports.AnalyticsDataModel = exports.AuditLogModel = exports.NotificationModel = exports.AccountingSyncModel = exports.ClaimItemModel = exports.ClaimModel = exports.TripExpenseModel = exports.PaymentModel = exports.InvoiceItemModel = void 0;
+exports.ALL_MODELS = exports.UserBranchModel = exports.ExceptionModel = exports.EntityEventModel = exports.CompanySettingModel = exports.PeriodLockModel = exports.DocumentSequenceModel = exports.BranchModel = exports.DemoRequestModel = exports.DocumentModel = exports.DocumentTypeModel = exports.AnalyticsDataModel = exports.AuditLogModel = exports.NotificationModel = exports.AccountingSyncModel = exports.ClaimItemModel = exports.ClaimModel = exports.TripExpenseModel = exports.PaymentModel = exports.InvoiceItemModel = void 0;
 const organization_model_1 = require("./auth/organization.model");
 Object.defineProperty(exports, "OrganizationModel", { enumerable: true, get: function () { return organization_model_1.OrganizationModel; } });
 const user_model_1 = require("./auth/user.model");
@@ -78,6 +78,20 @@ Object.defineProperty(exports, "AnalyticsDataModel", { enumerable: true, get: fu
 Object.defineProperty(exports, "DocumentTypeModel", { enumerable: true, get: function () { return system_model_1.DocumentTypeModel; } });
 Object.defineProperty(exports, "DocumentModel", { enumerable: true, get: function () { return system_model_1.DocumentModel; } });
 Object.defineProperty(exports, "DemoRequestModel", { enumerable: true, get: function () { return system_model_1.DemoRequestModel; } });
+const branch_model_1 = require("./foundation/branch.model");
+Object.defineProperty(exports, "BranchModel", { enumerable: true, get: function () { return branch_model_1.BranchModel; } });
+const document_sequence_model_1 = require("./foundation/document-sequence.model");
+Object.defineProperty(exports, "DocumentSequenceModel", { enumerable: true, get: function () { return document_sequence_model_1.DocumentSequenceModel; } });
+const period_lock_model_1 = require("./foundation/period-lock.model");
+Object.defineProperty(exports, "PeriodLockModel", { enumerable: true, get: function () { return period_lock_model_1.PeriodLockModel; } });
+const company_setting_model_1 = require("./foundation/company-setting.model");
+Object.defineProperty(exports, "CompanySettingModel", { enumerable: true, get: function () { return company_setting_model_1.CompanySettingModel; } });
+const entity_event_model_1 = require("./foundation/entity-event.model");
+Object.defineProperty(exports, "EntityEventModel", { enumerable: true, get: function () { return entity_event_model_1.EntityEventModel; } });
+const exception_model_1 = require("./foundation/exception.model");
+Object.defineProperty(exports, "ExceptionModel", { enumerable: true, get: function () { return exception_model_1.ExceptionModel; } });
+const user_branch_model_1 = require("./foundation/user-branch.model");
+Object.defineProperty(exports, "UserBranchModel", { enumerable: true, get: function () { return user_branch_model_1.UserBranchModel; } });
 exports.ALL_MODELS = [
     organization_model_1.OrganizationModel,
     user_model_1.UserModel,
@@ -141,5 +155,12 @@ exports.ALL_MODELS = [
     system_model_1.DocumentTypeModel,
     system_model_1.DocumentModel,
     system_model_1.DemoRequestModel,
+    branch_model_1.BranchModel,
+    document_sequence_model_1.DocumentSequenceModel,
+    period_lock_model_1.PeriodLockModel,
+    company_setting_model_1.CompanySettingModel,
+    entity_event_model_1.EntityEventModel,
+    exception_model_1.ExceptionModel,
+    user_branch_model_1.UserBranchModel,
 ];
 //# sourceMappingURL=index.js.map

@@ -190,10 +190,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAppNotify } from '../../composables/useAppNotify';
 import { DeskDialog } from '../../framework';
 import { useDeskPageShortcuts } from '../../desk';
+import api from '../../api/client';
 
 interface ExceptionItem {
   id: string;
@@ -347,14 +348,45 @@ function getCategoryBadgeClass(category: string) {
   }
 }
 
-function toggleResolve(item: ExceptionItem) {
+async function toggleResolve(item: ExceptionItem) {
+  const previousState = item.resolved;
   item.resolved = !item.resolved;
-  if (item.resolved) {
-    notify.success(`Exception "${item.title}" marked as resolved.`);
-  } else {
-    notify.info(`Exception "${item.title}" reopened.`);
+  try {
+    if (item.resolved && !isNaN(Number(item.id))) {
+      await api.post(`/foundation/exceptions/${item.id}/resolve`);
+    }
+    if (item.resolved) {
+      notify.success(`Exception "${item.title}" marked as resolved.`);
+    } else {
+      notify.info(`Exception "${item.title}" reopened.`);
+    }
+  } catch (err: any) {
+    item.resolved = previousState;
+    notify.error('Failed to update exception status');
   }
 }
+
+onMounted(async () => {
+  try {
+    const res = await api.get('/foundation/exceptions');
+    const realItems = res.data?.data || res.data || [];
+    if (realItems && realItems.length > 0) {
+      const mapped: ExceptionItem[] = realItems.map((e: any) => ({
+        id: String(e.id),
+        category: (e.type ? e.type.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) : 'Compliance') as any,
+        severity: ((e.severity || 'high').toUpperCase()) as any,
+        date: e.occurredOn || new Date().toISOString().split('T')[0],
+        title: e.title,
+        description: e.detail || '',
+        ref: e.refType ? `Ref: ${e.refType} #${e.refId}` : 'Ref: SYSTEM',
+        resolved: !!e.resolvedAt,
+      }));
+      exceptions.value = [...mapped, ...exceptions.value];
+    }
+  } catch (_) {
+    // Keep baseline default items
+  }
+});
 
 function reviewException(item: ExceptionItem) {
   selectedItem.value = item;

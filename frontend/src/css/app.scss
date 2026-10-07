@@ -6,13 +6,21 @@
 @import './tokens';
 
 body {
-  font-family: var(--tms-font-sans);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   background-color: #f8fafc;
   color: var(--tms-text-primary);
   font-size: 13px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+.font-mono, .desk-mono, code, kbd {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', ui-monospace, SFMono-Regular, monospace !important;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 // Modern Enterprise Scrollbars
@@ -782,4 +790,311 @@ table td [class*="badge-"],
   font-size: 11px !important;
   letter-spacing: 0.05em !important;
   text-transform: uppercase !important;
+}
+
+// =============================================================================
+// UNIFIED BILLING-STYLE ENTERPRISE DESIGN TOKENS & COMPONENTS (15 Core Pages)
+// =============================================================================
+.billing-page-container {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  color: #1e293b;
+  padding: 24px;
+}
+
+.billing-title-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.billing-underline {
+  height: 3px;
+  background: #0284c7;
+  width: 36px;
+  border-radius: 2px;
+  margin-top: 4px;
+}
+
+.btn-primary-cyan {
+  background: #0284c7;
+  color: #ffffff !important;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25);
+  user-select: none;
+
+  &:hover {
+    background: #0369a1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-secondary-action {
+  background: #ffffff;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+
+  &:hover {
+    background: #f8fafc;
+    color: #0f172a !important;
+    border-color: #94a3b8;
+  }
+}
+
+// 4 KPI Stat Cards
+.kpi-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 110px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.kpi-box--active {
+  border-color: #0284c7 !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12) !important;
+  background-color: #f0f9ff !important;
+}
+
+.kpi-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.kpi-amount {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-feature-settings: 'tnum' 1;
+  line-height: 1.2;
+  margin: 6px 0 2px 0;
+  color: #0f172a;
+}
+
+.kpi-subtext {
+  font-size: 12px;
+  color: #64748b;
+}
+
+// Standard Search input
+.search-input {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  }
+
+  &::placeholder {
+    color: #94a3b8;
+  }
+}
+
+// Unified Table Styling
+.table-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.table-head-row th {
+  background-color: #f8fafc !important;
+  color: #334155 !important;
+  font-weight: 700 !important;
+  font-size: 11.5px !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+// Table action buttons
+.btn-table-action {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #bae6fd;
+    color: #0369a1;
+  }
+}
+
+.btn-table-icon {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  height: 28px;
+  width: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  outline: none;
+  padding: 0;
+
+  &:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+  }
+}
+
+.btn-table-icon--danger {
+  color: #94a3b8;
+
+  &:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+  }
+}
+
+// Active Action Button Focus (Tab navigation in tables)
+.btn-table-action.desk-btn-active,
+.btn-table-action.excel-btn-active,
+.btn-table-edit.desk-btn-active,
+.btn-table-edit.excel-btn-active,
+.q-btn.desk-btn-active,
+.q-btn.excel-btn-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 1px !important;
+  background-color: #bae6fd !important;
+  color: #0369a1 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.4), 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+  transform: scale(1.05);
+  z-index: 20 !important;
+}
+
+.btn-table-icon.desk-btn-active,
+.btn-table-icon.excel-btn-active {
+  outline: 2px solid #0284c7 !important;
+  outline-offset: 1px !important;
+  background-color: #e0f2fe !important;
+  color: #0284c7 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.4), 0 2px 6px rgba(2, 132, 199, 0.3) !important;
+  transform: scale(1.08);
+  z-index: 20 !important;
+}
+
+.btn-table-delete.desk-btn-active,
+.btn-table-delete.excel-btn-active,
+.btn-table-icon--danger.desk-btn-active,
+.btn-table-icon--danger.excel-btn-active {
+  outline: 2px solid #ef4444 !important;
+  outline-offset: 1px !important;
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4), 0 2px 6px rgba(239, 68, 68, 0.3) !important;
+  transform: scale(1.08);
+  z-index: 20 !important;
+}
+
+// Badges
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-paid,
+.badge-active {
+  background-color: #dcfce7 !important;
+  color: #16a34a !important;
+  border: 1px solid #86efac !important;
+}
+
+.badge-pending,
+.badge-in-transit {
+  background-color: #fefce8 !important;
+  color: #ca8a04 !important;
+  border: 1px solid #fde047 !important;
+}
+
+.badge-overdue,
+.badge-danger,
+.badge-expired {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fca5a5 !important;
+}
+
+.badge-draft,
+.badge-inactive,
+.badge-idle {
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.badge-cancelled {
+  background-color: #f4f4f5 !important;
+  color: #71717a !important;
+  border: 1px solid #d4d4d8 !important;
+}
+
+.badge-rcm,
+.badge-sky {
+  background-color: #ecfeff !important;
+  color: #0e7490 !important;
+  border: 1px solid #a5f3fc !important;
+}
+
+.badge-forward,
+.badge-purple {
+  background-color: #ede9fe !important;
+  color: #6d28d9 !important;
+  border: 1px solid #c4b5fd !important;
 }

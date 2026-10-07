@@ -37,12 +37,17 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
     try {
       const res: any = await api.get('/api/v1/notifications');
-      const list = res.data || res;
-      if (Array.isArray(list)) {
+      const payload = res.data ?? res;
+      const list = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload)
+          ? payload
+          : [];
+      if (list.length > 0) {
         notifications.value = list;
       }
     } catch (err) {
-      console.error('Failed to fetch notifications:', err);
+      console.warn('Notifications stream unavailable:', err);
     } finally {
       loading.value = false;
       isRefreshing.value = false;

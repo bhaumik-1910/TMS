@@ -19,24 +19,24 @@ export default defineRouter((/* { store, ssrContext } */) => {
     history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE),
   });
 
-  Router.beforeEach((to, from, next) => {
+  Router.beforeEach((to) => {
     const token = localStorage.getItem('tms_access_token');
-    const isPublic = to.meta.public === true || to.path === '/' || to.path === '/landing' || to.path === '/403';
-    const isAuthRoute = to.path.startsWith('/auth');
+    const isAuthRoute = to.path.startsWith('/auth') || to.path === '/login';
+    const isPublic = to.meta.public === true || to.path === '/403';
 
-    // Allow public marketing & error pages
+    // If authenticated and visiting login -> redirect to console
+    if (token && isAuthRoute) {
+      return '/dashboard';
+    }
+
+    // Allow public pages (login, 403)
     if (isPublic) {
-      return next();
+      return true;
     }
 
     // If unauthenticated and accessing protected console route -> redirect to login
     if (!token && !isAuthRoute) {
-      return next('/auth/login');
-    }
-
-    // If authenticated and visiting login -> redirect to console
-    if (token && isAuthRoute) {
-      return next('/dashboard');
+      return '/auth/login';
     }
 
     // Permission Check
@@ -46,11 +46,11 @@ export default defineRouter((/* { store, ssrContext } */) => {
       const isAllowed = authStore.hasPermission(requiredPermission);
 
       if (!isAllowed) {
-        return next('/403');
+        return '/403';
       }
     }
 
-    next();
+    return true;
   });
 
   return Router;

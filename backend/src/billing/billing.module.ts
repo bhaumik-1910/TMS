@@ -20,8 +20,13 @@ import {
   SettlementModel,
 } from '../database/models';
 
+import { FoundationModule } from '../foundation/foundation.module';
+import { OpsModule } from '../framework/ops/ops.module';
+
 @Module({
   imports: [
+    FoundationModule,
+    OpsModule,
     SequelizeModule.forFeature([
       InvoiceModel,
       InvoiceItemModel,

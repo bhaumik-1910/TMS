@@ -6,6 +6,7 @@ export interface GridColumn {
   sortable?: boolean;
   format?: (val: any, row: any) => any;
   width?: string;
+  minWidth?: string;
   style?: string;
   classes?: string;
   editable?: boolean;

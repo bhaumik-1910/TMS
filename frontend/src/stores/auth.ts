@@ -157,6 +157,8 @@ export const useAuthStore = defineStore('auth', {
     activeRole: localStorage.getItem('tms_active_role') || 'OPERATIONS_MANAGER',
     orgContext: localStorage.getItem('tms_org_context') || 'SYSTEM',
     availableOrganizations: [] as any[],
+    picker: null as { loginToken: string; user: any; companies: any[] } | null,
+    activeCompany: null as { id: number; code: string; name: string } | null,
     isLoading: false,
   }),
 
@@ -200,25 +202,121 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true;
       const notify = useAppNotify();
       try {
-        const res: any = await api.post('/api/v1/auth/login', { email, password: pass });
-        const { accessToken, refreshToken, user } = res.data || res;
+        let res: any;
+        try {
+          res = await api.post('/api/auth/login', { email, password: pass });
+        } catch (e: any) {
+          // Fallback to legacy path if needed
+          res = await api.post('/api/v1/auth/login', { email, password: pass });
+        }
+        const data = res.data || res;
 
-        this.token = accessToken;
-        this.refreshToken = refreshToken;
+        // Two-Token Multi-Tenant Flow: Login Token + Companies Selection
+        if (data.loginToken && Array.isArray(data.companies)) {
+          this.picker = {
+            loginToken: data.loginToken,
+            user: data.user,
+            companies: data.companies,
+          };
+          this.availableOrganizations = data.companies;
+          return {
+            requiresCompanySelection: true,
+            companies: data.companies,
+            user: data.user,
+          };
+        }
+
+        // Direct Token Flow (if any)
+        const { accessToken, refreshToken, user } = data;
+        this.token = accessToken || '';
+        this.refreshToken = refreshToken || '';
         this.user = user;
-        this.activeRole = user.roles?.[0] || 'OPERATIONS_MANAGER';
+        this.activeRole = user?.roles?.[0] || 'OPERATIONS_MANAGER';
 
-        localStorage.setItem('tms_access_token', accessToken);
-        localStorage.setItem('tms_refresh_token', refreshToken);
-        localStorage.setItem('tms_user', JSON.stringify(user));
+        if (accessToken) localStorage.setItem('tms_access_token', accessToken);
+        if (refreshToken) localStorage.setItem('tms_refresh_token', refreshToken);
+        if (user) localStorage.setItem('tms_user', JSON.stringify(user));
         localStorage.setItem('tms_active_role', this.activeRole);
 
-        notify.success(`Welcome back, ${user.firstName}! Signed in as ${this.activeRole}.`);
-        return true;
+        notify.success(`Welcome back, ${user?.firstName || user?.name || 'User'}! Signed in as ${this.activeRole}.`);
+        return { requiresCompanySelection: false, user };
       } catch (err: any) {
+        notify.error(err?.response?.data?.message || err?.message || 'Invalid credentials or login failed');
         return false;
       } finally {
         this.isLoading = false;
+      }
+    },
+
+    async switchCompany(companyId: number) {
+      this.isLoading = true;
+      const notify = useAppNotify();
+      try {
+        const bearer = this.picker?.loginToken || this.token;
+        const res: any = await api.post(
+          '/api/auth/switch-company',
+          { companyId, refreshToken: this.refreshToken || undefined },
+          { headers: { Authorization: `Bearer ${bearer}` } },
+        );
+        const data = res.data || res;
+        const { accessToken, refreshToken } = data;
+
+        this.token = accessToken;
+        this.refreshToken = refreshToken;
+        localStorage.setItem('tms_access_token', accessToken);
+        localStorage.setItem('tms_refresh_token', refreshToken);
+
+        // Find selected company in list
+        const comp =
+          this.picker?.companies?.find((c: any) => c.companyId === companyId) ||
+          this.availableOrganizations?.find((c: any) => c.companyId === companyId || c.id === companyId);
+
+        const compName = comp?.name || 'Demo Roadways Pvt Ltd';
+        const compCode = comp?.code || 'demo';
+        const roleLabel = comp?.role || comp?.roleCode || 'ADMIN';
+
+        this.orgContext = compCode;
+        this.activeRole = roleLabel;
+        localStorage.setItem('tms_org_context', compCode);
+        localStorage.setItem('tms_active_role', roleLabel);
+
+        const userName = this.picker?.user?.name || this.user?.firstName || 'Admin';
+        const userEmail = this.picker?.user?.email || this.user?.email || 'admin@demo.test';
+
+        this.user = {
+          id: String(companyId),
+          email: userEmail,
+          firstName: userName.split(' ')[0] || userName,
+          lastName: userName.split(' ').slice(1).join(' ') || '',
+          organizationId: String(companyId),
+          organization: { id: companyId, name: compName, code: compCode },
+          roles: [roleLabel],
+          permissions: ['*'],
+        };
+        localStorage.setItem('tms_user', JSON.stringify(this.user));
+
+        this.picker = null;
+        notify.success(`Company active: ${compName} (${roleLabel})`);
+        return comp;
+      } catch (err: any) {
+        notify.error(err?.response?.data?.message || err?.message || 'Failed to switch company');
+        throw err;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async fetchCompanies() {
+      try {
+        const res: any = await api.get('/api/auth/companies');
+        const list = res.data || res;
+        if (Array.isArray(list)) {
+          this.availableOrganizations = list;
+          return list;
+        }
+        return [];
+      } catch (e) {
+        return [];
       }
     },
 
@@ -229,33 +327,39 @@ export const useAuthStore = defineStore('auth', {
       const notify = useAppNotify();
 
       const roleEmails: Record<string, string> = {
-        SUPER_ADMIN: 'superadmin@tms.com',
-        TMS_ADMIN: 'admin@tms.com',
-        OPERATIONS_MANAGER: 'operations@tms.com',
-        TRANSPORT_PLANNER: 'planner@tms.com',
-        DISPATCHER: 'dispatcher@tms.com',
-        FLEET_MANAGER: 'fleet@tms.com',
+        SUPER_ADMIN: 'admin@demo.test',
+        TMS_ADMIN: 'admin@demo.test',
+        OPERATIONS_MANAGER: 'manager@demo.test',
+        TRANSPORT_PLANNER: 'ops@demo.test',
+        DISPATCHER: 'ops@demo.test',
+        FLEET_MANAGER: 'fuel@demo.test',
         DRIVER: 'driver@tms.com',
         CARRIER: 'carrier@tms.com',
         CUSTOMER: 'customer@tms.com',
-        FINANCE_MANAGER: 'finance@tms.com',
-        COMPLIANCE_MANAGER: 'compliance@tms.com',
-        SUPPORT_AGENT: 'support@tms.com',
-        ANALYST: 'analyst@tms.com',
+        FINANCE_MANAGER: 'accounts@demo.test',
+        COMPLIANCE_MANAGER: 'ca@demo.test',
+        SUPPORT_AGENT: 'partner@demo.test',
+        ANALYST: 'ca@demo.test',
       };
 
-      const email = roleEmails[roleName] || 'operations@tms.com';
-      await this.login(email, 'Tms@123456');
+      const email = roleEmails[roleName] || 'admin@demo.test';
+      const pass = email.endsWith('@demo.test') ? 'Demo@1234' : 'Tms@123456';
+      const res: any = await this.login(email, pass);
+      if (res && res.requiresCompanySelection && res.companies?.length) {
+        await this.switchCompany(res.companies[0].companyId);
+      }
     },
 
     logout() {
       this.user = null;
       this.token = '';
       this.refreshToken = '';
+      this.picker = null;
       localStorage.removeItem('tms_access_token');
       localStorage.removeItem('tms_refresh_token');
       localStorage.removeItem('tms_user');
       localStorage.removeItem('tms_active_role');
+      localStorage.removeItem('tms_org_context');
       window.location.href = '/auth/login';
     },
 

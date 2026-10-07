@@ -12,12 +12,16 @@ const sequelize_1 = require("@nestjs/sequelize");
 const billing_service_1 = require("./billing.service");
 const billing_controller_1 = require("./billing.controller");
 const models_1 = require("../database/models");
+const foundation_module_1 = require("../foundation/foundation.module");
+const ops_module_1 = require("../framework/ops/ops.module");
 let BillingModule = class BillingModule {
 };
 exports.BillingModule = BillingModule;
 exports.BillingModule = BillingModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            foundation_module_1.FoundationModule,
+            ops_module_1.OpsModule,
             sequelize_1.SequelizeModule.forFeature([
                 models_1.InvoiceModel,
                 models_1.InvoiceItemModel,

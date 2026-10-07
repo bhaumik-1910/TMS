@@ -60,6 +60,12 @@ function handleKeyDown(event: KeyboardEvent) {
   if (event.key === 'Enter' && props.enterAdvances) {
     const active = document.activeElement as HTMLElement | null;
     if (active && active.tagName.toLowerCase() !== 'textarea' && active.getAttribute('type') !== 'submit') {
+      // If focused element is a dropdown, let the Tally global dropdown navigation handle 1st enter (open) & 2nd enter (select + advance)
+      const isDropdown = active.closest('.q-select, .desk-combo, .desk-filter-select, [role="combobox"]');
+      if (isDropdown) {
+        return;
+      }
+
       const advanced = focusNextInput(formRef.value || document.body);
       event.preventDefault();
       event.stopPropagation();

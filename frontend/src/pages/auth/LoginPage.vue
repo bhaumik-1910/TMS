@@ -181,6 +181,16 @@
       </div>
 
     </div>
+
+    <!-- Company Picker Modal for Multi-Tenant Organization Choice -->
+    <CompanyPickerDialog
+      v-model="showCompanyPicker"
+      :companies="pickerCompanies"
+      :user-name="pickerUserName"
+      :user-email="pickerUserEmail"
+      :allow-close="true"
+      @select="onCompanySelected"
+    />
   </div>
 </template>
 
@@ -188,14 +198,22 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
+import CompanyPickerDialog from '../../desk/components/CompanyPickerDialog.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
 
-const email = ref('operations@tms.com');
-const password = ref('Tms@123456');
+const email = ref('admin@demo.test');
+const password = ref('Demo@1234');
 const showPassword = ref(false);
 const activeCategory = ref('all');
+
+// Multi-Tenant Company Picker State
+const showCompanyPicker = ref(false);
+const pickerCompanies = ref<any[]>([]);
+const pickerUserName = ref('Admin');
+const pickerUserEmail = ref('');
+const pendingRedirect = ref('/dashboard');
 
 interface Persona {
   name: string;
@@ -210,6 +228,40 @@ interface Persona {
 }
 
 const allPersonas: Persona[] = [
+  // Demo Seeded Personas (With 3-Company Multi-Tenancy)
+  {
+    name: 'Admin (3 Companies)',
+    email: 'admin@demo.test',
+    role: 'ADMIN',
+    scope: 'Demo, Demo2 & Swift Logistics',
+    category: 'management',
+    icon: 'domain',
+    color: '#0284c7',
+    bg: '#e0f2fe',
+    redirect: '/dashboard',
+  },
+  {
+    name: 'Partner (2 Companies)',
+    email: 'partner@demo.test',
+    role: 'BRANCH_MANAGER',
+    scope: 'Demo Roadways & Swift',
+    category: 'management',
+    icon: 'handshake',
+    color: '#0d9488',
+    bg: '#ccfbf1',
+    redirect: '/dashboard',
+  },
+  {
+    name: 'Branch Manager (Mumbai)',
+    email: 'manager@demo.test',
+    role: 'BRANCH_MANAGER',
+    scope: 'Demo Roadways Pvt Ltd',
+    category: 'operations',
+    icon: 'store',
+    color: '#d97706',
+    bg: '#fef3c7',
+    redirect: '/dashboard',
+  },
   // Management & Admin
   {
     name: 'Super Admin',
@@ -366,11 +418,18 @@ const filteredPersonas = computed(() => {
 
 async function handleLogin() {
   const persona = allPersonas.find(p => p.email === email.value);
-  const targetRoute = persona ? persona.redirect : '/dashboard';
+  pendingRedirect.value = persona ? persona.redirect : '/dashboard';
 
   try {
-    await authStore.login(email.value, password.value);
-    router.push(targetRoute);
+    const res: any = await authStore.login(email.value, password.value);
+    if (res && res.requiresCompanySelection && res.companies?.length) {
+      pickerCompanies.value = res.companies;
+      pickerUserName.value = res.user?.name || 'Administrator';
+      pickerUserEmail.value = res.user?.email || email.value;
+      showCompanyPicker.value = true;
+      return;
+    }
+    router.push(pendingRedirect.value);
   } catch (err) {
     console.error('Login error:', err);
   }
@@ -378,13 +437,32 @@ async function handleLogin() {
 
 async function quickLogin(persona: Persona) {
   email.value = persona.email;
-  password.value = 'Tms@123456';
+  const pass = persona.email.endsWith('@demo.test') ? 'Demo@1234' : 'Tms@123456';
+  password.value = pass;
+  pendingRedirect.value = persona.redirect;
 
   try {
-    await authStore.login(persona.email, 'Tms@123456');
+    const res: any = await authStore.login(persona.email, pass);
+    if (res && res.requiresCompanySelection && res.companies?.length) {
+      pickerCompanies.value = res.companies;
+      pickerUserName.value = res.user?.name || persona.name;
+      pickerUserEmail.value = persona.email;
+      showCompanyPicker.value = true;
+      return;
+    }
     router.push(persona.redirect);
   } catch (err) {
     console.error('Quick login error:', err);
+  }
+}
+
+async function onCompanySelected(companyId: number) {
+  try {
+    await authStore.switchCompany(companyId);
+    showCompanyPicker.value = false;
+    router.push(pendingRedirect.value);
+  } catch (err) {
+    console.error('Switch company error:', err);
   }
 }
 </script>

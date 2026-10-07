@@ -13,6 +13,9 @@ import {
   TripExpenseModel,
   AuditLogModel,
 } from '../database/models';
+import { OpsRunnerService } from '../framework/ops/ops-runner.service';
+import { DocumentSequenceService } from '../foundation/document-sequences/document-sequence.service';
+import { checkDispatchComplianceStep } from './ops/dispatch/010-check-dispatch-compliance';
 
 @Injectable()
 export class DispatchService extends BaseSequelizeService<DispatchModel> implements OnModuleInit {
@@ -29,6 +32,8 @@ export class DispatchService extends BaseSequelizeService<DispatchModel> impleme
     private readonly tripExpenseModel: typeof TripExpenseModel,
     @InjectModel(AuditLogModel)
     private readonly auditLogModel: typeof AuditLogModel,
+    private readonly opsRunner: OpsRunnerService,
+    private readonly sequenceService: DocumentSequenceService,
   ) {
     super(dispatchModel);
   }
@@ -334,64 +339,79 @@ export class DispatchService extends BaseSequelizeService<DispatchModel> impleme
       return this.findById(record.id);
     }
 
-    return this.withTransaction(async (transaction) => {
-      const shipment = await this.shipmentModel.findByPk(data.shipmentId, {
-        include: [{ model: TransportOrderModel }],
-        transaction,
-      });
-      if (!shipment) throw new NotFoundException('Shipment not found');
+    const orgId = data.organizationId || '1';
 
-      if (data.vehicleId) {
-        const vehicle = await this.vehicleModel.findByPk(data.vehicleId, { transaction });
-        if (vehicle && vehicle.capacityWeight < (shipment.totalWeight || 0)) {
-          throw new BadRequestException('Vehicle capacity exceeded');
+    return this.opsRunner.run({
+      resource: 'TripDispatch',
+      op: 'dispatch',
+      user: {
+        id: data.userId || '1',
+        organizationId: orgId,
+      },
+      data,
+      steps: [checkDispatchComplianceStep],
+      execute: async (c) => {
+        const shipment = await this.shipmentModel.findByPk(data.shipmentId, {
+          include: [{ model: TransportOrderModel }],
+          transaction: c.t,
+        });
+        if (!shipment) throw new NotFoundException('Shipment not found');
+
+        const resolvedTripId =
+          data.tripId || (await this.sequenceService.next(c.organizationId, 'trip', undefined, c.t));
+
+        if (data.vehicleId) {
+          const vehicle = await this.vehicleModel.findByPk(data.vehicleId, { transaction: c.t });
+          if (vehicle && vehicle.capacityWeight < (shipment.totalWeight || 0)) {
+            throw new BadRequestException('Vehicle capacity exceeded');
+          }
+          await this.vehicleModel.update(
+            { status: 'ASSIGNED' },
+            { where: { id: data.vehicleId }, transaction: c.t },
+          );
         }
-        await this.vehicleModel.update(
-          { status: 'ASSIGNED' },
-          { where: { id: data.vehicleId }, transaction },
+
+        if (data.driverId) {
+          await this.driverModel.update(
+            { status: 'ON_TRIP' },
+            { where: { id: data.driverId }, transaction: c.t },
+          );
+        }
+
+        await this.shipmentModel.update(
+          {
+            vehicleId: data.vehicleId || null,
+            driverId: data.driverId || null,
+            carrierId: data.carrierId || null,
+            status: 'DISPATCHED',
+          },
+          { where: { id: data.shipmentId }, transaction: c.t },
         );
-      }
 
-      if (data.driverId) {
-        await this.driverModel.update(
-          { status: 'ON_TRIP' },
-          { where: { id: data.driverId }, transaction },
+        const dispatch = await this.dispatchModel.create(
+          {
+            dispatchNumber,
+            tripId: resolvedTripId,
+            shipmentId: data.shipmentId,
+            vehicleId: data.vehicleId || null,
+            driverId: data.driverId || null,
+            carrierId: data.carrierId || null,
+            dispatchTime: new Date(),
+            status: 'DISPATCHED',
+          },
+          { transaction: c.t },
         );
-      }
 
-      await this.shipmentModel.update(
-        {
-          vehicleId: data.vehicleId || null,
-          driverId: data.driverId || null,
-          carrierId: data.carrierId || null,
-          status: 'DISPATCHED',
-        },
-        { where: { id: data.shipmentId }, transaction },
-      );
-
-      const dispatch = await this.dispatchModel.create(
-        {
-          dispatchNumber,
-          tripId,
-          shipmentId: data.shipmentId,
-          vehicleId: data.vehicleId || null,
-          driverId: data.driverId || null,
-          carrierId: data.carrierId || null,
-          dispatchTime: new Date(),
-          status: 'DISPATCHED',
-        },
-        { transaction },
-      );
-
-      return this.dispatchModel.findByPk(dispatch.id, {
-        include: [
-          { model: ShipmentModel },
-          { model: VehicleModel },
-          { model: DriverModel },
-          { model: CarrierModel },
-        ],
-        transaction,
-      });
+        return this.dispatchModel.findByPk(dispatch.id, {
+          include: [
+            { model: ShipmentModel },
+            { model: VehicleModel },
+            { model: DriverModel },
+            { model: CarrierModel },
+          ],
+          transaction: c.t,
+        });
+      },
     });
   }
 

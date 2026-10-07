@@ -1,20 +1,15 @@
 <template>
-  <div class="trip-allocation-page q-pa-md">
-    <!-- Header with Title & Action Controls -->
-    <div class="row items-center justify-between no-wrap q-mb-md gap-3">
-      <div class="min-w-0">
-        <div class="text-h6 text-weight-bold text-slate-900 row items-center no-wrap q-gutter-x-sm">
-          <q-icon name="send" color="primary" size="24px" />
-          <span class="truncate">Trip & Allocation</span>
-        </div>
-        <div class="text-caption text-slate-500 truncate">
-          Fleet allocation, odometer controls, live dispatch &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> for new trip
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Dispatch &amp; Trips</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <div class="row items-center no-wrap q-gutter-x-sm flex-shrink-0">
-        <!-- View Toggle (Table / Pipeline) -->
-        <div class="view-mode-toggle q-mr-xs">
+      <div class="flex items-center gap-3">
+        <!-- View Mode Toggle -->
+        <div class="view-mode-toggle mr-1">
           <button
             type="button"
             class="view-mode-btn"
@@ -35,47 +30,57 @@
           </button>
         </div>
 
-        <q-btn
-          v-if="activeView === 'board'"
-          unelevated
-          icon="refresh"
-          label="Refresh"
-          class="desk-btn-secondary"
-          :loading="isRefreshing"
-          @click="onRefresh"
-        >
-          <template #loading>
-            <q-spinner color="primary" size="16px" />
-          </template>
-          <q-tooltip>Refresh Trips & Pipeline</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="picture_as_pdf"
-          label="Export PDF"
-          class="desk-btn-secondary"
+        <button
+          type="button"
+          class="btn-secondary-action"
           @click="exportTripsPdf"
         >
-          <q-tooltip>Download / Print Trips in PDF</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="table_view"
-          label="Export CSV"
-          class="desk-btn-secondary"
+          <q-icon name="picture_as_pdf" size="16px" class="q-mr-xs text-rose-600" />
+          <span>Export PDF</span>
+        </button>
+        <button
+          type="button"
+          class="btn-secondary-action"
           @click="exportTripsCsv"
         >
-          <q-tooltip>Export Trips to CSV</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="add"
-          label="New Trip (Ctrl+N)"
-          class="desk-btn-primary"
+          <q-icon name="download" size="16px" class="q-mr-xs text-slate-600" />
+          <span>Export CSV</span>
+        </button>
+        <button
+          type="button"
+          class="btn-primary-cyan"
           @click="openAddModal"
         >
-          <q-tooltip>Allocate & Dispatch New Trip (Ctrl+N)</q-tooltip>
-        </q-btn>
+          <q-icon name="add" size="18px" />
+          <span>New Trip</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 4 KPI Stat Cards matching Billing Page -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="kpi-box kpi-box--active">
+        <div class="kpi-title text-sky-600">TOTAL DISPATCHED TRIPS</div>
+        <div class="kpi-amount text-sky-700">{{ trips.length }}</div>
+        <div class="kpi-subtext">Active linehauls &amp; allocations</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-title">ACTIVE ON HIGHWAY</div>
+        <div class="kpi-amount text-emerald-600">{{ inTransitTripsCount }}</div>
+        <div class="kpi-subtext">In-transit linehaul movements</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-title">SCHEDULED FOR LOADING</div>
+        <div class="kpi-amount text-slate-800">{{ scheduledTripsCount }}</div>
+        <div class="kpi-subtext">Awaiting driver check-in</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-title">COMPLETED &amp; CLOSED</div>
+        <div class="kpi-amount text-slate-800">{{ completedTripsCount }}</div>
+        <div class="kpi-subtext">Unloaded at destination hub</div>
       </div>
     </div>
 
@@ -116,52 +121,52 @@
 
           <!-- Custom Cell: Trip ID with Cyan font matching Image 5 -->
           <template #body-cell-tripId="{ value }">
-            <span class="text-cyan-4 text-weight-bold font-mono">{{ value }}</span>
+            <span class="text-sky-700 text-weight-bold font-mono">{{ value }}</span>
           </template>
 
           <!-- Custom Cell: Vehicle -->
           <template #body-cell-vehicle="{ value }">
-            <span class="font-mono text-weight-semibold text-white">{{ formatVehicle(value) }}</span>
+            <span class="font-mono text-weight-semibold text-slate-900">{{ formatVehicle(value) }}</span>
           </template>
 
           <!-- Custom Cell: Driver -->
           <template #body-cell-driver="{ value }">
-            <span class="text-white text-weight-medium">{{ formatDriver(value) }}</span>
+            <span class="text-slate-900 text-weight-medium">{{ formatDriver(value) }}</span>
           </template>
 
           <!-- Custom Cell: Route -->
           <template #body-cell-route="{ value }">
-            <span class="text-weight-bold text-cyan-3">{{ value }}</span>
+            <span class="text-weight-bold text-sky-800">{{ value }}</span>
           </template>
 
           <!-- Custom Cell: LR Ref -->
           <template #body-cell-lrRef="{ value }">
-            <span class="font-mono text-grey-4">{{ value }}</span>
+            <span class="font-mono text-slate-600">{{ value }}</span>
           </template>
 
           <!-- Custom Cell: Start Date -->
           <template #body-cell-startDate="{ value }">
-            <span class="font-mono text-grey-4">{{ value }}</span>
+            <span class="font-mono text-slate-600">{{ value }}</span>
           </template>
 
           <!-- Custom Cell: ODO Start -->
           <template #body-cell-odoStart="{ value }">
-            <span class="font-mono text-grey-3">{{ value }}</span>
+            <span class="font-mono text-slate-700">{{ value }}</span>
           </template>
 
           <!-- Custom Cell: ODO End -->
           <template #body-cell-odoEnd="{ value }">
-            <span class="font-mono text-grey-4">{{ value }}</span>
+            <span class="font-mono text-slate-600">{{ value }}</span>
           </template>
 
           <!-- Custom Cell: Planned KM -->
           <template #body-cell-plannedKm="{ value }">
-            <span class="font-mono text-weight-bold text-white">{{ value }}</span>
+            <span class="font-mono text-weight-bold text-slate-900">{{ value }}</span>
           </template>
 
           <!-- Custom Cell: Actual KM -->
           <template #body-cell-actualKm="{ value }">
-            <span class="font-mono text-grey-3">{{ value }}</span>
+            <span class="font-mono text-slate-700">{{ value }}</span>
           </template>
 
           <!-- Custom Cell: Status Pill matching Image 5 -->
@@ -685,6 +690,9 @@ const defaultTrips: TripItem[] = [
 ];
 
 const trips = ref<TripItem[]>([]);
+const inTransitTripsCount = computed(() => trips.value.filter((t) => t.status === 'In Transit' || t.status === 'InTransit').length);
+const scheduledTripsCount = computed(() => trips.value.filter((t) => t.status === 'Scheduled').length);
+const completedTripsCount = computed(() => trips.value.filter((t) => t.status === 'Completed').length);
 
 const newTrip = ref({
   tripId: '',

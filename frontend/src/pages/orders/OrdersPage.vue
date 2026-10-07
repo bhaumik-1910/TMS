@@ -1,46 +1,64 @@
 <template>
-  <div class="booking-lr-page q-pa-md">
-    <!-- Header with Title & Summary Metrics -->
-    <div class="row items-center justify-between q-mb-md">
-      <div>
-        <div class="text-h6 text-weight-bold text-slate-900 row items-center q-gutter-x-sm">
-          <q-icon name="description" color="primary" size="24px" />
-          <span>Lorry Receipts & Booking (LR)</span>
-        </div>
-        <div class="text-caption text-slate-500">
-          Keyboard-driven high-density booking console &bull; Press <kbd class="desk-kbd">Ctrl+N</kbd> for new LR &bull; <kbd class="desk-kbd">Alt+F</kbd> to filter
-        </div>
+  <div class="billing-page-container min-h-screen text-slate-800 p-6 overflow-y-auto">
+    <!-- Header matching Billing Page -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="billing-title-wrap">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-wide">Booking Orders (Consignments)</h1>
+        <div class="billing-underline"></div>
       </div>
 
-      <!-- Quick Export & Print Actions -->
-      <div class="row items-center q-gutter-x-sm">
-        <q-btn
-          unelevated
-          icon="picture_as_pdf"
-          label="Export PDF"
-          class="desk-btn-secondary"
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          class="btn-secondary-action"
           @click="exportOrdersPdf"
         >
-          <q-tooltip>Download / Print LRs in PDF</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="table_view"
-          label="Export CSV"
-          class="desk-btn-secondary"
+          <q-icon name="picture_as_pdf" size="16px" class="q-mr-xs text-rose-600" />
+          <span>Export PDF</span>
+        </button>
+        <button
+          type="button"
+          class="btn-secondary-action"
           @click="exportOrdersCsv"
         >
-          <q-tooltip>Export LRs to CSV</q-tooltip>
-        </q-btn>
-        <q-btn
-          unelevated
-          icon="add"
-          label="New LR (Ctrl+N)"
-          class="desk-btn-primary"
+          <q-icon name="download" size="16px" class="q-mr-xs text-slate-600" />
+          <span>Export CSV</span>
+        </button>
+        <button
+          type="button"
+          class="btn-primary-cyan"
           @click="openCreateModal"
         >
-          <q-tooltip>Generate New Lorry Receipt (Ctrl+N)</q-tooltip>
-        </q-btn>
+          <q-icon name="add" size="18px" />
+          <span>New Order</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 4 KPI Stat Cards matching Billing Page -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="kpi-box kpi-box--active">
+        <div class="kpi-title text-sky-600">TOTAL ORDERS</div>
+        <div class="kpi-amount text-sky-700">{{ lrs.length }}</div>
+        <div class="kpi-subtext">Active consignments booked</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-title">IN-TRANSIT SHIPMENTS</div>
+        <div class="kpi-amount text-emerald-600">{{ inTransitCount }}</div>
+        <div class="kpi-subtext">En route to destination</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-title">CONFIRMED ORDERS</div>
+        <div class="kpi-amount text-slate-800">{{ confirmedCount }}</div>
+        <div class="kpi-subtext">Awaiting vehicle dispatch</div>
+      </div>
+
+      <div class="kpi-box">
+        <div class="kpi-title">BILLED &amp; POD VERIFIED</div>
+        <div class="kpi-amount text-slate-800">{{ completedCount }}</div>
+        <div class="kpi-subtext">Delivered &amp; settled</div>
       </div>
     </div>
 
@@ -398,6 +416,7 @@ import {
   DeskField,
   DeskCombo,
   GridColumn,
+  useDeskPageShortcuts,
 } from '../../desk';
 
 const $q = useQuasar();
@@ -640,6 +659,9 @@ const defaultLrs: LrItem[] = [
 ];
 
 const lrs = ref<LrItem[]>([]);
+const inTransitCount = computed(() => lrs.value.filter((l) => l.status === 'InTransit' || l.status === 'Dispatched').length);
+const confirmedCount = computed(() => lrs.value.filter((l) => l.status === 'Confirmed' || l.status === 'Draft').length);
+const completedCount = computed(() => lrs.value.filter((l) => ['Delivered', 'PODVerified', 'Billed', 'Settled'].includes(l.status)).length);
 
 const newLr = ref({
   lrNo: '',
@@ -1264,9 +1286,20 @@ function exportOrdersPdf() {
       { label: 'E-Way Bill', field: 'ewayBill' },
       { label: 'Status', field: 'status', align: 'center' },
     ],
-    rows: filteredLrs.value,
+    rows: filteredLrs.value as any[],
   });
 }
+
+useDeskPageShortcuts({
+  gridRef,
+  onNewRecord: openCreateModal,
+  isModalOpen: () => showAddModal.value || showDeleteDialog.value,
+  onSave: saveLr,
+  onEscape: () => {
+    if (showAddModal.value) showAddModal.value = false;
+    else if (showDeleteDialog.value) showDeleteDialog.value = false;
+  },
+});
 </script>
 
 <style scoped>
