@@ -1,4 +1,4 @@
-# APEX Enterprise Transportation Management System (TMS)
+# Transportation Management System (TMS)
 
 A production-grade, multi-tenant, high-concurrency **Enterprise Transportation Management System (TMS)** built with **NestJS**, **PostgreSQL 17**, **Sequelize ORM**, **Vue.js 3**, **Quasar Framework**, and **Socket.IO** real-time telematics.
 
